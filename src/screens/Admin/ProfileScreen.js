@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 
-const ProfileScreen = ({ navigation }) => {
+const AdminProfileScreen = ({ navigation }) => {
   const { user, logout } = useAuth();
 
   const handleLogout = () => {
@@ -18,12 +18,14 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   const menuItems = [
-    { icon: 'person-outline', title: 'Edit Profile', screen: 'EditProfile', action: null },
-    { icon: 'lock-closed-outline', title: 'Change Password', screen: 'ChangePassword', action: null },
-    { icon: 'notifications-outline', title: 'Notifications', screen: 'Notifications', action: () => navigation.navigate('Notifications') },
-    { icon: 'document-text-outline', title: 'Documents', screen: 'Documents', action: () => navigation.navigate('Documents') },
-    { icon: 'help-circle-outline', title: 'Help & Support', screen: 'Support', action: null },
-    { icon: 'information-circle-outline', title: 'About', screen: 'About', action: null },
+    { icon: 'person-outline', title: 'Edit Profile', action: null },
+    { icon: 'lock-closed-outline', title: 'Change Password', action: null },
+    { icon: 'shield-checkmark-outline', title: 'Security Settings', action: null },
+    { icon: 'notifications-outline', title: 'Notifications', action: () => navigation.navigate('Notifications') },
+    { icon: 'settings-outline', title: 'System Settings', action: null },
+    { icon: 'document-text-outline', title: 'Audit Logs', action: null },
+    { icon: 'help-circle-outline', title: 'Help & Support', action: null },
+    { icon: 'information-circle-outline', title: 'About', action: null },
   ];
 
   return (
@@ -31,7 +33,7 @@ const ProfileScreen = ({ navigation }) => {
       <View style={styles.profileHeader}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>
-            {user?.firstName?.charAt(0) || 'L'}
+            {user?.firstName?.charAt(0) || 'A'}
           </Text>
         </View>
         <Text style={styles.userName}>
@@ -39,7 +41,7 @@ const ProfileScreen = ({ navigation }) => {
         </Text>
         <Text style={styles.userEmail}>{user?.email}</Text>
         <View style={styles.roleBadge}>
-          <Text style={styles.roleText}>Landlord</Text>
+          <Text style={styles.roleText}>Administrator</Text>
         </View>
       </View>
 
@@ -70,7 +72,7 @@ const ProfileScreen = ({ navigation }) => {
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
 
-      <Text style={styles.version}>Version 1.0.0</Text>
+      <Text style={styles.version}>Version 1.0.0 - Admin Panel</Text>
     </ScrollView>
   );
 };
@@ -78,10 +80,10 @@ const ProfileScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#020617', // slate-950
+    backgroundColor: '#020617',
   },
   profileHeader: {
-    backgroundColor: '#0F172A', // slate-900
+    backgroundColor: '#0F172A',
     alignItems: 'center',
     padding: 32,
     marginBottom: 20,
@@ -90,7 +92,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#6366F1', // indigo-500
+    backgroundColor: '#EF4444',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
@@ -103,16 +105,16 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#F8FAFC', // slate-50
+    color: '#F8FAFC',
     marginBottom: 4,
   },
   userEmail: {
     fontSize: 14,
-    color: '#94A3B8', // slate-400
+    color: '#94A3B8',
     marginBottom: 8,
   },
   roleBadge: {
-    backgroundColor: '#312E81', // indigo-900
+    backgroundColor: '#7C2D12',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
@@ -120,11 +122,11 @@ const styles = StyleSheet.create({
   roleText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#A5B4FC', // indigo-300
+    color: '#FED7AA',
     textTransform: 'uppercase',
   },
   menuSection: {
-    backgroundColor: '#0F172A', // slate-900
+    backgroundColor: '#0F172A',
     marginBottom: 20,
   },
   menuItem: {
@@ -133,7 +135,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1E293B', // slate-800
+    borderBottomColor: '#1E293B',
   },
   menuItemLeft: {
     flexDirection: 'row',
@@ -141,14 +143,14 @@ const styles = StyleSheet.create({
   },
   menuItemText: {
     fontSize: 16,
-    color: '#E2E8F0', // slate-200
+    color: '#E2E8F0',
     marginLeft: 16,
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#0F172A', // slate-900
+    backgroundColor: '#0F172A',
     padding: 16,
     marginHorizontal: 20,
     borderRadius: 12,
@@ -165,9 +167,9 @@ const styles = StyleSheet.create({
   version: {
     textAlign: 'center',
     fontSize: 12,
-    color: '#64748B', // slate-500
+    color: '#64748B',
     marginBottom: 40,
   },
 });
 
-export default ProfileScreen;
+export default AdminProfileScreen;

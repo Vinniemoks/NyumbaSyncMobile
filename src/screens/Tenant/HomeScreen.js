@@ -83,7 +83,7 @@ const TenantHomeScreen = ({ navigation }) => {
           value={`KSh ${stats.rentDue.toLocaleString()}`}
           subtitle={`Due in ${stats.daysUntilRent} days`}
           icon="cash-outline"
-          color="#3B82F6"
+          color="#6366F1"
         />
         <StatCard
           title="Maintenance"
@@ -105,18 +105,24 @@ const TenantHomeScreen = ({ navigation }) => {
         <Text style={styles.sectionTitle}>Quick Actions</Text>
         <View style={styles.actionsGrid}>
           <TouchableOpacity style={styles.actionButton} onPress={handlePayRent}>
-            <Ionicons name="card-outline" size={32} color="#3B82F6" />
+            <Ionicons name="card-outline" size={32} color="#6366F1" />
             <Text style={styles.actionText}>Pay Rent</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton} onPress={handleRequestMaintenance}>
             <Ionicons name="construct-outline" size={32} color="#10B981" />
             <Text style={styles.actionText}>Request Help</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="document-text-outline" size={32} color="#8B5CF6" />
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => navigation.navigate('Profile', { screen: 'ProfileMain', params: { navigateTo: 'Documents' } })}
+          >
+            <Ionicons name="document-text-outline" size={32} color="#818CF8" />
             <Text style={styles.actionText}>Documents</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => navigation.navigate('Messages')}
+          >
             <Ionicons name="chatbubble-outline" size={32} color="#F59E0B" />
             <Text style={styles.actionText}>Message</Text>
           </TouchableOpacity>
@@ -163,37 +169,37 @@ const TenantHomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#020617', // slate-950
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#0F172A', // slate-900
   },
   greeting: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#94A3B8', // slate-400
   },
   userName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#F8FAFC', // slate-50
   },
   statsContainer: {
     padding: 20,
   },
   statCard: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: '#0F172A', // slate-900
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderLeftWidth: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
   },
@@ -206,18 +212,18 @@ const styles = StyleSheet.create({
   },
   statTitle: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#94A3B8', // slate-400
     marginBottom: 4,
   },
   statValue: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#F8FAFC', // slate-50
     marginBottom: 2,
   },
   statSubtitle: {
     fontSize: 12,
-    color: '#9CA3AF',
+    color: '#64748B', // slate-500
   },
   quickActions: {
     padding: 20,
@@ -225,7 +231,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#F8FAFC', // slate-50
     marginBottom: 16,
   },
   actionsGrid: {
@@ -235,14 +241,14 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     width: '48%',
-    backgroundColor: '#fff',
+    backgroundColor: '#0F172A', // slate-900
     borderRadius: 12,
     padding: 20,
     alignItems: 'center',
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
   },
@@ -250,25 +256,25 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 14,
     fontWeight: '600',
-    color: '#1F2937',
+    color: '#E2E8F0', // slate-200
   },
   propertyCard: {
     padding: 20,
   },
   propertyInfo: {
-    backgroundColor: '#fff',
+    backgroundColor: '#0F172A', // slate-900
     borderRadius: 12,
     padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
   },
   propertyAddress: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1F2937',
+    color: '#F8FAFC', // slate-50
     marginBottom: 12,
   },
   propertyDetails: {
@@ -276,7 +282,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   propertyTag: {
-    backgroundColor: '#DBEAFE',
+    backgroundColor: '#312E81', // indigo-900
     borderRadius: 16,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -285,7 +291,7 @@ const styles = StyleSheet.create({
   },
   propertyTagText: {
     fontSize: 12,
-    color: '#1E40AF',
+    color: '#A5B4FC', // indigo-300
     fontWeight: '500',
   },
   recentActivity: {
@@ -294,13 +300,13 @@ const styles = StyleSheet.create({
   activityItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#0F172A', // slate-900
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
   },
@@ -313,16 +319,16 @@ const styles = StyleSheet.create({
   activityTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1F2937',
+    color: '#F8FAFC', // slate-50
     marginBottom: 2,
   },
   activitySubtitle: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#94A3B8', // slate-400
   },
   activityTime: {
     fontSize: 12,
-    color: '#9CA3AF',
+    color: '#64748B', // slate-500
   },
 });
 

@@ -12,9 +12,11 @@ const SplashScreen = ({ navigation }) => {
           // Navigate based on user role
           const roleRoutes = {
             landlord: 'LandlordDashboard',
-            manager: 'ManagerDashboard',
+            property_manager: 'PropertyManagerDashboard',
             tenant: 'TenantDashboard',
             admin: 'AdminDashboard',
+            vendor: 'VendorDashboard',
+            agent: 'AgentDashboard',
           };
           navigation.replace(roleRoutes[user.role] || 'Login');
         } else {
