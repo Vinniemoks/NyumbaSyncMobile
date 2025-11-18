@@ -48,10 +48,10 @@ const ProfileScreen = ({ navigation }) => {
             onPress={() => Alert.alert('Coming Soon', `${item.title} feature coming soon!`)}
           >
             <View style={styles.menuItemLeft}>
-              <Ionicons name={item.icon} size={24} color="#6B7280" />
+              <Ionicons name={item.icon} size={24} color="#818CF8" />
               <Text style={styles.menuItemText}>{item.title}</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+            <Ionicons name="chevron-forward" size={20} color="#64748B" />
           </TouchableOpacity>
         ))}
       </View>
@@ -69,10 +69,10 @@ const ProfileScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#020617', // slate-950
   },
   profileHeader: {
-    backgroundColor: '#fff',
+    backgroundColor: '#0F172A', // slate-900
     alignItems: 'center',
     padding: 32,
     marginBottom: 20,
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#6366F1', // indigo-500
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
@@ -94,15 +94,15 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#F8FAFC', // slate-50
     marginBottom: 4,
   },
   userEmail: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#94A3B8', // slate-400
   },
   menuSection: {
-    backgroundColor: '#fff',
+    backgroundColor: '#0F172A', // slate-900
     marginBottom: 20,
   },
   menuItem: {
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: '#1E293B', // slate-800
   },
   menuItemLeft: {
     flexDirection: 'row',
@@ -119,18 +119,20 @@ const styles = StyleSheet.create({
   },
   menuItemText: {
     fontSize: 16,
-    color: '#1F2937',
+    color: '#E2E8F0', // slate-200
     marginLeft: 16,
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#0F172A', // slate-900
     padding: 16,
     marginHorizontal: 20,
     borderRadius: 12,
     marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#EF4444',
   },
   logoutText: {
     fontSize: 16,
@@ -141,7 +143,7 @@ const styles = StyleSheet.create({
   version: {
     textAlign: 'center',
     fontSize: 12,
-    color: '#9CA3AF',
+    color: '#64748B', // slate-500
     marginBottom: 40,
   },
 });

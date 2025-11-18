@@ -50,9 +50,32 @@ export const tenantService = {
 
 export const paymentService = {
   getAll: () => apiClient.get('/payments'),
+  getById: (id) => apiClient.get(`/payments/${id}`),
   create: (data) => apiClient.post('/payments', data),
-  initiateMpesa: (data) => apiClient.post('/payments/mpesa', data),
-  initiateStripe: (data) => apiClient.post('/payments/stripe', data),
+  
+  // Mobile Money (M-Pesa) - STK Push
+  initiateMpesaSTK: (data) => apiClient.post('/payments/mpesa/stk-push', data),
+  
+  // Mobile Money (M-Pesa) - Paybill with unique account number
+  generatePaybillCode: (data) => apiClient.post('/payments/mpesa/paybill', data),
+  
+  // Verify M-Pesa payment status
+  verifyMpesaPayment: (transactionId) => apiClient.get(`/payments/mpesa/verify/${transactionId}`),
+  
+  // Card Payment (Stripe/Flutterwave)
+  initiateCardPayment: (data) => apiClient.post('/payments/card', data),
+  
+  // Bank Transfer
+  initiateBankTransfer: (data) => apiClient.post('/payments/bank-transfer', data),
+  
+  // Get payment instructions
+  getPaymentInstructions: (paymentId) => apiClient.get(`/payments/${paymentId}/instructions`),
+  
+  // Confirm manual payment (for bank transfer)
+  confirmPayment: (paymentId, data) => apiClient.post(`/payments/${paymentId}/confirm`, data),
+  
+  // Get payment history
+  getHistory: (tenantId) => apiClient.get(`/payments/history/${tenantId}`),
 };
 
 export const maintenanceService = {

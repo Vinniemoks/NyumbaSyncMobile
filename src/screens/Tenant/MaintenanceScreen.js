@@ -169,6 +169,7 @@ const MaintenanceScreen = () => {
               value={formData.title}
               onChangeText={(text) => setFormData({ ...formData, title: text })}
               placeholder="e.g., Leaking faucet"
+              placeholderTextColor="#64748B"
             />
 
             <Text style={styles.inputLabel}>Category</Text>
@@ -223,6 +224,7 @@ const MaintenanceScreen = () => {
               value={formData.description}
               onChangeText={(text) => setFormData({ ...formData, description: text })}
               placeholder="Describe the issue in detail..."
+              placeholderTextColor="#64748B"
               multiline
               numberOfLines={4}
             />
@@ -251,7 +253,7 @@ const MaintenanceScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#020617', // slate-950
   },
   statsRow: {
     flexDirection: 'row',
@@ -260,26 +262,26 @@ const styles = StyleSheet.create({
   },
   statBox: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#0F172A', // slate-900
     borderRadius: 12,
     padding: 16,
     marginHorizontal: 4,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
   },
   statNumber: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#F8FAFC', // slate-50
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 10,
-    color: '#6B7280',
+    color: '#94A3B8', // slate-400
     textTransform: 'capitalize',
     textAlign: 'center',
   },
@@ -288,13 +290,13 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   },
   requestCard: {
-    backgroundColor: '#fff',
+    backgroundColor: '#0F172A', // slate-900
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
   },
@@ -308,7 +310,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '600',
-    color: '#1F2937',
+    color: '#F8FAFC', // slate-50
   },
   priorityBadge: {
     borderRadius: 12,
@@ -323,7 +325,7 @@ const styles = StyleSheet.create({
   },
   requestDescription: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#94A3B8', // slate-400
     marginBottom: 12,
   },
   requestFooter: {
@@ -337,7 +339,7 @@ const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#94A3B8', // slate-400
     marginLeft: 4,
   },
   statusBadge: {
@@ -373,7 +375,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: '#0F172A', // slate-900
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 24,
@@ -382,23 +384,24 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#F8FAFC', // slate-50
     marginBottom: 24,
   },
   inputLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#374151',
+    color: '#E2E8F0', // slate-200
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#1E293B', // slate-800
     borderWidth: 1,
-    borderColor: '#D1D5DB',
+    borderColor: '#334155', // slate-700
     borderRadius: 8,
     padding: 16,
     fontSize: 16,
     marginBottom: 20,
+    color: '#F8FAFC', // slate-50
   },
   textArea: {
     height: 100,
@@ -410,7 +413,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   pickerOption: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E293B', // slate-800
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -418,11 +421,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   pickerOptionSelected: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#6366F1', // indigo-500
   },
   pickerText: {
     fontSize: 14,
-    color: '#374151',
+    color: '#94A3B8', // slate-400
     textTransform: 'capitalize',
   },
   pickerTextSelected: {
@@ -440,11 +443,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelButton: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1E293B', // slate-800
     marginRight: 8,
   },
   cancelButtonText: {
-    color: '#374151',
+    color: '#E2E8F0', // slate-200
     fontSize: 16,
     fontWeight: '600',
   },
