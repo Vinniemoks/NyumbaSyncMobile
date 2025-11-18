@@ -3,17 +3,15 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 
-// Landlord Screens
-import LandlordHomeScreen from '../screens/Landlord/HomeScreen';
+// Property Manager Screens
+import PropertyManagerHomeScreen from '../screens/PropertyManager/HomeScreen';
 import LandlordPropertiesScreen from '../screens/Landlord/PropertiesScreen';
 import PropertyUnitsScreen from '../screens/Landlord/PropertyUnitsScreen';
 import LandlordTenantsScreen from '../screens/Landlord/TenantsScreen';
 import LandlordMaintenanceScreen from '../screens/Landlord/MaintenanceScreen';
 import LandlordAnalyticsScreen from '../screens/Landlord/AnalyticsScreen';
-import LandlordLeasesScreen from '../screens/Landlord/LeasesScreen';
-import LandlordDocumentsScreen from '../screens/Landlord/DocumentsScreen';
 import LandlordMessagesScreen from '../screens/Landlord/MessagesScreen';
-import LandlordProfileScreen from '../screens/Landlord/ProfileScreen';
+import PropertyManagerProfileScreen from '../screens/PropertyManager/ProfileScreen';
 import LandlordNotificationsScreen from '../screens/Landlord/NotificationsScreen';
 import ChatScreen from '../screens/Shared/ChatScreen';
 
@@ -92,7 +90,7 @@ const ProfileStack = () => {
     >
       <Stack.Screen 
         name="ProfileMain" 
-        component={LandlordProfileScreen}
+        component={PropertyManagerProfileScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen 
@@ -104,7 +102,7 @@ const ProfileStack = () => {
   );
 };
 
-const LandlordNavigator = () => {
+const PropertyManagerNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -119,10 +117,8 @@ const LandlordNavigator = () => {
             iconName = focused ? 'people' : 'people-outline';
           } else if (route.name === 'Maintenance') {
             iconName = focused ? 'construct' : 'construct-outline';
-          } else if (route.name === 'Analytics') {
+          } else if (route.name === 'Reports') {
             iconName = focused ? 'stats-chart' : 'stats-chart-outline';
-          } else if (route.name === 'Messages') {
-            iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
           } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
           }
@@ -145,14 +141,14 @@ const LandlordNavigator = () => {
         },
       })}
     >
-      <Tab.Screen name="Home" component={LandlordHomeScreen} options={{ title: 'Dashboard' }} />
+      <Tab.Screen name="Home" component={PropertyManagerHomeScreen} options={{ title: 'Dashboard' }} />
       <Tab.Screen name="Properties" component={PropertiesStack} options={{ headerShown: false }} />
       <Tab.Screen name="Tenants" component={LandlordTenantsScreen} />
       <Tab.Screen name="Maintenance" component={LandlordMaintenanceScreen} />
-      <Tab.Screen name="Analytics" component={LandlordAnalyticsScreen} />
+      <Tab.Screen name="Reports" component={LandlordAnalyticsScreen} options={{ title: 'Reports' }} />
       <Tab.Screen name="Profile" component={ProfileStack} options={{ headerShown: false }} />
     </Tab.Navigator>
   );
 };
 
-export default LandlordNavigator;
+export default PropertyManagerNavigator;

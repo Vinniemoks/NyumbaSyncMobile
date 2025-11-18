@@ -112,11 +112,17 @@ const TenantHomeScreen = ({ navigation }) => {
             <Ionicons name="construct-outline" size={32} color="#10B981" />
             <Text style={styles.actionText}>Request Help</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => navigation.navigate('Profile', { screen: 'ProfileMain', params: { navigateTo: 'Documents' } })}
+          >
             <Ionicons name="document-text-outline" size={32} color="#818CF8" />
             <Text style={styles.actionText}>Documents</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => navigation.navigate('Messages')}
+          >
             <Ionicons name="chatbubble-outline" size={32} color="#F59E0B" />
             <Text style={styles.actionText}>Message</Text>
           </TouchableOpacity>

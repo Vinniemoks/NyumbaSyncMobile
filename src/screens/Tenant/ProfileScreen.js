@@ -18,12 +18,12 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   const menuItems = [
-    { icon: 'person-outline', title: 'Edit Profile', screen: 'EditProfile' },
-    { icon: 'lock-closed-outline', title: 'Change Password', screen: 'ChangePassword' },
-    { icon: 'notifications-outline', title: 'Notifications', screen: 'Notifications' },
-    { icon: 'document-text-outline', title: 'Documents', screen: 'Documents' },
-    { icon: 'help-circle-outline', title: 'Help & Support', screen: 'Support' },
-    { icon: 'information-circle-outline', title: 'About', screen: 'About' },
+    { icon: 'person-outline', title: 'Edit Profile', screen: 'EditProfile', action: null },
+    { icon: 'lock-closed-outline', title: 'Change Password', screen: 'ChangePassword', action: null },
+    { icon: 'notifications-outline', title: 'Notifications', screen: 'Notifications', action: () => navigation.navigate('Notifications') },
+    { icon: 'document-text-outline', title: 'Documents', screen: 'Documents', action: () => navigation.navigate('Documents') },
+    { icon: 'help-circle-outline', title: 'Help & Support', screen: 'Support', action: null },
+    { icon: 'information-circle-outline', title: 'About', screen: 'About', action: null },
   ];
 
   return (
@@ -45,7 +45,13 @@ const ProfileScreen = ({ navigation }) => {
           <TouchableOpacity
             key={index}
             style={styles.menuItem}
-            onPress={() => Alert.alert('Coming Soon', `${item.title} feature coming soon!`)}
+            onPress={() => {
+              if (item.action) {
+                item.action();
+              } else {
+                Alert.alert('Coming Soon', `${item.title} feature coming soon!`);
+              }
+            }}
           >
             <View style={styles.menuItemLeft}>
               <Ionicons name={item.icon} size={24} color="#818CF8" />

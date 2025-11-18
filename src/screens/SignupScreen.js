@@ -187,6 +187,36 @@ const SignupScreen = ({ navigation }) => {
                   keyboardType="phone-pad"
                 />
 
+                <Text style={styles.label}>I am a *</Text>
+                <View style={styles.roleContainer}>
+                  {[
+                    { value: 'tenant', label: 'Tenant', icon: '🏠' },
+                    { value: 'landlord', label: 'Landlord', icon: '🏢' },
+                    { value: 'property_manager', label: 'Property Manager', icon: '👔' },
+                    { value: 'agent', label: 'Agent', icon: '🤝' },
+                    { value: 'vendor', label: 'Vendor', icon: '🔧' },
+                  ].map((role) => (
+                    <TouchableOpacity
+                      key={role.value}
+                      style={[
+                        styles.roleButton,
+                        formData.role === role.value && styles.roleButtonActive,
+                      ]}
+                      onPress={() => setFormData({ ...formData, role: role.value })}
+                    >
+                      <Text style={styles.roleIcon}>{role.icon}</Text>
+                      <Text
+                        style={[
+                          styles.roleText,
+                          formData.role === role.value && styles.roleTextActive,
+                        ]}
+                      >
+                        {role.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
                 <Text style={styles.label}>Password *</Text>
                 <TextInput
                   style={styles.input}
@@ -378,6 +408,41 @@ const styles = StyleSheet.create({
   },
   linkTextBold: {
     color: '#818CF8', // indigo-400
+    fontWeight: '600',
+  },
+  roleContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 16,
+    gap: 8,
+  },
+  roleButton: {
+    flex: 1,
+    minWidth: '30%',
+    backgroundColor: '#0F172A',
+    borderWidth: 2,
+    borderColor: '#334155',
+    borderRadius: 8,
+    padding: 12,
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  roleButtonActive: {
+    borderColor: '#6366F1',
+    backgroundColor: '#312E81',
+  },
+  roleIcon: {
+    fontSize: 24,
+    marginBottom: 4,
+  },
+  roleText: {
+    fontSize: 12,
+    color: '#94A3B8',
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  roleTextActive: {
+    color: '#A5B4FC',
     fontWeight: '600',
   },
 });
