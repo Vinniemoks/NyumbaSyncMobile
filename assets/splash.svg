@@ -1,0 +1,51 @@
+<svg width="1242" height="2436" viewBox="0 0 1242 2436" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1242" height="2436" fill="#020617"/>
+  
+  <!-- Centered Content -->
+  <g transform="translate(621, 1218)">
+    <!-- House Icon Circle Background -->
+    <circle cx="0" cy="-100" r="180" fill="#6366F1" opacity="0.2"/>
+    <circle cx="0" cy="-100" r="140" fill="#6366F1" opacity="0.4"/>
+    <circle cx="0" cy="-100" r="100" fill="#6366F1"/>
+    
+    <!-- House Icon -->
+    <g transform="translate(0, -100)">
+      <!-- Roof -->
+      <path d="M -50 -20 L 0 -60 L 50 -20 L 50 -10 L 40 -10 L 40 -25 L 0 -50 L -40 -25 L -40 -10 L -50 -10 Z" 
+            fill="white"/>
+      
+      <!-- House Body -->
+      <rect x="-45" y="-10" width="90" height="70" fill="white"/>
+      
+      <!-- Door -->
+      <rect x="-15" y="25" width="30" height="35" fill="#6366F1" rx="3"/>
+      <circle cx="8" cy="42" r="2" fill="white"/>
+      
+      <!-- Windows -->
+      <rect x="-35" y="10" width="15" height="15" fill="#6366F1" rx="2"/>
+      <rect x="20" y="10" width="15" height="15" fill="#6366F1" rx="2"/>
+    </g>
+    
+    <!-- App Name -->
+    <text x="0" y="150" font-family="Arial, sans-serif" font-size="72" font-weight="bold" 
+          fill="#F8FAFC" text-anchor="middle">NyumbaSync</text>
+    
+    <!-- Tagline -->
+    <text x="0" y="220" font-family="Arial, sans-serif" font-size="32" 
+          fill="#94A3B8" text-anchor="middle">Property Management Made Simple</text>
+    
+    <!-- Loading Indicator -->
+    <g transform="translate(0, 320)">
+      <circle cx="-40" cy="0" r="8" fill="#6366F1">
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite" begin="0s"/>
+      </circle>
+      <circle cx="0" cy="0" r="8" fill="#6366F1">
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite" begin="0.5s"/>
+      </circle>
+      <circle cx="40" cy="0" r="8" fill="#6366F1">
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite" begin="1s"/>
+      </circle>
+    </g>
+  </g>
+</svg>
