@@ -47,8 +47,8 @@ const TenantsScreen = ({ navigation }) => {
     try {
       // Load tenants and properties
       const [tenantsRes, propertiesRes] = await Promise.all([
-        tenantService.getAll(),
-        propertyService.getAll(),
+        tenantService.getByLandlord(),
+        propertyService.getByLandlord(),
       ]);
 
       if (tenantsRes.data.success) {
@@ -584,7 +584,7 @@ const TenantsScreen = ({ navigation }) => {
 
               <View style={styles.detailsSection}>
                 <Text style={styles.sectionTitle}>Contact Information</Text>
-                
+
                 <View style={styles.detailRow}>
                   <Ionicons name="mail-outline" size={20} color="#6366F1" />
                   <View style={styles.detailContent}>

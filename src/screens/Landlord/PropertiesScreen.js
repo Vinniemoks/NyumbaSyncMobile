@@ -44,7 +44,7 @@ const PropertiesScreen = ({ navigation }) => {
   const loadProperties = async () => {
     setLoading(true);
     try {
-      const response = await propertyService.getAll();
+      const response = await propertyService.getByLandlord();
       if (response.data.success) {
         setProperties(response.data.properties);
       }
