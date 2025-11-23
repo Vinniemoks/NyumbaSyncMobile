@@ -10,6 +10,9 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { analyticsService } from '../../services/api';
+import IncomeExpenseChart from '../../components/Charts/IncomeExpenseChart';
+import OccupancyPieChart from '../../components/Charts/OccupancyPieChart';
+import PropertyPerformanceChart from '../../components/Charts/PropertyPerformanceChart';
 
 const FinancesScreen = () => {
   const [stats, setStats] = useState(null);
@@ -202,6 +205,37 @@ const FinancesScreen = () => {
             <Text style={styles.statLabel}>Maintenance</Text>
           </View>
         </View>
+
+        {/* Visual Analytics */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Income vs Expenses Trend</Text>
+          <View style={styles.chartCard}>
+            <IncomeExpenseChart />
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Occupancy Distribution</Text>
+          <View style={styles.chartCard}>
+            <OccupancyPieChart
+              occupied={occupiedProperties}
+              vacant={totalProperties - occupiedProperties}
+            />
+          </View>
+        </View>
+
+        {/* Property Performance */}
+        {totalProperties > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Property Performance</Text>
+            <View style={styles.chartCard}>
+              <PropertyPerformanceChart
+                data={stats?.properties?.slice(0, 4).map(p => p.rent || 0)}
+                labels={stats?.properties?.slice(0, 4).map(p => p.name?.substring(0, 6) || 'Property')}
+              />
+            </View>
+          </View>
+        )}
 
         {/* Income Breakdown */}
         <View style={styles.section}>
@@ -458,6 +492,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#F8FAFC',
     marginBottom: 12,
+  },
+  chartCard: {
+    backgroundColor: '#0F172A',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    overflow: 'hidden',
   },
   breakdownCard: {
     backgroundColor: '#0F172A',
