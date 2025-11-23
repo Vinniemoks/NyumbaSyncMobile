@@ -117,6 +117,7 @@ export const paymentService = {
 
 export const maintenanceService = {
   getAll: () => apiClient.get('/maintenance'),
+  getByLandlord: () => apiClient.get('/maintenance/landlord'),
   getById: (id) => apiClient.get(`/maintenance/${id}`),
   create: (data) => apiClient.post('/maintenance', data),
   update: (id, data) => apiClient.put(`/maintenance/${id}`, data),
@@ -136,7 +137,7 @@ export const leaseService = {
   delete: (id) => apiClient.delete(`/leases/${id}`),
 
   // Get leases by landlord/tenant
-  getByLandlord: (landlordId) => apiClient.get(`/leases/landlord/${landlordId}`),
+  getByLandlord: () => apiClient.get('/leases/landlord'),
   getByTenant: (tenantId) => apiClient.get(`/leases/tenant/${tenantId}`),
   getByProperty: (propertyId) => apiClient.get(`/leases/property/${propertyId}`),
 
@@ -195,7 +196,7 @@ export const notificationService = {
   // Get notifications
   getAll: () => apiClient.get('/notifications'),
   getById: (id) => apiClient.get(`/notifications/${id}`),
-  getByUser: (userId) => apiClient.get(`/notifications/user/${userId}`),
+  getByUser: () => apiClient.get('/notifications'),
   getUnreadCount: (userId) => apiClient.get(`/notifications/user/${userId}/unread-count`),
 
   // Mark as read
@@ -219,7 +220,7 @@ export const notificationService = {
 
 export const messageService = {
   // Get conversations
-  getConversations: (userId) => apiClient.get(`/messages/conversations/${userId}`),
+  getConversations: () => apiClient.get('/messages/conversations'),
   getConversationById: (conversationId) => apiClient.get(`/messages/conversations/details/${conversationId}`),
 
   // Get messages

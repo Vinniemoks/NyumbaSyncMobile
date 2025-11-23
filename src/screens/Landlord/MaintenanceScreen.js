@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,11 @@ import {
   Modal,
   TextInput,
   Alert,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { maintenanceService } from '../../services/api';
 
 const LandlordMaintenanceScreen = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
@@ -19,81 +22,76 @@ const LandlordMaintenanceScreen = () => {
     estimatedCost: '',
     notes: '',
   });
-  const [requests, setRequests] = useState([
-    {
-      id: 1,
-      title: 'Leaking faucet',
-      description: 'Kitchen faucet is leaking',
-      category: 'plumbing',
-      priority: 'high',
-      status: 'in_progress',
-      date: '2025-11-15',
-      tenant: 'John Doe',
-      property: 'Riverside Apartments',
-      unit: 'A-101',
-      contractor: 'ABC Plumbing',
-      estimatedCost: 5000,
-    },
-    {
-      id: 2,
-      title: 'AC not cooling',
-      description: 'Air conditioner not working properly',
-      category: 'hvac',
-      priority: 'urgent',
-      status: 'pending',
-      date: '2025-11-14',
-      tenant: 'Jane Smith',
-      property: 'Westlands Tower',
-      unit: 'B-205',
-    },
-    {
-      id: 3,
-      title: 'Broken window',
-      description: 'Bedroom window cracked',
-      category: 'general',
-      priority: 'medium',
-      status: 'assigned',
-      date: '2025-11-13',
-      tenant: 'Mike Johnson',
-      property: 'Riverside Apartments',
-      unit: 'C-302',
-      contractor: 'Glass Masters',
-      estimatedCost: 8000,
-    },
-  ]);
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    loadRequests();
+  }, []);
+
+  const loadRequests = async () => {
+    try {
+      const response = await maintenanceService.getByLandlord();
+      if (response.data.success) {
+        setRequests(response.data.requests);
+      }
+    } catch (error) {
+      console.error('Error loading maintenance requests:', error);
+      Alert.alert('Error', 'Failed to load maintenance requests');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadRequests();
+  };
 
   const handleAssign = (request) => {
     setSelectedRequest(request);
     setShowAssignModal(true);
   };
 
-  const handleSubmitAssignment = () => {
+  const handleSubmitAssignment = async () => {
     if (!assignData.contractor) {
       Alert.alert('Error', 'Please enter contractor name');
       return;
     }
 
-    setRequests(requests.map(req => 
-      req.id === selectedRequest.id 
-        ? { 
-            ...req, 
-            status: 'assigned',
-            contractor: assignData.contractor,
-            estimatedCost: parseFloat(assignData.estimatedCost) || 0,
-          }
-        : req
-    ));
+    try {
+      const response = await maintenanceService.update(selectedRequest.id, {
+        status: 'assigned',
+        contractor: assignData.contractor,
+        estimatedCost: parseFloat(assignData.estimatedCost) || 0,
+        notes: assignData.notes,
+      });
 
-    setAssignData({ contractor: '', estimatedCost: '', notes: '' });
-    setShowAssignModal(false);
-    Alert.alert('Success', 'Maintenance request assigned successfully!');
+      if (response.data.success) {
+        Alert.alert('Success', 'Maintenance request assigned successfully!');
+        setAssignData({ contractor: '', estimatedCost: '', notes: '' });
+        setShowAssignModal(false);
+        loadRequests();
+      }
+    } catch (error) {
+      console.error('Error assigning request:', error);
+      Alert.alert('Error', 'Failed to assign request');
+    }
   };
 
-  const handleUpdateStatus = (requestId, newStatus) => {
-    setRequests(requests.map(req => 
-      req.id === requestId ? { ...req, status: newStatus } : req
-    ));
-    Alert.alert('Success', `Status updated to ${newStatus.replace('_', ' ')}`);
+  const handleUpdateStatus = async (requestId, newStatus) => {
+    try {
+      const response = await maintenanceService.update(requestId, { status: newStatus });
+      if (response.data.success) {
+        Alert.alert('Success', `Status updated to ${newStatus.replace('_', ' ')}`);
+        loadRequests();
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      Alert.alert('Error', 'Failed to update status');
+    }
   };
 
   const getStatusColor = (status) => {
@@ -127,9 +125,21 @@ const LandlordMaintenanceScreen = () => {
 
   const counts = getStatusCounts();
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#6366F1" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View style={styles.statsRow}>
           <View style={styles.statBox}>
             <Text style={[styles.statNumber, { color: '#F59E0B' }]}>{counts.pending}</Text>
@@ -178,11 +188,11 @@ const LandlordMaintenanceScreen = () => {
               <View style={styles.requestDetails}>
                 <View style={styles.detailRow}>
                   <Ionicons name="person-outline" size={16} color="#94A3B8" />
-                  <Text style={styles.detailText}>{request.tenant}</Text>
+                  <Text style={styles.detailText}>{request.tenant?.firstName} {request.tenant?.lastName}</Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Ionicons name="home-outline" size={16} color="#94A3B8" />
-                  <Text style={styles.detailText}>{request.property} - {request.unit}</Text>
+                  <Text style={styles.detailText}>{request.property?.name} - {request.unitNumber}</Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Ionicons name="pricetag-outline" size={16} color="#94A3B8" />
@@ -190,7 +200,7 @@ const LandlordMaintenanceScreen = () => {
                 </View>
                 <View style={styles.detailRow}>
                   <Ionicons name="calendar-outline" size={16} color="#94A3B8" />
-                  <Text style={styles.detailText}>{request.date}</Text>
+                  <Text style={styles.detailText}>{new Date(request.createdAt).toLocaleDateString()}</Text>
                 </View>
               </View>
 
@@ -255,6 +265,14 @@ const LandlordMaintenanceScreen = () => {
               </View>
             </View>
           ))}
+
+          {requests.length === 0 && (
+            <View style={styles.emptyState}>
+              <Ionicons name="construct-outline" size={64} color="#64748B" />
+              <Text style={styles.emptyStateText}>No maintenance requests</Text>
+              <Text style={styles.emptyStateSubtext}>Requests from your tenants will appear here</Text>
+            </View>
+          )}
         </View>
       </ScrollView>
 
@@ -271,7 +289,7 @@ const LandlordMaintenanceScreen = () => {
             {selectedRequest && (
               <View style={styles.requestSummary}>
                 <Text style={styles.summaryTitle}>{selectedRequest.title}</Text>
-                <Text style={styles.summaryText}>{selectedRequest.property} - {selectedRequest.unit}</Text>
+                <Text style={styles.summaryText}>{selectedRequest.property?.name} - {selectedRequest.unitNumber}</Text>
               </View>
             )}
 
@@ -329,6 +347,12 @@ const LandlordMaintenanceScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#020617',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#020617',
   },
   statsRow: {
@@ -549,6 +573,22 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+  },
+  emptyStateText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#94A3B8',
+    marginTop: 16,
+  },
+  emptyStateSubtext: {
+    fontSize: 14,
+    color: '#64748B',
+    marginTop: 8,
   },
 });
 

@@ -28,63 +28,13 @@ const MessagesScreen = ({ navigation }) => {
   const loadConversations = async () => {
     setLoading(true);
     try {
-      const response = await messageService.getConversations(user?.id);
+      const response = await messageService.getConversations();
       if (response.data.success) {
         setConversations(response.data.conversations);
       }
     } catch (error) {
       console.error('Error loading conversations:', error);
-      // Mock data
-      setConversations([
-        {
-          id: 1,
-          participant: {
-            id: 2,
-            name: 'Property Owner',
-            role: 'landlord',
-            avatar: null,
-          },
-          lastMessage: {
-            text: 'The maintenance issue will be resolved by tomorrow',
-            timestamp: '2024-11-18T14:30:00',
-            senderId: 2,
-          },
-          unreadCount: 2,
-          property: 'Riverside Apartments - A-101',
-        },
-        {
-          id: 2,
-          participant: {
-            id: 3,
-            name: 'Property Manager',
-            role: 'manager',
-            avatar: null,
-          },
-          lastMessage: {
-            text: 'Your rent payment has been confirmed',
-            timestamp: '2024-11-17T10:15:00',
-            senderId: 3,
-          },
-          unreadCount: 0,
-          property: 'Riverside Apartments',
-        },
-        {
-          id: 3,
-          participant: {
-            id: 4,
-            name: 'John Doe',
-            role: 'tenant',
-            avatar: null,
-          },
-          lastMessage: {
-            text: 'Thank you for the quick response!',
-            timestamp: '2024-11-16T16:45:00',
-            senderId: 1,
-          },
-          unreadCount: 0,
-          property: 'Westlands Villa - B-205',
-        },
-      ]);
+      Alert.alert('Error', 'Failed to load conversations');
     } finally {
       setLoading(false);
     }
@@ -140,13 +90,13 @@ const MessagesScreen = ({ navigation }) => {
             <Text style={styles.participantName}>{item.participant.name}</Text>
             <Text style={styles.timestamp}>{formatTimestamp(item.lastMessage.timestamp)}</Text>
           </View>
-          
+
           {item.property && (
             <Text style={styles.propertyText}>{item.property}</Text>
           )}
-          
+
           <View style={styles.lastMessageRow}>
-            <Text 
+            <Text
               style={[
                 styles.lastMessage,
                 item.unreadCount > 0 && styles.lastMessageUnread

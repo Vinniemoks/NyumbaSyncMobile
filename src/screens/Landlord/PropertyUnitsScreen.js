@@ -58,69 +58,7 @@ const PropertyUnitsScreen = ({ route, navigation }) => {
       }
     } catch (error) {
       console.error('Error loading units:', error);
-      // Mock data for development
-      setUnits([
-        {
-          id: 1,
-          unitNumber: 'A-101',
-          floor: 1,
-          bedrooms: 2,
-          bathrooms: 1,
-          squareFeet: 850,
-          rent: 35000,
-          status: 'occupied',
-          tenant: 'John Doe',
-          features: ['Balcony', 'Parking'],
-        },
-        {
-          id: 2,
-          unitNumber: 'A-102',
-          floor: 1,
-          bedrooms: 2,
-          bathrooms: 1,
-          squareFeet: 850,
-          rent: 35000,
-          status: 'vacant',
-          tenant: null,
-          features: ['Balcony', 'Parking'],
-        },
-        {
-          id: 3,
-          unitNumber: 'A-201',
-          floor: 2,
-          bedrooms: 3,
-          bathrooms: 2,
-          squareFeet: 1200,
-          rent: 45000,
-          status: 'occupied',
-          tenant: 'Jane Smith',
-          features: ['Balcony', 'Parking', 'Storage'],
-        },
-        {
-          id: 4,
-          unitNumber: 'A-202',
-          floor: 2,
-          bedrooms: 3,
-          bathrooms: 2,
-          squareFeet: 1200,
-          rent: 45000,
-          status: 'maintenance',
-          tenant: null,
-          features: ['Balcony', 'Parking', 'Storage'],
-        },
-        {
-          id: 5,
-          unitNumber: 'B-101',
-          floor: 1,
-          bedrooms: 1,
-          bathrooms: 1,
-          squareFeet: 600,
-          rent: 28000,
-          status: 'vacant',
-          tenant: null,
-          features: ['Parking'],
-        },
-      ]);
+      Alert.alert('Error', 'Failed to load units');
     } finally {
       setLoading(false);
     }

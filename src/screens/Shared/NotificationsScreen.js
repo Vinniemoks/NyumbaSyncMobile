@@ -27,69 +27,18 @@ const NotificationsScreen = () => {
   const loadNotifications = async () => {
     setLoading(true);
     try {
-      const response = await notificationService.getByUser(user?.id);
+      const response = await notificationService.getByUser();
       if (response.data.success) {
         setNotifications(response.data.notifications);
       }
     } catch (error) {
       console.error('Error loading notifications:', error);
-      // Mock data
-      setNotifications([
-        {
-          id: 1,
-          type: 'payment',
-          title: 'Payment Received',
-          message: 'Your rent payment of KSh 35,000 has been received',
-          timestamp: '2024-11-18T10:30:00',
-          read: false,
-          icon: 'checkmark-circle',
-          color: '#10B981',
-        },
-        {
-          id: 2,
-          type: 'maintenance',
-          title: 'Maintenance Update',
-          message: 'Your maintenance request has been assigned to a technician',
-          timestamp: '2024-11-17T14:20:00',
-          read: false,
-          icon: 'construct',
-          color: '#F59E0B',
-        },
-        {
-          id: 3,
-          type: 'lease',
-          title: 'Lease Expiring Soon',
-          message: 'Your lease will expire in 60 days. Contact landlord for renewal',
-          timestamp: '2024-11-16T09:00:00',
-          read: true,
-          icon: 'alert-circle',
-          color: '#EF4444',
-        },
-        {
-          id: 4,
-          type: 'document',
-          title: 'New Document Available',
-          message: 'Rent receipt for October 2024 is now available',
-          timestamp: '2024-11-15T16:45:00',
-          read: true,
-          icon: 'document-text',
-          color: '#6366F1',
-        },
-        {
-          id: 5,
-          type: 'announcement',
-          title: 'Property Maintenance Notice',
-          message: 'Water supply will be interrupted on Nov 20 from 9 AM to 2 PM',
-          timestamp: '2024-11-14T11:00:00',
-          read: true,
-          icon: 'megaphone',
-          color: '#8B5CF6',
-        },
-      ]);
+      Alert.alert('Error', 'Failed to load notifications');
     } finally {
       setLoading(false);
     }
   };
+
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -100,7 +49,7 @@ const NotificationsScreen = () => {
   const handleMarkAsRead = async (notificationId) => {
     try {
       await notificationService.markAsRead(notificationId);
-      setNotifications(notifications.map(n => 
+      setNotifications(notifications.map(n =>
         n.id === notificationId ? { ...n, read: true } : n
       ));
     } catch (error) {
@@ -313,8 +262,8 @@ const NotificationsScreen = () => {
               {filter === 'unread'
                 ? 'All caught up!'
                 : filter === 'read'
-                ? 'No read notifications'
-                : 'You have no notifications yet'}
+                  ? 'No read notifications'
+                  : 'You have no notifications yet'}
             </Text>
           </View>
         )}

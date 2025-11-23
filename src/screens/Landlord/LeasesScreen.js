@@ -45,9 +45,9 @@ const LeasesScreen = ({ navigation }) => {
     setLoading(true);
     try {
       const [leasesRes, tenantsRes, propertiesRes] = await Promise.all([
-        leaseService.getByLandlord(user?.id),
-        tenantService.getByLandlord(user?.id),
-        propertyService.getByLandlord(user?.id),
+        leaseService.getByLandlord(),
+        tenantService.getByLandlord(),
+        propertyService.getByLandlord(),
       ]);
 
       if (leasesRes.data.success) setLeases(leasesRes.data.leases);
@@ -55,59 +55,7 @@ const LeasesScreen = ({ navigation }) => {
       if (propertiesRes.data.success) setProperties(propertiesRes.data.properties);
     } catch (error) {
       console.error('Error loading data:', error);
-      // Mock data
-      setLeases([
-        {
-          id: 1,
-          tenant: { name: 'John Doe', email: 'john@example.com', phone: '+254712345678' },
-          property: 'Riverside Apartments',
-          unitNumber: 'A-101',
-          startDate: '2024-01-01',
-          endDate: '2025-12-31',
-          monthlyRent: 35000,
-          securityDeposit: 35000,
-          status: 'active',
-          signedDate: '2023-12-15',
-          daysUntilExpiry: 410,
-        },
-        {
-          id: 2,
-          tenant: { name: 'Jane Smith', email: 'jane@example.com', phone: '+254723456789' },
-          property: 'Westlands Villa',
-          unitNumber: 'B-205',
-          startDate: '2024-06-01',
-          endDate: '2025-05-31',
-          monthlyRent: 45000,
-          securityDeposit: 45000,
-          status: 'active',
-          signedDate: '2024-05-15',
-          daysUntilExpiry: 194,
-        },
-        {
-          id: 3,
-          tenant: { name: 'Mike Johnson', email: 'mike@example.com', phone: '+254734567890' },
-          property: 'Riverside Apartments',
-          unitNumber: 'C-302',
-          startDate: '2024-11-01',
-          endDate: '2025-10-31',
-          monthlyRent: 38000,
-          securityDeposit: 38000,
-          status: 'pending',
-          signedDate: null,
-          daysUntilExpiry: 347,
-        },
-      ]);
-
-      setTenants([
-        { id: 1, name: 'John Doe' },
-        { id: 2, name: 'Jane Smith' },
-        { id: 3, name: 'Mike Johnson' },
-      ]);
-
-      setProperties([
-        { id: 1, name: 'Riverside Apartments' },
-        { id: 2, name: 'Westlands Villa' },
-      ]);
+      Alert.alert('Error', 'Failed to load lease data');
     } finally {
       setLoading(false);
     }
