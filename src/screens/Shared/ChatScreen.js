@@ -14,6 +14,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { messageService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import websocketService from '../../services/websocket';
 
 const ChatScreen = ({ route, navigation }) => {
   const { conversation } = route.params;
@@ -22,17 +23,97 @@ const ChatScreen = ({ route, navigation }) => {
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [connected, setConnected] = useState(false);
+  const [otherUserTyping, setOtherUserTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const flatListRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
 
   useEffect(() => {
-    loadMessages();
-    markAsRead();
-    
+    initializeChat();
+
     // Set header title
     navigation.setOptions({
       title: conversation.participant.name,
     });
+
+    return () => cleanup();
   }, []);
+
+  const initializeChat = async () => {
+    try {
+      // Connect WebSocket
+      if (!websocketService.isConnected()) {
+        await websocketService.connect();
+      }
+      setConnected(true);
+
+      // Join conversation room
+      websocketService.joinConversation(conversation.id);
+
+      // Subscribe to real-time events
+      websocketService.on('message:received', handleMessageReceived);
+      websocketService.on('user:typing', handleUserTyping);
+      websocketService.on('connection:lost', handleConnectionLost);
+      websocketService.on('connection:success', handleConnectionSuccess);
+
+      // Load initial messages
+      await loadMessages();
+      markAsRead();
+    } catch (error) {
+      console.error('Failed to initialize chat:', error);
+      setLoading(false);
+    }
+  };
+
+  const cleanup = () => {
+    websocketService.leaveConversation(conversation.id);
+    websocketService.off('message:received', handleMessageReceived);
+    websocketService.off('user:typing', handleUserTyping);
+    websocketService.off('connection:lost', handleConnectionLost);
+    websocketService.off('connection:success', handleConnectionSuccess);
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+  };
+
+  const handleMessageReceived = (data) => {
+    if (data.conversationId === conversation.id) {
+      const newMessage = {
+        id: data.message.id || Date.now(),
+        text: data.message.text,
+        senderId: data.sender.id,
+        timestamp: data.timestamp,
+        read: false,
+      };
+      setMessages(prev => [...prev, newMessage]);
+
+      // Auto-scroll to bottom
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    }
+  };
+
+  const handleUserTyping = (data) => {
+    if (data.userId !== user?.id) {
+      setOtherUserTyping(data.isTyping);
+
+      if (data.isTyping) {
+        // Auto-hide typing indicator after 3s
+        setTimeout(() => setOtherUserTyping(false), 3000);
+      }
+    }
+  };
+
+  const handleConnectionLost = () => {
+    setConnected(false);
+  };
+
+  const handleConnectionSuccess = () => {
+    setConnected(true);
+  };
 
   const loadMessages = async () => {
     setLoading(true);
@@ -109,48 +190,83 @@ const ChatScreen = ({ route, navigation }) => {
   };
 
   const handleSendMessage = async () => {
-    if (!inputText.trim()) return;
+    if (!inputText.trim() || !connected) return;
 
     const messageText = inputText.trim();
     setInputText('');
-    setSending(true);
 
+    // Stop typing indicator
+    setIsTyping(false);
+    websocketService.sendTyping(conversation.id, false);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Send via WebSocket for real-time delivery
+    websocketService.sendMessage(conversation.id, {
+      text: messageText,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Add to local state optimistically
+    const optimisticMessage = {
+      id: Date.now(),
+      text: messageText,
+      senderId: user?.id,
+      timestamp: new Date().toISOString(),
+      read: false,
+    };
+    setMessages(prev => [...prev, optimisticMessage]);
+
+    // Scroll to bottom
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+
+    // Also save to backend via API (for persistence)
     try {
-      const response = await messageService.sendMessage({
+      await messageService.sendMessage({
         conversationId: conversation.id,
         senderId: user?.id,
         text: messageText,
       });
-
-      if (response.data.success) {
-        const newMessage = {
-          id: Date.now(),
-          text: messageText,
-          senderId: user?.id,
-          timestamp: new Date().toISOString(),
-          read: false,
-        };
-        setMessages([...messages, newMessage]);
-        
-        // Scroll to bottom
-        setTimeout(() => {
-          flatListRef.current?.scrollToEnd({ animated: true });
-        }, 100);
-      }
     } catch (error) {
-      Alert.alert('Error', 'Failed to send message');
-      setInputText(messageText);
-    } finally {
-      setSending(false);
+      console.error('Failed to persist message:', error);
+      // Message already sent via WebSocket, so don't show error
+    }
+  };
+
+  const handleInputChange = (text) => {
+    setInputText(text);
+
+    // Send typing indicator
+    if (text.length > 0 && !isTyping && connected) {
+      setIsTyping(true);
+      websocketService.sendTyping(conversation.id, true);
+    } else if (text.length === 0 && isTyping) {
+      setIsTyping(false);
+      websocketService.sendTyping(conversation.id, false);
+    }
+
+    // Reset typing indicator after 2s of inactivity
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    if (text.length > 0) {
+      typingTimeoutRef.current = setTimeout(() => {
+        setIsTyping(false);
+        websocketService.sendTyping(conversation.id, false);
+      }, 2000);
     }
   };
 
   const formatMessageTime = (timestamp) => {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
       minute: '2-digit',
-      hour12: true 
+      hour12: true
     });
   };
 
@@ -165,8 +281,8 @@ const ChatScreen = ({ route, navigation }) => {
     } else if (date.toDateString() === yesterday.toDateString()) {
       return 'Yesterday';
     } else {
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
         day: 'numeric',
         year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
       });
@@ -175,10 +291,10 @@ const ChatScreen = ({ route, navigation }) => {
 
   const shouldShowDateSeparator = (currentMessage, previousMessage) => {
     if (!previousMessage) return true;
-    
+
     const currentDate = new Date(currentMessage.timestamp).toDateString();
     const previousDate = new Date(previousMessage.timestamp).toDateString();
-    
+
     return currentDate !== previousDate;
   };
 
@@ -258,29 +374,41 @@ const ChatScreen = ({ route, navigation }) => {
         <TouchableOpacity style={styles.attachButton}>
           <Ionicons name="add-circle-outline" size={28} color="#6366F1" />
         </TouchableOpacity>
-        
+
         <TextInput
           style={styles.input}
           placeholder="Type a message..."
           placeholderTextColor="#64748B"
           value={inputText}
-          onChangeText={setInputText}
+          onChangeText={handleInputChange}
           multiline
           maxLength={1000}
+          editable={connected}
         />
-        
+
         <TouchableOpacity
-          style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
+          style={[styles.sendButton, (!inputText.trim() || !connected) && styles.sendButtonDisabled]}
           onPress={handleSendMessage}
-          disabled={!inputText.trim() || sending}
+          disabled={!inputText.trim() || !connected}
         >
-          {sending ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <Ionicons name="send" size={20} color="#fff" />
-          )}
+          <Ionicons name="send" size={20} color={inputText.trim() && connected ? "#fff" : "#64748B"} />
         </TouchableOpacity>
       </View>
+
+      {/* Typing Indicator */}
+      {otherUserTyping && (
+        <View style={styles.typingIndicator}>
+          <Text style={styles.typingText}>{conversation.participant.name} is typing...</Text>
+        </View>
+      )}
+
+      {/* Connection Status Banner */}
+      {!connected && (
+        <View style={styles.connectionBanner}>
+          <Ionicons name="cloud-offline" size={16} color="#F59E0B" />
+          <Text style={styles.connectionText}>Connecting...</Text>
+        </View>
+      )}
     </KeyboardAvoidingView>
   );
 };
@@ -389,6 +517,29 @@ const styles = StyleSheet.create({
   },
   sendButtonDisabled: {
     backgroundColor: '#334155',
+  },
+  typingIndicator: {
+    padding: 12,
+    paddingBottom: 8,
+    backgroundColor: '#0F172A',
+  },
+  typingText: {
+    fontSize: 13,
+    color: '#6366F1',
+    fontStyle: 'italic',
+  },
+  connectionBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FEF3C7',
+    padding: 8,
+  },
+  connectionText: {
+    fontSize: 13,
+    color: '#92400E',
+    marginLeft: 8,
+    fontWeight: '500',
   },
 });
 
