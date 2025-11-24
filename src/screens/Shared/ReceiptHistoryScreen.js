@@ -53,11 +53,14 @@ const ReceiptHistoryScreen = ({ navigation }) => {
             });
         }
 
-        // Filter by search query
+        // Filter by search query (searches in filename and date)
         if (searchQuery) {
-            filtered = filtered.filter(receipt =>
-                receipt.fileName.toLowerCase().includes(searchQuery.toLowerCase())
-            );
+            filtered = filtered.filter(receipt => {
+                const fileName = receipt.fileName.toLowerCase();
+                const date = new Date(receipt.modificationTime * 1000).toLocaleDateString();
+                return fileName.includes(searchQuery.toLowerCase()) ||
+                    date.includes(searchQuery.toLowerCase());
+            });
         }
 
         setFilteredReceipts(filtered);
@@ -232,7 +235,7 @@ const ReceiptHistoryScreen = ({ navigation }) => {
                 <Ionicons name="search" size={20} color="#64748B" style={styles.searchIcon} />
                 <TextInput
                     style={styles.searchInput}
-                    placeholder="Search receipts..."
+                    placeholder="Search by name or date..."
                     placeholderTextColor="#64748B"
                     value={searchQuery}
                     onChangeText={setSearchQuery}
@@ -289,7 +292,7 @@ const ReceiptHistoryScreen = ({ navigation }) => {
                         <Text style={styles.emptyText}>No receipts found</Text>
                         <Text style={styles.emptySubtext}>
                             {searchQuery || filterYear !== 'all'
-                                ? 'Try adjusting your filters'
+                                ? 'Try adjusting your search or filters'
                                 : 'Receipts will appear here after payments'}
                         </Text>
                     </View>
