@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import receiptService from '../services/receiptService';
+import receiptService from '../../services/receiptService';
 
 const ReceiptButton = ({ transaction, style }) => {
     const [generating, setGenerating] = useState(false);
@@ -19,6 +19,17 @@ const ReceiptButton = ({ transaction, style }) => {
                     'Receipt Generated',
                     'What would you like to do with your receipt?',
                     [
+                        {
+                            text: 'Print',
+                            onPress: async () => {
+                                const printed = await receiptService.printReceipt(result.filePath);
+                                if (printed.success) {
+                                    Alert.alert('Success', 'Receipt sent to printer');
+                                } else {
+                                    Alert.alert('Error', printed.error || 'Failed to print receipt');
+                                }
+                            },
+                        },
                         {
                             text: 'Share',
                             onPress: async () => {

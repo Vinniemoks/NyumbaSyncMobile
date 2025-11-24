@@ -1,5 +1,6 @@
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
+import * as Print from 'expo-print';
 import { Platform } from 'react-native';
 import { pdf } from '@react-pdf/renderer';
 import PaymentReceipt from '../components/PDF/PaymentReceipt';
@@ -173,6 +174,30 @@ class ReceiptService {
         } catch (error) {
             console.error('Error listing receipts:', error);
             return [];
+        }
+    }
+
+    /**
+     * Print receipt PDF
+     * @param {String} filePath - Path to PDF file
+     * @returns {Promise<Object>}
+     */
+    async printReceipt(filePath) {
+        try {
+            await Print.printAsync({
+                uri: filePath,
+            });
+
+            return {
+                success: true,
+                message: 'Receipt sent to printer',
+            };
+        } catch (error) {
+            console.error('Error printing receipt:', error);
+            return {
+                success: false,
+                error: error.message,
+            };
         }
     }
 }
