@@ -12,6 +12,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
+import { apiClient } from '../services/api';
+import { API_CONFIG } from '../config/apiConfig';
 
 const SignupScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -24,8 +26,6 @@ const SignupScreen = ({ navigation }) => {
     role: 'tenant',
   });
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState('details'); // 'details' or 'otp'
-  const [otp, setOtp] = useState('');
   const { signup } = useAuth();
 
   const validateForm = () => {
@@ -61,69 +61,45 @@ const SignupScreen = ({ navigation }) => {
 
     setLoading(true);
     try {
-      // TODO: Replace with actual API call
-      const response = await fetch('YOUR_API_URL/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+      const response = await apiClient.post(API_CONFIG.ENDPOINTS.AUTH.SIGNUP, {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        role: formData.role,
       });
 
-      const result = await response.json();
+      const result = response.data;
       
-      if (result.success) {
-        setStep('otp');
+      if (result.token && result.user) {
+        // Account created successfully, navigate to login or home
         Alert.alert(
-          'Verification Code Sent',
-          `A verification code has been sent to your ${formData.email ? 'email' : 'phone number'}`
+          'Success',
+          'Account created successfully!',
+          [
+            {
+              text: 'OK',
+              onPress: () => navigation.replace('Login')
+            }
+          ]
         );
       } else {
         Alert.alert('Signup Failed', result.error || 'Unable to create account');
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to create account. Please try again.');
+      console.error('Signup error:', error);
+      const errorMessage = error.response?.data?.error || 
+                          error.response?.data?.message || 
+                          error.message || 
+                          'Failed to create account. Please try again.';
+      Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleVerifyOTP = async () => {
-    if (!otp || otp.length < 4) {
-      Alert.alert('Error', 'Please enter the verification code');
-      return;
-    }
 
-    setLoading(true);
-    try {
-      // TODO: Replace with actual API call
-      const response = await fetch('YOUR_API_URL/auth/verify-signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          email: formData.email,
-          phone: formData.phone,
-          otp 
-        }),
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        Alert.alert('Success', 'Account created successfully!');
-        navigation.replace('Login');
-      } else {
-        Alert.alert('Error', result.error || 'Invalid verification code');
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Verification failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResendOTP = async () => {
-    setOtp('');
-    await handleSignup();
-  };
 
   return (
     <KeyboardAvoidingView
@@ -133,18 +109,10 @@ const SignupScreen = ({ navigation }) => {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.content}>
           <Text style={styles.logo}>🏠</Text>
-          <Text style={styles.title}>
-            {step === 'details' ? 'Create Account' : 'Verify Your Account'}
-          </Text>
-          <Text style={styles.subtitle}>
-            {step === 'details' 
-              ? 'Join NyumbaSync today' 
-              : 'Enter the verification code sent to you'}
-          </Text>
+          <Text style={styles.title}>Create Account</Text>
+          <Text style={styles.subtitle}>Join NyumbaSync today</Text>
 
           <View style={styles.form}>
-            {step === 'details' ? (
-              <>
                 <Text style={styles.label}>First Name *</Text>
                 <TextInput
                   style={styles.input}
@@ -243,65 +211,26 @@ const SignupScreen = ({ navigation }) => {
                   * Required fields. You must provide either email or phone number.
                 </Text>
 
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={handleSignup}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <ActivityIndicator color="#fff" />
-                  ) : (
-                    <Text style={styles.buttonText}>Create Account</Text>
-                  )}
-                </TouchableOpacity>
-              </>
-            ) : (
-              <>
-                <Text style={styles.label}>Verification Code</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter 6-digit code"
-                  placeholderTextColor="#64748B"
-                  value={otp}
-                  onChangeText={setOtp}
-                  keyboardType="number-pad"
-                  maxLength={6}
-                  autoFocus
-                />
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleSignup}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Create Account</Text>
+              )}
+            </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={handleVerifyOTP}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <ActivityIndicator color="#fff" />
-                  ) : (
-                    <Text style={styles.buttonText}>Verify & Complete Signup</Text>
-                  )}
-                </TouchableOpacity>
-
-                <View style={styles.otpActions}>
-                  <TouchableOpacity onPress={handleResendOTP} disabled={loading}>
-                    <Text style={styles.resendText}>Resend Code</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setStep('details')}>
-                    <Text style={styles.backText}>Back to Form</Text>
-                  </TouchableOpacity>
-                </View>
-              </>
-            )}
-
-            {step === 'details' && (
-              <TouchableOpacity
-                style={styles.linkButton}
-                onPress={() => navigation.navigate('Login')}
-              >
-                <Text style={styles.linkText}>
-                  Already have an account? <Text style={styles.linkTextBold}>Sign In</Text>
-                </Text>
-              </TouchableOpacity>
-            )}
+            <TouchableOpacity
+              style={styles.linkButton}
+              onPress={() => navigation.navigate('Login')}
+            >
+              <Text style={styles.linkText}>
+                Already have an account? <Text style={styles.linkTextBold}>Sign In</Text>
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
