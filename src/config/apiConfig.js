@@ -15,7 +15,10 @@ const getApiUrl = () => {
       return process.env.API_URL || 'https://staging-api.nyumbasync.com/api';
     case 'development':
     default:
-      return process.env.API_URL || 'http://localhost:3001/api';
+      // For Android emulator, use 10.0.2.2 to access host machine's localhost
+      // For iOS simulator, use localhost
+      // For physical device, use your computer's IP address (e.g., 192.168.1.100)
+      return process.env.API_URL || 'http://10.0.2.2:3001/api';
   }
 };
 
