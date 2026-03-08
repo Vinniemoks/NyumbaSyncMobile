@@ -14,7 +14,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "jsEngine": "hermes"
+      "jsEngine": "hermes",
+      "bundleIdentifier": "com.nyumbasync.app"
     },
     "android": {
       "adaptiveIcon": {
