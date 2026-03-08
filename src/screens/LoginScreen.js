@@ -11,17 +11,16 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
+import { apiClient } from '../services/api';
 
 const LoginScreen = ({ navigation }) => {
   const [identifier, setIdentifier] = useState(''); // Email or phone number
   const [password, setPassword] = useState('');
-  const [otp, setOtp] = useState('');
+  const [forgotEmail, setForgotEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState('credentials'); // 'credentials' or 'otp'
-  const [tempAuthData, setTempAuthData] = useState(null);
   const { login } = useAuth();
 
-  const handleSendOTP = async () => {
+  const handleLogin = async () => {
     if (!identifier || !password) {
       Alert.alert('Error', 'Please enter your email/phone and password');
       return;
@@ -29,92 +28,57 @@ const LoginScreen = ({ navigation }) => {
 
     setLoading(true);
     try {
-      // TODO: Replace with actual API call
-      const response = await fetch('YOUR_API_URL/auth/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier, password }),
-      });
+      const response = await apiClient.post('/v1/auth/login', { identifier, password });
+      const result = response.data;
 
-      const result = await response.json();
-      
-      if (result.success) {
-        setTempAuthData(result.data);
-        setStep('otp');
-        Alert.alert(
-          'Verification Code Sent',
-          `A verification code has been sent to your ${result.sentTo === 'email' ? 'email' : 'phone number'}`
-        );
+      if (result.mfaRequired) {
+        // Navigate to MFA verification if enabled
+        navigation.navigate('MFAVerify', { mfaSessionToken: result.mfaSessionToken });
+        return;
+      }
+
+      if (result.success && result.token) {
+        await login(result.token, result.user);
+        const roleRoutes = {
+          landlord: 'LandlordDashboard',
+          manager: 'ManagerDashboard',
+          tenant: 'TenantDashboard',
+          admin: 'AdminDashboard',
+        };
+        navigation.replace(roleRoutes[result.user?.role] || 'TenantDashboard');
       } else {
-        Alert.alert('Error', result.error || 'Invalid credentials');
+        Alert.alert('Error', result.error || 'Login failed');
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to send verification code. Please try again.');
+      const message = error.response?.data?.error || 'Login failed. Please check your credentials.';
+      Alert.alert('Error', message);
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleVerifyOTP = async () => {
-    if (!otp || otp.length < 4) {
-      Alert.alert('Error', 'Please enter the verification code');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // TODO: Replace with actual API call
-      const response = await fetch('YOUR_API_URL/auth/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          identifier, 
-          otp,
-          sessionId: tempAuthData?.sessionId 
-        }),
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        const loginResult = await login(result.token, result.user);
-        
-        if (loginResult.success) {
-          const roleRoutes = {
-            landlord: 'LandlordDashboard',
-            manager: 'ManagerDashboard',
-            tenant: 'TenantDashboard',
-            admin: 'AdminDashboard',
-          };
-          navigation.replace(roleRoutes[result.user.role] || 'Login');
-        }
-      } else {
-        Alert.alert('Error', result.error || 'Invalid verification code');
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Verification failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResendOTP = async () => {
-    setOtp('');
-    await handleSendOTP();
   };
 
   const handleForgotPassword = () => {
-    // TODO: Navigate to forgot password screen or show modal
     Alert.alert(
       'Reset Password',
-      'Enter your email or phone number to receive a password reset code',
+      'Enter your email address to receive a password reset link.',
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Continue', 
-          onPress: () => {
-            // TODO: Implement forgot password flow
-            Alert.alert('Coming Soon', 'Password reset feature will be available soon');
+        {
+          text: 'Send Reset Link',
+          onPress: async () => {
+            if (!identifier) {
+              Alert.alert('Error', 'Please enter your email address in the field above first.');
+              return;
+            }
+            setLoading(true);
+            try {
+              await apiClient.post('/v1/auth/forgot-password', { email: identifier });
+              Alert.alert('Success', 'If your email is registered, you will receive a reset link shortly.');
+            } catch (error) {
+              Alert.alert('Error', 'Failed to send reset email. Please try again.');
+            } finally {
+              setLoading(false);
+            }
           }
         }
       ]
@@ -128,107 +92,60 @@ const LoginScreen = ({ navigation }) => {
     >
       <View style={styles.content}>
         <Text style={styles.logo}>🏠</Text>
-        <Text style={styles.title}>
-          {step === 'credentials' ? 'Welcome Back' : 'Verify Your Identity'}
-        </Text>
-        <Text style={styles.subtitle}>
-          {step === 'credentials' 
-            ? 'Sign in with your email or phone number' 
-            : 'Enter the verification code sent to you'}
-        </Text>
+        <Text style={styles.title}>Welcome Back</Text>
+        <Text style={styles.subtitle}>Sign in with your email or phone number</Text>
 
         <View style={styles.form}>
-          {step === 'credentials' ? (
-            <>
-              <Text style={styles.label}>Email or Phone Number</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="email@example.com or +254712345678"
-                placeholderTextColor="#64748B"
-                value={identifier}
-                onChangeText={setIdentifier}
-                keyboardType="default"
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
+          <Text style={styles.label}>Email or Phone Number</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="email@example.com or +254712345678"
+            placeholderTextColor="#64748B"
+            value={identifier}
+            onChangeText={setIdentifier}
+            keyboardType="default"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
 
-              <Text style={styles.label}>Password</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your password"
-                placeholderTextColor="#64748B"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                autoCapitalize="none"
-              />
+          <Text style={styles.label}>Password</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your password"
+            placeholderTextColor="#64748B"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            autoCapitalize="none"
+          />
 
-              <TouchableOpacity
-                style={styles.forgotButton}
-                onPress={handleForgotPassword}
-              >
-                <Text style={styles.forgotText}>Forgot Password?</Text>
-              </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.forgotButton}
+            onPress={handleForgotPassword}
+          >
+            <Text style={styles.forgotText}>Forgot Password?</Text>
+          </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.button}
-                onPress={handleSendOTP}
-                disabled={loading}
-              >
-                {loading ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text style={styles.buttonText}>Continue</Text>
-                )}
-              </TouchableOpacity>
-            </>
-          ) : (
-            <>
-              <Text style={styles.label}>Verification Code</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter 6-digit code"
-                placeholderTextColor="#64748B"
-                value={otp}
-                onChangeText={setOtp}
-                keyboardType="number-pad"
-                maxLength={6}
-                autoFocus
-              />
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleLogin}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Sign In</Text>
+            )}
+          </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.button}
-                onPress={handleVerifyOTP}
-                disabled={loading}
-              >
-                {loading ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text style={styles.buttonText}>Verify & Sign In</Text>
-                )}
-              </TouchableOpacity>
-
-              <View style={styles.otpActions}>
-                <TouchableOpacity onPress={handleResendOTP} disabled={loading}>
-                  <Text style={styles.resendText}>Resend Code</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setStep('credentials')}>
-                  <Text style={styles.backText}>Back to Login</Text>
-                </TouchableOpacity>
-              </View>
-            </>
-          )}
-
-          {step === 'credentials' && (
-            <TouchableOpacity
-              style={styles.linkButton}
-              onPress={() => navigation.navigate('Signup')}
-            >
-              <Text style={styles.linkText}>
-                Don't have an account? <Text style={styles.linkTextBold}>Sign Up</Text>
-              </Text>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            style={styles.linkButton}
+            onPress={() => navigation.navigate('Signup')}
+          >
+            <Text style={styles.linkText}>
+              Don't have an account? <Text style={styles.linkTextBold}>Sign Up</Text>
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -304,21 +221,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
-  },
-  otpActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  resendText: {
-    color: '#818CF8', // indigo-400
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  backText: {
-    color: '#94A3B8', // slate-400
-    fontSize: 14,
     fontWeight: '600',
   },
   linkButton: {

@@ -1,11 +1,9 @@
 import axios from 'axios';
-
-// Update this with your actual API URL
-const API_URL = 'http://localhost:3000/api'; // Change for production
+import { API_CONFIG } from '../config/apiConfig';
 
 export const apiClient = axios.create({
-  baseURL: API_URL,
-  timeout: 10000,
+  baseURL: API_CONFIG.BASE_URL,
+  timeout: API_CONFIG.TIMEOUT,
   headers: {
     'Content-Type': 'application/json',
   },
