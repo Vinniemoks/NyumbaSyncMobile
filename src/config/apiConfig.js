@@ -10,9 +10,9 @@ const getApiUrl = () => {
   
   switch (env) {
     case 'production':
-      return process.env.API_URL || 'https://api.nyumbasync.com/api';
+      return process.env.API_URL || 'https://nyumbasync-backend.onrender.com/api';
     case 'staging':
-      return process.env.API_URL || 'https://staging-api.nyumbasync.com/api';
+      return process.env.API_URL || 'https://nyumbasync-backend.onrender.com/api';
     case 'development':
     default:
       // For Android emulator, use 10.0.2.2 to access host machine's localhost
