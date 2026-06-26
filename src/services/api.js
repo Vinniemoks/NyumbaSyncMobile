@@ -1,4 +1,5 @@
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_CONFIG } from '../config/apiConfig';
 
 export const apiClient = axios.create({
@@ -9,22 +10,47 @@ export const apiClient = axios.create({
   },
 });
 
-// Request interceptor
+// Request interceptor — attach auth token from AsyncStorage on every request
 apiClient.interceptors.request.use(
-  (config) => {
+  async (config) => {
+    const token = await AsyncStorage.getItem('nyumbasync_auth_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor
+// Response interceptor — handle 401 by refreshing token, then retry once
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Handle unauthorized
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const refreshToken = await AsyncStorage.getItem('nyumbasync_refresh_token');
+        if (!refreshToken) {
+          throw new Error('No refresh token available');
+        }
+        const { data } = await axios.post(`${API_CONFIG.BASE_URL}/auth/refresh`, { refreshToken });
+        if (data.token) {
+          await AsyncStorage.setItem('nyumbasync_auth_token', data.token);
+          apiClient.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+          originalRequest.headers.Authorization = `Bearer ${data.token}`;
+        }
+        return apiClient(originalRequest);
+      } catch (refreshError) {
+        // Clear auth and let the caller handle redirect to login
+        await AsyncStorage.multiRemove([
+          'nyumbasync_auth_token',
+          'nyumbasync_refresh_token',
+          'nyumbasync_user_data',
+        ]);
+        delete apiClient.defaults.headers.common['Authorization'];
+        return Promise.reject(refreshError);
+      }
     }
     return Promise.reject(error);
   }

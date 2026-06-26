@@ -14,6 +14,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { messageService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const MessagesScreen = ({ navigation }) => {
   const { user } = useAuth();
@@ -57,7 +58,7 @@ const MessagesScreen = ({ navigation }) => {
 
   const getRoleColor = (role) => {
     const colors = {
-      landlord: '#6366F1',
+      landlord: '#3B82F6',
       manager: '#10B981',
       tenant: '#F59E0B',
       admin: '#EF4444',
@@ -120,7 +121,7 @@ const MessagesScreen = ({ navigation }) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6366F1" />
+        <ActivityIndicator size="large" color={colors.info} />
       </View>
     );
   }
@@ -129,7 +130,7 @@ const MessagesScreen = ({ navigation }) => {
     <View style={styles.container}>
       {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#94A3B8" style={styles.searchIcon} />
+        <Ionicons name="search" size={20} color={colors.textSecondary} style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search conversations..."
@@ -147,7 +148,7 @@ const MessagesScreen = ({ navigation }) => {
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Ionicons name="chatbubbles-outline" size={64} color="#64748B" />
+            <Ionicons name="chatbubbles-outline" size={64} color={colors.textMuted} />
             <Text style={styles.emptyStateText}>No conversations yet</Text>
             <Text style={styles.emptyStateSubtext}>
               {searchQuery ? 'No results found' : 'Start a conversation with your landlord or tenant'}
@@ -162,40 +163,40 @@ const MessagesScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#020617',
+    backgroundColor: colors.bg,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#020617',
+    backgroundColor: colors.bg,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    margin: 20,
-    paddingHorizontal: 16,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    margin: spacing[5],
+    paddingHorizontal: spacing[4],
   },
   searchIcon: {
-    marginRight: 8,
+    marginRight: spacing[2],
   },
   searchInput: {
     flex: 1,
-    padding: 12,
-    fontSize: 16,
-    color: '#F8FAFC',
+    padding: spacing[3],
+    fontSize: typography.base,
+    color: colors.textPrimary,
   },
   listContent: {
-    padding: 20,
+    padding: spacing[5],
     paddingTop: 0,
   },
   conversationCard: {
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
+    marginBottom: spacing[3],
   },
   conversationContent: {
     flexDirection: 'row',
@@ -206,11 +207,11 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing[3],
   },
   avatarText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: typography.lg,
+    fontWeight: typography.fontWeight.bold,
   },
   conversationInfo: {
     flex: 1,
@@ -219,21 +220,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: spacing[1],
   },
   participantName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#F8FAFC',
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textPrimary,
   },
   timestamp: {
-    fontSize: 12,
-    color: '#64748B',
+    fontSize: typography.xs,
+    color: colors.textMuted,
   },
   propertyText: {
-    fontSize: 12,
-    color: '#94A3B8',
-    marginBottom: 6,
+    fontSize: typography.xs,
+    color: colors.textSecondary,
+    marginBottom: spacing[1] + 2,
   },
   lastMessageRow: {
     flexDirection: 'row',
@@ -241,25 +242,25 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   lastMessage: {
-    fontSize: 14,
-    color: '#94A3B8',
+    fontSize: typography.sm,
+    color: colors.textSecondary,
     flex: 1,
   },
   lastMessageUnread: {
-    color: '#E2E8F0',
-    fontWeight: '500',
+    color: colors.slate[200],
+    fontWeight: typography.fontWeight.medium,
   },
   unreadBadge: {
-    backgroundColor: '#6366F1',
+    backgroundColor: colors.darkBlue,
     borderRadius: 10,
-    paddingHorizontal: 8,
+    paddingHorizontal: spacing[2],
     paddingVertical: 2,
-    marginLeft: 8,
+    marginLeft: spacing[2],
   },
   unreadBadgeText: {
     fontSize: 11,
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: typography.fontWeight.bold,
   },
   emptyState: {
     alignItems: 'center',
@@ -267,17 +268,17 @@ const styles = StyleSheet.create({
     paddingVertical: 80,
   },
   emptyStateText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#94A3B8',
-    marginTop: 16,
+    fontSize: typography.lg,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textSecondary,
+    marginTop: spacing[4],
   },
   emptyStateSubtext: {
-    fontSize: 14,
-    color: '#64748B',
-    marginTop: 8,
+    fontSize: typography.sm,
+    color: colors.textMuted,
+    marginTop: spacing[2],
     textAlign: 'center',
-    paddingHorizontal: 40,
+    paddingHorizontal: spacing[10],
   },
 });
 

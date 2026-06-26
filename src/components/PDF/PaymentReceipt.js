@@ -10,13 +10,13 @@ const styles = StyleSheet.create({
     },
     header: {
         marginBottom: 20,
-        borderBottom: '2 solid #6366F1',
+        borderBottom: '2 solid #3B82F6',
         paddingBottom: 10,
     },
     companyName: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#6366F1',
+        color: '#3B82F6',
         marginBottom: 5,
     },
     companyTagline: {
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 12,
         fontWeight: 'bold',
-        color: '#6366F1',
+        color: '#3B82F6',
         marginBottom: 8,
         textTransform: 'uppercase',
     },
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     totalValue: {
         fontSize: 14,
         fontWeight: 'bold',
-        color: '#6366F1',
+        color: '#3B82F6',
     },
     footer: {
         position: 'absolute',

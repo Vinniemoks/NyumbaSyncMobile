@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { messageService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import websocketService from '../../services/websocket';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const ChatScreen = ({ route, navigation }) => {
   const { conversation } = route.params;
@@ -348,7 +349,7 @@ const ChatScreen = ({ route, navigation }) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6366F1" />
+        <ActivityIndicator size="large" color={colors.info} />
       </View>
     );
   }
@@ -372,7 +373,7 @@ const ChatScreen = ({ route, navigation }) => {
       {/* Input Bar */}
       <View style={styles.inputContainer}>
         <TouchableOpacity style={styles.attachButton}>
-          <Ionicons name="add-circle-outline" size={28} color="#6366F1" />
+          <Ionicons name="add-circle-outline" size={28} color={colors.info} />
         </TouchableOpacity>
 
         <TextInput
@@ -405,7 +406,7 @@ const ChatScreen = ({ route, navigation }) => {
       {/* Connection Status Banner */}
       {!connected && (
         <View style={styles.connectionBanner}>
-          <Ionicons name="cloud-offline" size={16} color="#F59E0B" />
+          <Ionicons name="cloud-offline" size={16} color={colors.warning} />
           <Text style={styles.connectionText}>Connecting...</Text>
         </View>
       )}
@@ -416,31 +417,31 @@ const ChatScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#020617',
+    backgroundColor: colors.bg,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#020617',
+    backgroundColor: colors.bg,
   },
   messagesContent: {
-    padding: 16,
+    padding: spacing[4],
   },
   dateSeparator: {
     alignItems: 'center',
     marginVertical: 16,
   },
   dateSeparatorText: {
-    fontSize: 12,
-    color: '#64748B',
-    backgroundColor: '#1E293B',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
+    fontSize: typography.xs,
+    color: colors.textMuted,
+    backgroundColor: colors.slate[800],
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[1],
+    borderRadius: borderRadius.xl,
   },
   messageContainer: {
-    marginBottom: 12,
+    marginBottom: spacing[3],
     maxWidth: '80%',
   },
   ownMessageContainer: {
@@ -450,28 +451,28 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   messageBubble: {
-    borderRadius: 16,
-    padding: 12,
-    paddingBottom: 6,
+    borderRadius: borderRadius['2xl'],
+    padding: spacing[3],
+    paddingBottom: spacing[1] + 2,
   },
   ownMessageBubble: {
-    backgroundColor: '#6366F1',
+    backgroundColor: colors.darkBlue,
     borderBottomRightRadius: 4,
   },
   otherMessageBubble: {
-    backgroundColor: '#1E293B',
+    backgroundColor: colors.slate[800],
     borderBottomLeftRadius: 4,
   },
   messageText: {
     fontSize: 15,
     lineHeight: 20,
-    marginBottom: 4,
+    marginBottom: spacing[1],
   },
   ownMessageText: {
     color: '#fff',
   },
   otherMessageText: {
-    color: '#F8FAFC',
+    color: colors.textPrimary,
   },
   messageTime: {
     fontSize: 10,
@@ -481,51 +482,51 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.7)',
   },
   otherMessageTime: {
-    color: '#64748B',
+    color: colors.textMuted,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    padding: 12,
-    backgroundColor: '#0F172A',
+    padding: spacing[3],
+    backgroundColor: colors.surface,
     borderTopWidth: 1,
     borderTopColor: '#1E293B',
   },
   attachButton: {
-    padding: 8,
-    marginRight: 8,
+    padding: spacing[2],
+    marginRight: spacing[2],
   },
   input: {
     flex: 1,
-    backgroundColor: '#1E293B',
+    backgroundColor: colors.slate[800],
     borderRadius: 20,
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing[4],
     paddingVertical: 10,
     paddingTop: 10,
     fontSize: 15,
-    color: '#F8FAFC',
+    color: colors.textPrimary,
     maxHeight: 100,
   },
   sendButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#6366F1',
+    backgroundColor: colors.darkBlue,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 8,
+    marginLeft: spacing[2],
   },
   sendButtonDisabled: {
     backgroundColor: '#334155',
   },
   typingIndicator: {
-    padding: 12,
-    paddingBottom: 8,
-    backgroundColor: '#0F172A',
+    padding: spacing[3],
+    paddingBottom: spacing[2],
+    backgroundColor: colors.surface,
   },
   typingText: {
     fontSize: 13,
-    color: '#6366F1',
+    color: colors.info,
     fontStyle: 'italic',
   },
   connectionBanner: {
@@ -533,13 +534,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#FEF3C7',
-    padding: 8,
+    padding: spacing[2],
   },
   connectionText: {
     fontSize: 13,
     color: '#92400E',
-    marginLeft: 8,
-    fontWeight: '500',
+    marginLeft: spacing[2],
+    fontWeight: typography.fontWeight.medium,
   },
 });
 

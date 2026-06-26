@@ -14,6 +14,7 @@ import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
 import { paymentService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const PaymentsScreen = () => {
   const { user } = useAuth();
@@ -271,7 +272,7 @@ const PaymentsScreen = () => {
           {payments.map((payment) => (
             <View key={payment.id} style={styles.paymentItem}>
               <View style={styles.paymentIcon}>
-                <Ionicons name="checkmark-circle" size={24} color="#10B981" />
+                <Ionicons name="checkmark-circle" size={24} color={colors.success} />
               </View>
               <View style={styles.paymentDetails}>
                 <Text style={styles.paymentTitle}>Rent Payment</Text>
@@ -336,7 +337,7 @@ const PaymentsScreen = () => {
               ]}
               onPress={() => setPaymentMethod('mpesa')}
             >
-              <Ionicons name="phone-portrait-outline" size={24} color="#10B981" />
+              <Ionicons name="phone-portrait-outline" size={24} color={colors.success} />
               <View style={styles.methodTextContainer}>
                 <Text style={styles.methodText}>Mobile Money (M-Pesa)</Text>
                 <Text style={styles.methodSubtext}>STK Push or Paybill</Text>
@@ -350,7 +351,7 @@ const PaymentsScreen = () => {
               ]}
               onPress={() => setPaymentMethod('card')}
             >
-              <Ionicons name="card-outline" size={24} color="#818CF8" />
+              <Ionicons name="card-outline" size={24} color={colors.blue[400]} />
               <View style={styles.methodTextContainer}>
                 <Text style={styles.methodText}>Credit/Debit Card</Text>
                 <Text style={styles.methodSubtext}>Visa, Mastercard</Text>
@@ -364,7 +365,7 @@ const PaymentsScreen = () => {
               ]}
               onPress={() => setPaymentMethod('bank')}
             >
-              <Ionicons name="business-outline" size={24} color="#F59E0B" />
+              <Ionicons name="business-outline" size={24} color={colors.warning} />
               <View style={styles.methodTextContainer}>
                 <Text style={styles.methodText}>Bank Transfer</Text>
                 <Text style={styles.methodSubtext}>Direct bank deposit</Text>
@@ -409,7 +410,7 @@ const PaymentsScreen = () => {
                 <Ionicons 
                   name={paymentInstructions?.type === 'mpesa_paybill' ? 'phone-portrait' : 'business'} 
                   size={48} 
-                  color="#6366F1" 
+                  color={colors.info} 
                 />
                 <Text style={styles.instructionsTitle}>
                   {paymentInstructions?.type === 'mpesa_paybill' ? 'M-Pesa Paybill' : 'Bank Transfer'}
@@ -444,7 +445,7 @@ const PaymentsScreen = () => {
                         onPress={() => copyToClipboard(paymentInstructions.paybillNumber, 'Paybill Number')}
                       >
                         <Text style={styles.copyableFieldText}>{paymentInstructions.paybillNumber}</Text>
-                        <Ionicons name="copy-outline" size={20} color="#818CF8" />
+                        <Ionicons name="copy-outline" size={20} color={colors.blue[400]} />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -460,7 +461,7 @@ const PaymentsScreen = () => {
                         onPress={() => copyToClipboard(paymentInstructions.accountNumber, 'Account Number')}
                       >
                         <Text style={styles.copyableFieldText}>{paymentInstructions.accountNumber}</Text>
-                        <Ionicons name="copy-outline" size={20} color="#818CF8" />
+                        <Ionicons name="copy-outline" size={20} color={colors.blue[400]} />
                       </TouchableOpacity>
                       <Text style={styles.importantNote}>⚠️ This account number is unique to your payment</Text>
                     </View>
@@ -515,7 +516,7 @@ const PaymentsScreen = () => {
                         onPress={() => copyToClipboard(paymentInstructions.accountNumber, 'Account Number')}
                       >
                         <Text style={styles.bankDetailValue}>{paymentInstructions.accountNumber}</Text>
-                        <Ionicons name="copy-outline" size={18} color="#818CF8" />
+                        <Ionicons name="copy-outline" size={18} color={colors.blue[400]} />
                       </TouchableOpacity>
                     </View>
 
@@ -531,13 +532,13 @@ const PaymentsScreen = () => {
                         onPress={() => copyToClipboard(paymentInstructions.reference, 'Reference')}
                       >
                         <Text style={styles.bankDetailValue}>{paymentInstructions.reference}</Text>
-                        <Ionicons name="copy-outline" size={18} color="#818CF8" />
+                        <Ionicons name="copy-outline" size={18} color={colors.blue[400]} />
                       </TouchableOpacity>
                     </View>
                   </View>
 
                   <View style={styles.warningBox}>
-                    <Ionicons name="alert-circle" size={24} color="#F59E0B" />
+                    <Ionicons name="alert-circle" size={24} color={colors.warning} />
                     <Text style={styles.warningText}>
                       Please use the reference number above when making the transfer. 
                       This helps us automatically match your payment to your account.
@@ -568,38 +569,38 @@ const PaymentsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#020617', // slate-950
+    backgroundColor: colors.bg, // slate-950
   },
   balanceCard: {
     backgroundColor: '#10B981',
-    margin: 20,
-    padding: 24,
-    borderRadius: 16,
+    margin: spacing[5],
+    padding: spacing[6],
+    borderRadius: borderRadius['2xl'],
     alignItems: 'center',
   },
   balanceLabel: {
-    fontSize: 14,
+    fontSize: typography.sm,
     color: '#fff',
     opacity: 0.9,
-    marginBottom: 8,
+    marginBottom: spacing[2],
   },
   balanceAmount: {
-    fontSize: 36,
-    fontWeight: 'bold',
+    fontSize: typography['4xl'],
+    fontWeight: typography.fontWeight.bold,
     color: '#fff',
-    marginBottom: 8,
+    marginBottom: spacing[2],
   },
   balanceStatus: {
-    fontSize: 14,
+    fontSize: typography.sm,
     color: '#fff',
     opacity: 0.9,
   },
   nextPaymentCard: {
-    backgroundColor: '#0F172A', // slate-900
-    margin: 20,
+    backgroundColor: colors.surface, // slate-900
+    margin: spacing[5],
     marginTop: 0,
-    padding: 20,
-    borderRadius: 12,
+    padding: spacing[5],
+    borderRadius: borderRadius.xl,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -609,50 +610,50 @@ const styles = StyleSheet.create({
   nextPaymentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: spacing[3],
   },
   nextPaymentTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#F8FAFC', // slate-50
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textPrimary, // slate-50
   },
   nextPaymentDue: {
-    fontSize: 14,
-    color: '#F59E0B',
+    fontSize: typography.sm,
+    color: colors.warning,
   },
   nextPaymentAmount: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#F8FAFC', // slate-50
-    marginBottom: 16,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary, // slate-50
+    marginBottom: spacing[4],
   },
   payButton: {
-    backgroundColor: '#6366F1', // indigo-500
-    borderRadius: 8,
-    padding: 16,
+    backgroundColor: colors.darkBlue, 
+    borderRadius: borderRadius.lg,
+    padding: spacing[4],
     alignItems: 'center',
   },
   payButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: colors.gold,
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
   },
   historySection: {
-    padding: 20,
+    padding: spacing[5],
     paddingTop: 0,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#F8FAFC', // slate-50
-    marginBottom: 16,
+    fontSize: typography.lg,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary, // slate-50
+    marginBottom: spacing[4],
   },
   paymentItem: {
     flexDirection: 'row',
-    backgroundColor: '#0F172A', // slate-900
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: colors.surface, // slate-900
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
+    marginBottom: spacing[3],
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -660,46 +661,46 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   paymentIcon: {
-    marginRight: 12,
+    marginRight: spacing[3],
     justifyContent: 'center',
   },
   paymentDetails: {
     flex: 1,
   },
   paymentTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#F8FAFC', // slate-50
-    marginBottom: 4,
+    fontSize: typography.sm,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textPrimary, // slate-50
+    marginBottom: spacing[1],
   },
   paymentDate: {
-    fontSize: 12,
-    color: '#94A3B8', // slate-400
+    fontSize: typography.xs,
+    color: colors.textSecondary, // slate-400
     marginBottom: 2,
   },
   paymentMethod: {
-    fontSize: 12,
-    color: '#64748B', // slate-500
+    fontSize: typography.xs,
+    color: colors.textMuted, // slate-500
   },
   paymentAmount: {
     alignItems: 'flex-end',
   },
   paymentAmountText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#F8FAFC', // slate-50
-    marginBottom: 4,
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary, // slate-50
+    marginBottom: spacing[1],
   },
   statusBadge: {
     backgroundColor: '#D1FAE5',
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    borderRadius: borderRadius.xl,
+    paddingHorizontal: spacing[2],
+    paddingVertical: spacing[1],
   },
   statusText: {
     fontSize: 10,
     color: '#065F46',
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
   },
   modalOverlay: {
     flex: 1,
@@ -707,96 +708,96 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#0F172A', // slate-900
+    backgroundColor: colors.surface, // slate-900
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    padding: 24,
+    padding: spacing[6],
     minHeight: 400,
   },
   modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#F8FAFC', // slate-50
-    marginBottom: 24,
+    fontSize: typography['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary, // slate-50
+    marginBottom: spacing[6],
   },
   inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#E2E8F0', // slate-200
-    marginBottom: 8,
+    fontSize: typography.sm,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.slate[200], // slate-200
+    marginBottom: spacing[2],
   },
   input: {
-    backgroundColor: '#1E293B', // slate-800
+    backgroundColor: colors.slate[800], // slate-800
     borderWidth: 1,
     borderColor: '#334155', // slate-700
-    borderRadius: 8,
-    padding: 16,
-    fontSize: 16,
-    marginBottom: 20,
-    color: '#F8FAFC', // slate-50
+    borderRadius: borderRadius.lg,
+    padding: spacing[4],
+    fontSize: typography.base,
+    marginBottom: spacing[5],
+    color: colors.textPrimary, // slate-50
   },
   methodOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1E293B', // slate-800
+    backgroundColor: colors.slate[800], // slate-800
     borderWidth: 2,
     borderColor: '#334155', // slate-700
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: borderRadius.lg,
+    padding: spacing[4],
+    marginBottom: spacing[3],
   },
   methodOptionSelected: {
-    borderColor: '#6366F1', // indigo-500
-    backgroundColor: '#312E81', // indigo-900
+    borderColor: colors.info, // indigo-500
+    backgroundColor: '#1E3A8A', // indigo-900
   },
   methodTextContainer: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: spacing[3],
   },
   methodText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#E2E8F0', // slate-200
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.medium,
+    color: colors.slate[200], // slate-200
   },
   methodSubtext: {
-    fontSize: 12,
-    color: '#94A3B8', // slate-400
+    fontSize: typography.xs,
+    color: colors.textSecondary, // slate-400
     marginTop: 2,
   },
   helperText: {
-    fontSize: 12,
-    color: '#94A3B8', // slate-400
+    fontSize: typography.xs,
+    color: colors.textSecondary, // slate-400
     marginTop: -12,
-    marginBottom: 16,
+    marginBottom: spacing[4],
     fontStyle: 'italic',
   },
   modalButtons: {
     flexDirection: 'row',
-    marginTop: 24,
+    marginTop: spacing[6],
   },
   modalButton: {
     flex: 1,
-    padding: 16,
-    borderRadius: 8,
+    padding: spacing[4],
+    borderRadius: borderRadius.lg,
     alignItems: 'center',
   },
   cancelButton: {
-    backgroundColor: '#1E293B', // slate-800
-    marginRight: 8,
+    backgroundColor: colors.slate[800], // slate-800
+    marginRight: spacing[2],
   },
   cancelButtonText: {
-    color: '#E2E8F0', // slate-200
-    fontSize: 16,
-    fontWeight: '600',
+    color: colors.slate[200], // slate-200
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
   },
   confirmButton: {
-    backgroundColor: '#6366F1', // indigo-500
-    marginLeft: 8,
+    backgroundColor: colors.darkBlue, 
+    marginLeft: spacing[2],
   },
   confirmButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: colors.gold,
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
   },
   // Payment Instructions Modal Styles
   instructionsScrollContent: {
@@ -804,177 +805,177 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   instructionsContent: {
-    backgroundColor: '#0F172A', // slate-900
+    backgroundColor: colors.surface, // slate-900
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    padding: 24,
+    padding: spacing[6],
     maxHeight: '90%',
   },
   instructionsHeader: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacing[6],
   },
   instructionsTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#F8FAFC', // slate-50
-    marginTop: 12,
+    fontSize: typography['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary, // slate-50
+    marginTop: spacing[3],
   },
   instructionsSubtitle: {
-    fontSize: 14,
-    color: '#94A3B8', // slate-400
-    marginTop: 4,
+    fontSize: typography.sm,
+    color: colors.textSecondary, // slate-400
+    marginTop: spacing[1],
   },
   instructionsBody: {
-    marginBottom: 24,
+    marginBottom: spacing[6],
   },
   instructionStep: {
     flexDirection: 'row',
-    marginBottom: 20,
+    marginBottom: spacing[5],
   },
   stepNumber: {
     width: 32,
     height: 32,
-    borderRadius: 16,
-    backgroundColor: '#6366F1', // indigo-500
+    borderRadius: borderRadius['2xl'],
+    backgroundColor: colors.darkBlue, 
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing[3],
   },
   stepNumberText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.bold,
     color: '#fff',
   },
   stepTextContainer: {
     flex: 1,
   },
   stepText: {
-    fontSize: 14,
-    color: '#E2E8F0', // slate-200
+    fontSize: typography.sm,
+    color: colors.slate[200], // slate-200
     lineHeight: 20,
   },
   copyableField: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#1E293B', // slate-800
+    backgroundColor: colors.slate[800], // slate-800
     borderWidth: 1,
     borderColor: '#334155', // slate-700
-    borderRadius: 8,
-    padding: 12,
-    marginTop: 8,
+    borderRadius: borderRadius.lg,
+    padding: spacing[3],
+    marginTop: spacing[2],
   },
   copyableFieldText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#F8FAFC', // slate-50
+    fontSize: typography.lg,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary, // slate-50
   },
   importantNote: {
-    fontSize: 12,
-    color: '#F59E0B',
-    marginTop: 8,
+    fontSize: typography.xs,
+    color: colors.warning,
+    marginTop: spacing[2],
     fontStyle: 'italic',
   },
   amountField: {
-    backgroundColor: '#1E293B', // slate-800
+    backgroundColor: colors.slate[800], // slate-800
     borderWidth: 1,
     borderColor: '#334155', // slate-700
-    borderRadius: 8,
-    padding: 12,
-    marginTop: 8,
+    borderRadius: borderRadius.lg,
+    padding: spacing[3],
+    marginTop: spacing[2],
   },
   amountFieldText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#10B981',
+    fontSize: typography.lg,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.success,
   },
   referenceBox: {
-    backgroundColor: '#312E81', // indigo-900
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 12,
+    backgroundColor: '#1E3A8A', // indigo-900
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
+    marginTop: spacing[3],
   },
   referenceLabel: {
-    fontSize: 12,
-    color: '#A5B4FC', // indigo-300
-    marginBottom: 4,
+    fontSize: typography.xs,
+    color: colors.blue[300], // indigo-300
+    marginBottom: spacing[1],
   },
   referenceText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#F8FAFC', // slate-50
-    marginBottom: 8,
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary, // slate-50
+    marginBottom: spacing[2],
   },
   referenceNote: {
-    fontSize: 12,
-    color: '#C7D2FE', // indigo-200
+    fontSize: typography.xs,
+    color: '#BFDBFE', // indigo-200
     fontStyle: 'italic',
   },
   bankDetailsCard: {
-    backgroundColor: '#1E293B', // slate-800
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
+    backgroundColor: colors.slate[800], // slate-800
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
+    marginBottom: spacing[4],
   },
   bankDetailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: spacing[3],
     borderBottomWidth: 1,
     borderBottomColor: '#334155', // slate-700
   },
   bankDetailLabel: {
-    fontSize: 14,
-    color: '#94A3B8', // slate-400
+    fontSize: typography.sm,
+    color: colors.textSecondary, // slate-400
   },
   bankDetailValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#F8FAFC', // slate-50
+    fontSize: typography.sm,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textPrimary, // slate-50
   },
   bankDetailValueHighlight: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#10B981',
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.success,
   },
   copyableInlineField: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing[2],
   },
   warningBox: {
     flexDirection: 'row',
     backgroundColor: '#451A03', // amber-950
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
+    marginBottom: spacing[4],
   },
   warningText: {
     flex: 1,
     fontSize: 13,
     color: '#FDE68A', // amber-200
-    marginLeft: 12,
+    marginLeft: spacing[3],
     lineHeight: 18,
   },
   processingNote: {
-    fontSize: 12,
-    color: '#94A3B8', // slate-400
+    fontSize: typography.xs,
+    color: colors.textSecondary, // slate-400
     textAlign: 'center',
     fontStyle: 'italic',
   },
   doneButton: {
-    backgroundColor: '#6366F1', // indigo-500
-    borderRadius: 8,
-    padding: 16,
+    backgroundColor: colors.darkBlue, 
+    borderRadius: borderRadius.lg,
+    padding: spacing[4],
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: spacing[2],
   },
   doneButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: colors.gold,
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
   },
 });
 

@@ -10,6 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const AgentClientsScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,7 +45,7 @@ const AgentClientsScreen = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#94A3B8" />
+          <Ionicons name="search" size={20} color={colors.textSecondary} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search clients..."
@@ -150,37 +151,41 @@ const AgentClientsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#020617' },
-  header: { padding: 20 },
-  searchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#0F172A', borderRadius: 12, padding: 12 },
-  searchInput: { flex: 1, marginLeft: 8, fontSize: 16, color: '#F8FAFC' },
-  filterContainer: { paddingHorizontal: 20, marginBottom: 20 },
-  filterChip: { backgroundColor: '#0F172A', borderRadius: 20, paddingHorizontal: 16, paddingVertical: 8, marginRight: 8 },
-  filterChipActive: { backgroundColor: '#3B82F6' },
-  filterChipText: { fontSize: 14, color: '#94A3B8' },
-  filterChipTextActive: { color: '#fff', fontWeight: '600' },
-  clientsList: { flex: 1, paddingHorizontal: 20 },
-  clientCard: { backgroundColor: '#0F172A', borderRadius: 12, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
+  container: { flex: 1, backgroundColor: colors.bg },
+  header: { padding: spacing[5] },
+  searchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surface, borderRadius: borderRadius.xl, padding: spacing[3] },
+  searchInput: { flex: 1, marginLeft: spacing[2], fontSize: typography.base, color: colors.textPrimary },
+  filterContainer: { paddingHorizontal: spacing[5], marginBottom: spacing[5] },
+  filterChip: { backgroundColor: colors.surface, borderRadius: 20, paddingHorizontal: spacing[4], paddingVertical: spacing[2], marginRight: spacing[2] },
+  filterChipActive: { backgroundColor: colors.darkBlue,
+  },
+  filterChipText: { fontSize: typography.sm, color: colors.textSecondary },
+  filterChipTextActive: { color: '#fff', fontWeight: typography.fontWeight.semibold },
+  clientsList: { flex: 1, paddingHorizontal: spacing[5] },
+  clientCard: { backgroundColor: colors.surface, borderRadius: borderRadius.xl, padding: spacing[4], marginBottom: spacing[3], shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
   clientHeader: { flexDirection: 'row', alignItems: 'center' },
-  clientAvatar: { width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
-  clientAvatarText: { fontSize: 20, fontWeight: 'bold', color: '#fff' },
+  clientAvatar: { width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', marginRight: spacing[3] },
+  clientAvatarText: { fontSize: typography.xl, fontWeight: typography.fontWeight.bold, color: '#fff' },
   clientInfo: { flex: 1 },
-  clientName: { fontSize: 16, fontWeight: '600', color: '#F8FAFC', marginBottom: 2 },
-  clientEmail: { fontSize: 13, color: '#94A3B8', marginBottom: 2 },
-  clientPhone: { fontSize: 13, color: '#94A3B8' },
+  clientName: { fontSize: typography.base, fontWeight: typography.fontWeight.semibold, color: colors.textPrimary, marginBottom: 2 },
+  clientEmail: { fontSize: 13, color: colors.textSecondary, marginBottom: 2 },
+  clientPhone: { fontSize: 13, color: colors.textSecondary },
   clientRight: { alignItems: 'flex-end' },
-  statusBadge: { borderRadius: 12, paddingHorizontal: 8, paddingVertical: 4, marginBottom: 4 },
-  statusText: { fontSize: 10, fontWeight: '600', textTransform: 'capitalize' },
-  propertiesText: { fontSize: 12, color: '#64748B' },
-  fab: { position: 'absolute', right: 20, bottom: 20, width: 60, height: 60, borderRadius: 30, backgroundColor: '#3B82F6', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 8 },
+  statusBadge: { borderRadius: borderRadius.xl, paddingHorizontal: spacing[2], paddingVertical: spacing[1], marginBottom: spacing[1] },
+  statusText: { fontSize: 10, fontWeight: typography.fontWeight.semibold, textTransform: 'capitalize' },
+  propertiesText: { fontSize: typography.xs, color: colors.textMuted },
+  fab: { position: 'absolute', right: 20, bottom: 20, width: 60, height: 60, borderRadius: 30, backgroundColor: colors.darkBlue,
+    justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 8 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'center', alignItems: 'center' },
-  modalContent: { backgroundColor: '#0F172A', borderRadius: 20, padding: 24, width: '90%', maxWidth: 400 },
-  modalTitle: { fontSize: 24, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 20 },
-  detailRow: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#1E293B' },
-  detailLabel: { fontSize: 12, color: '#94A3B8', marginBottom: 4 },
-  detailValue: { fontSize: 14, color: '#F8FAFC', fontWeight: '500' },
-  closeButton: { backgroundColor: '#3B82F6', borderRadius: 8, padding: 16, alignItems: 'center', marginTop: 20 },
-  closeButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  modalContent: { backgroundColor: colors.surface, borderRadius: 20, padding: spacing[6], width: '90%', maxWidth: 400 },
+  modalTitle: { fontSize: typography['2xl'], fontWeight: typography.fontWeight.bold, color: colors.textPrimary, marginBottom: spacing[5] },
+  detailRow: { paddingVertical: spacing[3], borderBottomWidth: 1, borderBottomColor: '#1E293B' },
+  detailLabel: { fontSize: typography.xs, color: colors.textSecondary, marginBottom: spacing[1] },
+  detailValue: { fontSize: typography.sm, color: colors.textPrimary, fontWeight: typography.fontWeight.medium },
+  closeButton: { backgroundColor: colors.darkBlue,
+    borderRadius: borderRadius.lg, padding: spacing[4], alignItems: 'center', marginTop: spacing[5] },
+  closeButtonText: { color: colors.gold,
+    fontSize: typography.base, fontWeight: typography.fontWeight.semibold },
 });
 
 export default AgentClientsScreen;

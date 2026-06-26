@@ -1,5 +1,6 @@
 import { io } from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_CONFIG } from '../config/apiConfig';
 
 class WebSocketService {
     constructor() {
@@ -14,14 +15,14 @@ class WebSocketService {
     async connect() {
         try {
             // Get auth token
-            const token = await AsyncStorage.getItem('token');
+            const token = await AsyncStorage.getItem('nyumbasync_auth_token');
 
             if (!token) {
                 throw new Error('No authentication token found');
             }
 
             // Initialize socket connection
-            const API_URL = 'http://localhost:3000'; // Update for production
+            const API_URL = API_CONFIG.SOCKET_URL;
 
             this.socket = io(API_URL, {
                 auth: {
@@ -64,6 +65,11 @@ class WebSocketService {
                 this.emit('message:read', data);
             });
 
+            // Notification events
+            this.socket.on('notification', (data) => {
+                this.emit('notification', data);
+            });
+
             // Presence events
             this.socket.on('user:online', (data) => {
                 this.emit('user:online', data);
@@ -73,7 +79,7 @@ class WebSocketService {
                 this.emit('user:offline', data);
             });
 
-            // Notification events
+            // Maintenance & Payment events
             this.socket.on('maintenance:updated', (data) => {
                 this.emit('maintenance:updated', data);
             });

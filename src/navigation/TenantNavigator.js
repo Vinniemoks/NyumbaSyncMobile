@@ -14,6 +14,27 @@ import TenantProfileScreen from '../screens/Tenant/ProfileScreen';
 import TenantNotificationsScreen from '../screens/Tenant/NotificationsScreen';
 import ChatScreen from '../screens/Shared/ChatScreen';
 
+import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../config/theme';
+
+const headerTheme = {
+  headerStyle: {
+    backgroundColor: colors.surface,
+  },
+  headerTintColor: colors.textPrimary,
+  headerTitleStyle: {
+    fontWeight: typography.fontWeight.bold,
+  },
+};
+
+const tabBarTheme = {
+  tabBarActiveTintColor: colors.gold,
+  tabBarInactiveTintColor: colors.textMuted,
+  tabBarStyle: {
+    backgroundColor: colors.surface,
+    borderTopColor: colors.surfaceHover,
+  },
+};
+
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
@@ -21,15 +42,7 @@ const Stack = createStackNavigator();
 const MessagesStack = () => {
   return (
     <Stack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: '#0F172A',
-        },
-        headerTintColor: '#F8FAFC',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-      }}
+      screenOptions={headerTheme}
     >
       <Stack.Screen 
         name="MessagesList" 
@@ -49,15 +62,7 @@ const MessagesStack = () => {
 const ProfileStack = () => {
   return (
     <Stack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: '#0F172A',
-        },
-        headerTintColor: '#F8FAFC',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-      }}
+      screenOptions={headerTheme}
     >
       <Stack.Screen 
         name="ProfileMain" 
@@ -96,20 +101,9 @@ const TenantNavigator = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#6366F1',
-        tabBarInactiveTintColor: '#64748B',
-        tabBarStyle: {
-          backgroundColor: '#0F172A',
-          borderTopColor: '#1E293B',
-        },
+        ...tabBarTheme,
         headerShown: true,
-        headerStyle: {
-          backgroundColor: '#0F172A',
-        },
-        headerTintColor: '#F8FAFC',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
+        ...headerTheme,
       })}
     >
       <Tab.Screen name="Home" component={TenantHomeScreen} options={{ title: 'Dashboard' }} />

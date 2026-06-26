@@ -14,6 +14,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { propertyService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const PropertiesScreen = ({ navigation }) => {
   const { user } = useAuth();
@@ -170,7 +171,7 @@ const PropertiesScreen = ({ navigation }) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6366F1" />
+        <ActivityIndicator size="large" color={colors.info} />
       </View>
     );
   }
@@ -203,7 +204,7 @@ const PropertiesScreen = ({ navigation }) => {
             >
               <View style={styles.propertyHeader}>
                 <View style={styles.propertyIcon}>
-                  <Ionicons name="home" size={24} color="#6366F1" />
+                  <Ionicons name="home" size={24} color={colors.info} />
                 </View>
                 <View style={styles.propertyInfo}>
                   <Text style={styles.propertyName}>{property.name}</Text>
@@ -215,21 +216,21 @@ const PropertiesScreen = ({ navigation }) => {
                   onPress={() => handleDeleteProperty(property.id)}
                   style={styles.deleteButton}
                 >
-                  <Ionicons name="trash-outline" size={20} color="#EF4444" />
+                  <Ionicons name="trash-outline" size={20} color={colors.danger} />
                 </TouchableOpacity>
               </View>
 
               <View style={styles.propertyDetails}>
                 <View style={styles.detailItem}>
-                  <Ionicons name="bed-outline" size={16} color="#94A3B8" />
+                  <Ionicons name="bed-outline" size={16} color={colors.textSecondary} />
                   <Text style={styles.detailText}>{property.bedrooms} Beds</Text>
                 </View>
                 <View style={styles.detailItem}>
-                  <Ionicons name="water-outline" size={16} color="#94A3B8" />
+                  <Ionicons name="water-outline" size={16} color={colors.textSecondary} />
                   <Text style={styles.detailText}>{property.bathrooms} Baths</Text>
                 </View>
                 <View style={styles.detailItem}>
-                  <Ionicons name="pricetag-outline" size={16} color="#94A3B8" />
+                  <Ionicons name="pricetag-outline" size={16} color={colors.textSecondary} />
                   <Text style={styles.detailText}>
                     KSh {property.rent?.toLocaleString()}
                   </Text>
@@ -256,7 +257,7 @@ const PropertiesScreen = ({ navigation }) => {
                 <View
                   style={[
                     styles.typeBadge,
-                    { backgroundColor: '#312E81' },
+                    { backgroundColor: '#1E3A8A' },
                   ]}
                 >
                   <Text style={styles.typeBadgeText}>{property.type}</Text>
@@ -268,7 +269,7 @@ const PropertiesScreen = ({ navigation }) => {
 
         {properties.length === 0 && (
           <View style={styles.emptyState}>
-            <Ionicons name="home-outline" size={64} color="#64748B" />
+            <Ionicons name="home-outline" size={64} color={colors.textMuted} />
             <Text style={styles.emptyStateText}>No properties yet</Text>
             <Text style={styles.emptyStateSubtext}>
               Add your first property to get started
@@ -290,7 +291,7 @@ const PropertiesScreen = ({ navigation }) => {
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Add New Property</Text>
                 <TouchableOpacity onPress={() => setShowAddModal(false)}>
-                  <Ionicons name="close" size={24} color="#94A3B8" />
+                  <Ionicons name="close" size={24} color={colors.textSecondary} />
                 </TouchableOpacity>
               </View>
 
@@ -448,13 +449,13 @@ const PropertiesScreen = ({ navigation }) => {
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>{selectedProperty?.name}</Text>
                 <TouchableOpacity onPress={() => setShowDetailsModal(false)}>
-                  <Ionicons name="close" size={24} color="#94A3B8" />
+                  <Ionicons name="close" size={24} color={colors.textSecondary} />
                 </TouchableOpacity>
               </View>
 
               <View style={styles.detailsSection}>
                 <View style={styles.detailRow}>
-                  <Ionicons name="location-outline" size={20} color="#6366F1" />
+                  <Ionicons name="location-outline" size={20} color={colors.info} />
                   <View style={styles.detailContent}>
                     <Text style={styles.detailLabel}>Address</Text>
                     <Text style={styles.detailValue}>
@@ -464,7 +465,7 @@ const PropertiesScreen = ({ navigation }) => {
                 </View>
 
                 <View style={styles.detailRow}>
-                  <Ionicons name="pricetag-outline" size={20} color="#6366F1" />
+                  <Ionicons name="pricetag-outline" size={20} color={colors.info} />
                   <View style={styles.detailContent}>
                     <Text style={styles.detailLabel}>Monthly Rent</Text>
                     <Text style={styles.detailValue}>
@@ -474,7 +475,7 @@ const PropertiesScreen = ({ navigation }) => {
                 </View>
 
                 <View style={styles.detailRow}>
-                  <Ionicons name="home-outline" size={20} color="#6366F1" />
+                  <Ionicons name="home-outline" size={20} color={colors.info} />
                   <View style={styles.detailContent}>
                     <Text style={styles.detailLabel}>Property Type</Text>
                     <Text style={styles.detailValue}>{selectedProperty?.type}</Text>
@@ -482,7 +483,7 @@ const PropertiesScreen = ({ navigation }) => {
                 </View>
 
                 <View style={styles.detailRow}>
-                  <Ionicons name="bed-outline" size={20} color="#6366F1" />
+                  <Ionicons name="bed-outline" size={20} color={colors.info} />
                   <View style={styles.detailContent}>
                     <Text style={styles.detailLabel}>Bedrooms & Bathrooms</Text>
                     <Text style={styles.detailValue}>
@@ -492,7 +493,7 @@ const PropertiesScreen = ({ navigation }) => {
                 </View>
 
                 <View style={styles.detailRow}>
-                  <Ionicons name="people-outline" size={20} color="#6366F1" />
+                  <Ionicons name="people-outline" size={20} color={colors.info} />
                   <View style={styles.detailContent}>
                     <Text style={styles.detailLabel}>Occupancy</Text>
                     <Text style={styles.detailValue}>
@@ -504,7 +505,7 @@ const PropertiesScreen = ({ navigation }) => {
 
                 {selectedProperty?.amenities && selectedProperty.amenities.length > 0 && (
                   <View style={styles.detailRow}>
-                    <Ionicons name="checkmark-circle-outline" size={20} color="#6366F1" />
+                    <Ionicons name="checkmark-circle-outline" size={20} color={colors.info} />
                     <View style={styles.detailContent}>
                       <Text style={styles.detailLabel}>Amenities</Text>
                       <View style={styles.amenitiesDisplay}>
@@ -530,7 +531,7 @@ const PropertiesScreen = ({ navigation }) => {
                     });
                   }}
                 >
-                  <Ionicons name="grid" size={20} color="#6366F1" />
+                  <Ionicons name="grid" size={20} color={colors.info} />
                   <Text style={styles.actionButtonText}>Manage Units</Text>
                 </TouchableOpacity>
 
@@ -541,7 +542,7 @@ const PropertiesScreen = ({ navigation }) => {
                     Alert.alert('Info', 'Edit property feature coming soon');
                   }}
                 >
-                  <Ionicons name="create" size={20} color="#10B981" />
+                  <Ionicons name="create" size={20} color={colors.success} />
                   <Text style={styles.actionButtonText}>Edit Property</Text>
                 </TouchableOpacity>
               </View>
@@ -556,47 +557,47 @@ const PropertiesScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#020617', // slate-950
+    backgroundColor: colors.bg, // slate-950
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#020617',
+    backgroundColor: colors.bg,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#0F172A', // slate-900
+    padding: spacing[5],
+    backgroundColor: colors.surface, // slate-900
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#F8FAFC', // slate-50
+    fontSize: typography['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary, // slate-50
   },
   headerSubtitle: {
-    fontSize: 14,
-    color: '#94A3B8', // slate-400
-    marginTop: 4,
+    fontSize: typography.sm,
+    color: colors.textSecondary, // slate-400
+    marginTop: spacing[1],
   },
   addButton: {
     width: 48,
     height: 48,
-    borderRadius: 24,
-    backgroundColor: '#6366F1', // indigo-500
+    borderRadius: borderRadius['3xl'],
+    backgroundColor: colors.darkBlue, 
     justifyContent: 'center',
     alignItems: 'center',
   },
   propertiesList: {
-    padding: 20,
+    padding: spacing[5],
   },
   propertyCard: {
-    backgroundColor: '#0F172A', // slate-900
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
+    backgroundColor: colors.surface, // slate-900
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
+    marginBottom: spacing[4],
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -606,46 +607,46 @@ const styles = StyleSheet.create({
   propertyHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing[3],
   },
   propertyIcon: {
     width: 48,
     height: 48,
-    borderRadius: 24,
-    backgroundColor: '#1E293B', // slate-800
+    borderRadius: borderRadius['3xl'],
+    backgroundColor: colors.slate[800], // slate-800
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing[3],
   },
   propertyInfo: {
     flex: 1,
   },
   propertyName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#F8FAFC', // slate-50
-    marginBottom: 4,
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textPrimary, // slate-50
+    marginBottom: spacing[1],
   },
   propertyAddress: {
     fontSize: 13,
-    color: '#94A3B8', // slate-400
+    color: colors.textSecondary, // slate-400
   },
   deleteButton: {
-    padding: 8,
+    padding: spacing[2],
   },
   propertyDetails: {
     flexDirection: 'row',
-    marginBottom: 12,
+    marginBottom: spacing[3],
   },
   detailItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: spacing[4],
   },
   detailText: {
     fontSize: 13,
-    color: '#94A3B8', // slate-400
-    marginLeft: 4,
+    color: colors.textSecondary, // slate-400
+    marginLeft: spacing[1],
   },
   propertyFooter: {
     flexDirection: 'row',
@@ -654,16 +655,16 @@ const styles = StyleSheet.create({
   },
   occupancyInfo: {
     flex: 1,
-    marginRight: 12,
+    marginRight: spacing[3],
   },
   occupancyText: {
-    fontSize: 12,
-    color: '#94A3B8', // slate-400
-    marginBottom: 4,
+    fontSize: typography.xs,
+    color: colors.textSecondary, // slate-400
+    marginBottom: spacing[1],
   },
   occupancyBar: {
     height: 6,
-    backgroundColor: '#1E293B', // slate-800
+    backgroundColor: colors.slate[800], // slate-800
     borderRadius: 3,
     overflow: 'hidden',
   },
@@ -672,14 +673,14 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   typeBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[1] + 2,
+    borderRadius: borderRadius.xl,
   },
   typeBadgeText: {
     fontSize: 11,
-    fontWeight: '600',
-    color: '#A5B4FC', // indigo-300
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.blue[300], // indigo-300
     textTransform: 'capitalize',
   },
   emptyState: {
@@ -688,15 +689,15 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
   },
   emptyStateText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#94A3B8', // slate-400
-    marginTop: 16,
+    fontSize: typography.lg,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textSecondary, // slate-400
+    marginTop: spacing[4],
   },
   emptyStateSubtext: {
-    fontSize: 14,
-    color: '#64748B', // slate-500
-    marginTop: 8,
+    fontSize: typography.sm,
+    color: colors.textMuted, // slate-500
+    marginTop: spacing[2],
   },
   modalOverlay: {
     flex: 1,
@@ -708,38 +709,38 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#0F172A', // slate-900
+    backgroundColor: colors.surface, // slate-900
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    padding: 24,
+    padding: spacing[6],
     maxHeight: '90%',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacing[6],
   },
   modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#F8FAFC', // slate-50
+    fontSize: typography['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary, // slate-50
   },
   inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#E2E8F0', // slate-200
-    marginBottom: 8,
+    fontSize: typography.sm,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.slate[200], // slate-200
+    marginBottom: spacing[2],
   },
   input: {
-    backgroundColor: '#1E293B', // slate-800
+    backgroundColor: colors.slate[800], // slate-800
     borderWidth: 1,
     borderColor: '#334155', // slate-700
-    borderRadius: 8,
-    padding: 16,
-    fontSize: 16,
-    color: '#F8FAFC', // slate-50
-    marginBottom: 16,
+    borderRadius: borderRadius.lg,
+    padding: spacing[4],
+    fontSize: typography.base,
+    color: colors.textPrimary, // slate-50
+    marginBottom: spacing[4],
   },
   textArea: {
     height: 100,
@@ -748,27 +749,27 @@ const styles = StyleSheet.create({
   typeSelector: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 16,
+    marginBottom: spacing[4],
   },
   typeOption: {
-    backgroundColor: '#1E293B', // slate-800
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginRight: 8,
-    marginBottom: 8,
+    backgroundColor: colors.slate[800], // slate-800
+    borderRadius: borderRadius.lg,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[2],
+    marginRight: spacing[2],
+    marginBottom: spacing[2],
   },
   typeOptionSelected: {
-    backgroundColor: '#6366F1', // indigo-500
+    backgroundColor: colors.darkBlue, 
   },
   typeOptionText: {
-    fontSize: 14,
-    color: '#94A3B8', // slate-400
+    fontSize: typography.sm,
+    color: colors.textSecondary, // slate-400
     textTransform: 'capitalize',
   },
   typeOptionTextSelected: {
     color: '#fff',
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
   },
   row: {
     flexDirection: 'row',
@@ -780,95 +781,95 @@ const styles = StyleSheet.create({
   amenitiesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 16,
+    marginBottom: spacing[4],
   },
   amenityChip: {
-    backgroundColor: '#1E293B', // slate-800
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginRight: 8,
-    marginBottom: 8,
+    backgroundColor: colors.slate[800], // slate-800
+    borderRadius: borderRadius['2xl'],
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[1] + 2,
+    marginRight: spacing[2],
+    marginBottom: spacing[2],
   },
   amenityChipSelected: {
-    backgroundColor: '#312E81', // indigo-900
+    backgroundColor: '#1E3A8A', // indigo-900
   },
   amenityChipText: {
-    fontSize: 12,
-    color: '#94A3B8', // slate-400
+    fontSize: typography.xs,
+    color: colors.textSecondary, // slate-400
   },
   amenityChipTextSelected: {
-    color: '#A5B4FC', // indigo-300
-    fontWeight: '600',
+    color: colors.blue[300], // indigo-300
+    fontWeight: typography.fontWeight.semibold,
   },
   modalButtons: {
     flexDirection: 'row',
-    marginTop: 24,
+    marginTop: spacing[6],
   },
   modalButton: {
     flex: 1,
-    padding: 16,
-    borderRadius: 8,
+    padding: spacing[4],
+    borderRadius: borderRadius.lg,
     alignItems: 'center',
   },
   cancelButton: {
-    backgroundColor: '#1E293B', // slate-800
-    marginRight: 8,
+    backgroundColor: colors.slate[800], // slate-800
+    marginRight: spacing[2],
   },
   cancelButtonText: {
-    color: '#E2E8F0', // slate-200
-    fontSize: 16,
-    fontWeight: '600',
+    color: colors.slate[200], // slate-200
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
   },
   saveButton: {
-    backgroundColor: '#6366F1', // indigo-500
-    marginLeft: 8,
+    backgroundColor: colors.darkBlue, 
+    marginLeft: spacing[2],
   },
   saveButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: colors.gold,
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
   },
   detailsSection: {
-    marginBottom: 24,
+    marginBottom: spacing[6],
   },
   detailRow: {
     flexDirection: 'row',
-    paddingVertical: 16,
+    paddingVertical: spacing[4],
     borderBottomWidth: 1,
     borderBottomColor: '#1E293B', // slate-800
   },
   detailContent: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: spacing[3],
   },
   detailLabel: {
-    fontSize: 12,
-    color: '#94A3B8', // slate-400
-    marginBottom: 4,
+    fontSize: typography.xs,
+    color: colors.textSecondary, // slate-400
+    marginBottom: spacing[1],
   },
   detailValue: {
     fontSize: 15,
-    color: '#F8FAFC', // slate-50
-    fontWeight: '500',
+    color: colors.textPrimary, // slate-50
+    fontWeight: typography.fontWeight.medium,
   },
   amenitiesDisplay: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginTop: 8,
+    marginTop: spacing[2],
   },
   amenityTag: {
-    backgroundColor: '#312E81', // indigo-900
-    borderRadius: 12,
+    backgroundColor: '#1E3A8A', // indigo-900
+    borderRadius: borderRadius.xl,
     paddingHorizontal: 10,
-    paddingVertical: 4,
-    marginRight: 6,
-    marginBottom: 6,
+    paddingVertical: spacing[1],
+    marginRight: spacing[1] + 2,
+    marginBottom: spacing[1] + 2,
   },
   amenityTagText: {
     fontSize: 11,
-    color: '#A5B4FC', // indigo-300
-    fontWeight: '500',
+    color: colors.blue[300], // indigo-300
+    fontWeight: typography.fontWeight.medium,
   },
   actionButtons: {
     flexDirection: 'row',
@@ -879,16 +880,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1E293B', // slate-800
-    borderRadius: 8,
-    padding: 16,
+    backgroundColor: colors.slate[800], // slate-800
+    borderRadius: borderRadius.lg,
+    padding: spacing[4],
     marginHorizontal: 4,
   },
   actionButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#E2E8F0', // slate-200
-    marginLeft: 8,
+    fontSize: typography.sm,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.slate[200], // slate-200
+    marginLeft: spacing[2],
   },
 });
 

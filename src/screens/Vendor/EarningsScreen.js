@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const VendorEarningsScreen = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('month');
@@ -35,13 +36,13 @@ const VendorEarningsScreen = () => {
           <View style={styles.summaryRow}>
             <View style={styles.summaryItem}>
               <Text style={styles.summaryLabel}>Pending</Text>
-              <Text style={[styles.summaryValue, { color: '#F59E0B' }]}>
+              <Text style={[styles.summaryValue, { color: colors.warning }]}>
                 KSh {earnings.pending.toLocaleString()}
               </Text>
             </View>
             <View style={styles.summaryItem}>
               <Text style={styles.summaryLabel}>Paid</Text>
-              <Text style={[styles.summaryValue, { color: '#10B981' }]}>
+              <Text style={[styles.summaryValue, { color: colors.success }]}>
                 KSh {earnings.paid.toLocaleString()}
               </Text>
             </View>
@@ -97,30 +98,30 @@ const VendorEarningsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#020617' },
-  summaryCard: { backgroundColor: '#0F172A', margin: 20, borderRadius: 12, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
-  summaryTitle: { fontSize: 14, color: '#94A3B8', marginBottom: 8 },
-  summaryAmount: { fontSize: 32, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 16 },
+  container: { flex: 1, backgroundColor: colors.bg },
+  summaryCard: { backgroundColor: colors.surface, margin: spacing[5], borderRadius: borderRadius.xl, padding: spacing[5], shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
+  summaryTitle: { fontSize: typography.sm, color: colors.textSecondary, marginBottom: spacing[2] },
+  summaryAmount: { fontSize: 32, fontWeight: typography.fontWeight.bold, color: colors.textPrimary, marginBottom: spacing[4] },
   summaryRow: { flexDirection: 'row', justifyContent: 'space-around' },
   summaryItem: { alignItems: 'center' },
-  summaryLabel: { fontSize: 12, color: '#94A3B8', marginBottom: 4 },
-  summaryValue: { fontSize: 18, fontWeight: '600' },
-  periodSelector: { flexDirection: 'row', paddingHorizontal: 20, marginBottom: 20 },
-  periodButton: { flex: 1, backgroundColor: '#0F172A', borderRadius: 8, padding: 12, marginHorizontal: 4, alignItems: 'center' },
+  summaryLabel: { fontSize: typography.xs, color: colors.textSecondary, marginBottom: spacing[1] },
+  summaryValue: { fontSize: typography.lg, fontWeight: typography.fontWeight.semibold },
+  periodSelector: { flexDirection: 'row', paddingHorizontal: spacing[5], marginBottom: spacing[5] },
+  periodButton: { flex: 1, backgroundColor: colors.surface, borderRadius: borderRadius.lg, padding: spacing[3], marginHorizontal: 4, alignItems: 'center' },
   periodButtonActive: { backgroundColor: '#F59E0B' },
-  periodText: { fontSize: 14, color: '#94A3B8', fontWeight: '500' },
-  periodTextActive: { color: '#fff', fontWeight: '600' },
-  section: { paddingHorizontal: 20 },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 16 },
-  transactionCard: { backgroundColor: '#0F172A', borderRadius: 12, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
+  periodText: { fontSize: typography.sm, color: colors.textSecondary, fontWeight: typography.fontWeight.medium },
+  periodTextActive: { color: '#fff', fontWeight: typography.fontWeight.semibold },
+  section: { paddingHorizontal: spacing[5] },
+  sectionTitle: { fontSize: typography.lg, fontWeight: typography.fontWeight.bold, color: colors.textPrimary, marginBottom: spacing[4] },
+  transactionCard: { backgroundColor: colors.surface, borderRadius: borderRadius.xl, padding: spacing[4], marginBottom: spacing[3], shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
   transactionHeader: { flexDirection: 'row', justifyContent: 'space-between' },
   transactionInfo: { flex: 1 },
-  transactionDescription: { fontSize: 14, fontWeight: '600', color: '#F8FAFC', marginBottom: 4 },
-  transactionDate: { fontSize: 12, color: '#94A3B8' },
+  transactionDescription: { fontSize: typography.sm, fontWeight: typography.fontWeight.semibold, color: colors.textPrimary, marginBottom: spacing[1] },
+  transactionDate: { fontSize: typography.xs, color: colors.textSecondary },
   transactionRight: { alignItems: 'flex-end' },
-  transactionAmount: { fontSize: 16, fontWeight: '600', color: '#10B981', marginBottom: 4 },
-  statusBadge: { borderRadius: 12, paddingHorizontal: 8, paddingVertical: 4 },
-  statusText: { fontSize: 10, fontWeight: '600', textTransform: 'capitalize' },
+  transactionAmount: { fontSize: typography.base, fontWeight: typography.fontWeight.semibold, color: colors.success, marginBottom: spacing[1] },
+  statusBadge: { borderRadius: borderRadius.xl, paddingHorizontal: spacing[2], paddingVertical: spacing[1] },
+  statusText: { fontSize: 10, fontWeight: typography.fontWeight.semibold, textTransform: 'capitalize' },
 });
 
 export default VendorEarningsScreen;

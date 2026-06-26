@@ -12,6 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { notificationService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const NotificationsScreen = () => {
   const { user } = useAuth();
@@ -138,7 +139,7 @@ const NotificationsScreen = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6366F1" />
+        <ActivityIndicator size="large" color={colors.info} />
       </View>
     );
   }
@@ -156,12 +157,12 @@ const NotificationsScreen = () => {
         <View style={styles.headerActions}>
           {unreadCount > 0 && (
             <TouchableOpacity style={styles.headerButton} onPress={handleMarkAllAsRead}>
-              <Ionicons name="checkmark-done" size={24} color="#6366F1" />
+              <Ionicons name="checkmark-done" size={24} color={colors.info} />
             </TouchableOpacity>
           )}
           {notifications.length > 0 && (
             <TouchableOpacity style={styles.headerButton} onPress={handleClearAll}>
-              <Ionicons name="trash-outline" size={24} color="#EF4444" />
+              <Ionicons name="trash-outline" size={24} color={colors.danger} />
             </TouchableOpacity>
           )}
         </View>
@@ -248,7 +249,7 @@ const NotificationsScreen = () => {
                 style={styles.deleteButton}
                 onPress={() => handleDeleteNotification(notification.id)}
               >
-                <Ionicons name="close" size={20} color="#64748B" />
+                <Ionicons name="close" size={20} color={colors.textMuted} />
               </TouchableOpacity>
             </TouchableOpacity>
           ))}
@@ -256,7 +257,7 @@ const NotificationsScreen = () => {
 
         {filteredNotifications.length === 0 && (
           <View style={styles.emptyState}>
-            <Ionicons name="notifications-off-outline" size={64} color="#64748B" />
+            <Ionicons name="notifications-off-outline" size={64} color={colors.textMuted} />
             <Text style={styles.emptyStateText}>No notifications</Text>
             <Text style={styles.emptyStateSubtext}>
               {filter === 'unread'
@@ -275,43 +276,43 @@ const NotificationsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#020617',
+    backgroundColor: colors.bg,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#020617',
+    backgroundColor: colors.bg,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#0F172A',
+    padding: spacing[5],
+    backgroundColor: colors.surface,
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#F8FAFC',
+    fontSize: typography['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary,
   },
   headerSubtitle: {
-    fontSize: 14,
-    color: '#6366F1',
-    marginTop: 4,
-    fontWeight: '600',
+    fontSize: typography.sm,
+    color: colors.info,
+    marginTop: spacing[1],
+    fontWeight: typography.fontWeight.semibold,
   },
   headerActions: {
     flexDirection: 'row',
   },
   headerButton: {
-    padding: 8,
-    marginLeft: 8,
+    padding: spacing[2],
+    marginLeft: spacing[2],
   },
   filterContainer: {
     flexDirection: 'row',
-    padding: 20,
-    paddingBottom: 16,
+    padding: spacing[5],
+    paddingBottom: spacing[4],
   },
   filterTab: {
     flex: 1,
@@ -319,50 +320,50 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 10,
-    borderRadius: 8,
-    backgroundColor: '#0F172A',
+    borderRadius: borderRadius.lg,
+    backgroundColor: colors.surface,
     marginHorizontal: 4,
   },
   filterTabActive: {
-    backgroundColor: '#6366F1',
+    backgroundColor: colors.darkBlue,
   },
   filterTabText: {
-    fontSize: 14,
-    color: '#94A3B8',
-    fontWeight: '500',
+    fontSize: typography.sm,
+    color: colors.textSecondary,
+    fontWeight: typography.fontWeight.medium,
   },
   filterTabTextActive: {
     color: '#fff',
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
   },
   badge: {
     backgroundColor: '#EF4444',
     borderRadius: 10,
-    paddingHorizontal: 6,
+    paddingHorizontal: spacing[1] + 2,
     paddingVertical: 2,
-    marginLeft: 6,
+    marginLeft: spacing[1] + 2,
   },
   badgeText: {
     fontSize: 11,
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: typography.fontWeight.bold,
   },
   notificationsList: {
-    padding: 20,
+    padding: spacing[5],
     paddingTop: 0,
   },
   notificationCard: {
     flexDirection: 'row',
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
+    marginBottom: spacing[3],
     borderLeftWidth: 3,
     borderLeftColor: 'transparent',
   },
   notificationCardUnread: {
-    borderLeftColor: '#6366F1',
-    backgroundColor: '#1E293B',
+    borderLeftColor: colors.info,
+    backgroundColor: colors.slate[800],
   },
   notificationContent: {
     flex: 1,
@@ -371,10 +372,10 @@ const styles = StyleSheet.create({
   notificationIcon: {
     width: 48,
     height: 48,
-    borderRadius: 24,
+    borderRadius: borderRadius['3xl'],
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing[3],
   },
   notificationText: {
     flex: 1,
@@ -382,33 +383,33 @@ const styles = StyleSheet.create({
   notificationHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: spacing[1],
   },
   notificationTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#F8FAFC',
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textPrimary,
     flex: 1,
   },
   unreadDot: {
     width: 8,
     height: 8,
-    borderRadius: 4,
-    backgroundColor: '#6366F1',
-    marginLeft: 8,
+    borderRadius: borderRadius.DEFAULT,
+    backgroundColor: colors.darkBlue,
+    marginLeft: spacing[2],
   },
   notificationMessage: {
-    fontSize: 14,
-    color: '#94A3B8',
+    fontSize: typography.sm,
+    color: colors.textSecondary,
     lineHeight: 20,
-    marginBottom: 8,
+    marginBottom: spacing[2],
   },
   notificationTime: {
-    fontSize: 12,
-    color: '#64748B',
+    fontSize: typography.xs,
+    color: colors.textMuted,
   },
   deleteButton: {
-    padding: 4,
+    padding: spacing[1],
   },
   emptyState: {
     alignItems: 'center',
@@ -416,15 +417,15 @@ const styles = StyleSheet.create({
     paddingVertical: 80,
   },
   emptyStateText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#94A3B8',
-    marginTop: 16,
+    fontSize: typography.lg,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textSecondary,
+    marginTop: spacing[4],
   },
   emptyStateSubtext: {
-    fontSize: 14,
-    color: '#64748B',
-    marginTop: 8,
+    fontSize: typography.sm,
+    color: colors.textMuted,
+    marginTop: spacing[2],
   },
 });
 

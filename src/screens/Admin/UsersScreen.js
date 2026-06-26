@@ -10,6 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const AdminUsersScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,7 +27,7 @@ const AdminUsersScreen = () => {
 
   const getRoleColor = (role) => {
     const colors = {
-      landlord: '#6366F1',
+      landlord: '#3B82F6',
       tenant: '#10B981',
       property_manager: '#8B5CF6',
       agent: '#F59E0B',
@@ -74,7 +75,7 @@ const AdminUsersScreen = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#94A3B8" />
+          <Ionicons name="search" size={20} color={colors.textSecondary} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search users..."
@@ -129,19 +130,19 @@ const AdminUsersScreen = () => {
                 style={styles.actionButton}
                 onPress={() => handleUserAction(user, 'view')}
               >
-                <Ionicons name="eye-outline" size={18} color="#6366F1" />
+                <Ionicons name="eye-outline" size={18} color={colors.info} />
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.actionButton}
                 onPress={() => handleUserAction(user, 'suspend')}
               >
-                <Ionicons name="ban-outline" size={18} color="#F59E0B" />
+                <Ionicons name="ban-outline" size={18} color={colors.warning} />
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.actionButton}
                 onPress={() => handleUserAction(user, 'delete')}
               >
-                <Ionicons name="trash-outline" size={18} color="#EF4444" />
+                <Ionicons name="trash-outline" size={18} color={colors.danger} />
               </TouchableOpacity>
             </View>
           </View>
@@ -201,55 +202,55 @@ const AdminUsersScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#020617',
+    backgroundColor: colors.bg,
   },
   header: {
-    padding: 20,
+    padding: spacing[5],
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 12,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[3],
   },
   searchInput: {
     flex: 1,
-    marginLeft: 8,
-    fontSize: 16,
-    color: '#F8FAFC',
+    marginLeft: spacing[2],
+    fontSize: typography.base,
+    color: colors.textPrimary,
   },
   filterContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 20,
+    paddingHorizontal: spacing[5],
+    marginBottom: spacing[5],
   },
   filterChip: {
-    backgroundColor: '#0F172A',
+    backgroundColor: colors.surface,
     borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginRight: 8,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[2],
+    marginRight: spacing[2],
   },
   filterChipActive: {
-    backgroundColor: '#6366F1',
+    backgroundColor: colors.darkBlue,
   },
   filterChipText: {
-    fontSize: 14,
-    color: '#94A3B8',
+    fontSize: typography.sm,
+    color: colors.textSecondary,
   },
   filterChipTextActive: {
     color: '#fff',
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
   },
   usersList: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing[5],
   },
   userCard: {
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
+    marginBottom: spacing[3],
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -264,48 +265,48 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing[3],
   },
   userAvatarText: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: typography.xl,
+    fontWeight: typography.fontWeight.bold,
     color: '#fff',
   },
   userInfo: {
     flex: 1,
   },
   userName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#F8FAFC',
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textPrimary,
     marginBottom: 2,
   },
   userEmail: {
     fontSize: 13,
-    color: '#94A3B8',
-    marginBottom: 6,
+    color: colors.textSecondary,
+    marginBottom: spacing[1] + 2,
   },
   userMeta: {
     flexDirection: 'row',
   },
   roleBadge: {
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    marginRight: 8,
+    borderRadius: borderRadius.xl,
+    paddingHorizontal: spacing[2],
+    paddingVertical: spacing[1],
+    marginRight: spacing[2],
   },
   roleText: {
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
   },
   statusBadge: {
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    borderRadius: borderRadius.xl,
+    paddingHorizontal: spacing[2],
+    paddingVertical: spacing[1],
   },
   statusText: {
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
     textTransform: 'capitalize',
   },
   userActions: {
@@ -315,10 +316,10 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#1E293B',
+    backgroundColor: colors.slate[800],
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 8,
+    marginLeft: spacing[2],
   },
   modalOverlay: {
     flex: 1,
@@ -327,45 +328,45 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#0F172A',
+    backgroundColor: colors.surface,
     borderRadius: 20,
-    padding: 24,
+    padding: spacing[6],
     width: '90%',
     maxWidth: 400,
   },
   modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#F8FAFC',
-    marginBottom: 20,
+    fontSize: typography['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary,
+    marginBottom: spacing[5],
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    paddingVertical: spacing[3],
     borderBottomWidth: 1,
     borderBottomColor: '#1E293B',
   },
   detailLabel: {
-    fontSize: 14,
-    color: '#94A3B8',
+    fontSize: typography.sm,
+    color: colors.textSecondary,
   },
   detailValue: {
-    fontSize: 14,
-    color: '#F8FAFC',
-    fontWeight: '500',
+    fontSize: typography.sm,
+    color: colors.textPrimary,
+    fontWeight: typography.fontWeight.medium,
   },
   closeButton: {
-    backgroundColor: '#6366F1',
-    borderRadius: 8,
-    padding: 16,
+    backgroundColor: colors.darkBlue,
+    borderRadius: borderRadius.lg,
+    padding: spacing[4],
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: spacing[5],
   },
   closeButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: colors.gold,
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
   },
 });
 

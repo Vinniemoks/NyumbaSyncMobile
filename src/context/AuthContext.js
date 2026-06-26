@@ -15,8 +15,8 @@ export const AuthProvider = ({ children }) => {
 
   const loadStoredAuth = async () => {
     try {
-      const storedToken = await AsyncStorage.getItem('authToken');
-      const storedUser = await AsyncStorage.getItem('user');
+      const storedToken = await AsyncStorage.getItem('nyumbasync_auth_token');
+      const storedUser = await AsyncStorage.getItem('nyumbasync_user_data');
       
       if (storedToken && storedUser) {
         setToken(storedToken);
@@ -32,11 +32,15 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await apiClient.post('/auth/login', { email, password });
-      const { token: authToken, user: userData } = response.data;
+      // Backend login expects `identifier` (email OR phone), not `email`.
+      const response = await apiClient.post('/auth/login', { identifier: email, password });
+      const { token: authToken, refreshToken, user: userData } = response.data;
       
-      await AsyncStorage.setItem('authToken', authToken);
-      await AsyncStorage.setItem('user', JSON.stringify(userData));
+      await AsyncStorage.setItem('nyumbasync_auth_token', authToken);
+      if (refreshToken) {
+        await AsyncStorage.setItem('nyumbasync_refresh_token', refreshToken);
+      }
+      await AsyncStorage.setItem('nyumbasync_user_data', JSON.stringify(userData));
       
       setToken(authToken);
       setUser(userData);
@@ -50,11 +54,16 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (userData) => {
     try {
-      const response = await apiClient.post('/auth/register', userData);
-      const { token: authToken, user: newUser } = response.data;
+      // Full registration that returns a token lives at /auth/signup.
+      // /auth/register is the phone-OTP flow (no token, requires a verify step).
+      const response = await apiClient.post('/auth/signup', userData);
+      const { token: authToken, refreshToken, user: newUser } = response.data;
       
-      await AsyncStorage.setItem('authToken', authToken);
-      await AsyncStorage.setItem('user', JSON.stringify(newUser));
+      await AsyncStorage.setItem('nyumbasync_auth_token', authToken);
+      if (refreshToken) {
+        await AsyncStorage.setItem('nyumbasync_refresh_token', refreshToken);
+      }
+      await AsyncStorage.setItem('nyumbasync_user_data', JSON.stringify(newUser));
       
       setToken(authToken);
       setUser(newUser);
@@ -68,8 +77,11 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await AsyncStorage.removeItem('authToken');
-      await AsyncStorage.removeItem('user');
+      await AsyncStorage.multiRemove([
+        'nyumbasync_auth_token',
+        'nyumbasync_refresh_token',
+        'nyumbasync_user_data',
+      ]);
       setToken(null);
       setUser(null);
       delete apiClient.defaults.headers.common['Authorization'];

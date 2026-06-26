@@ -46,13 +46,13 @@ class NotificationService {
 
             // Get Expo push token
             const tokenData = await Notifications.getExpoPushTokenAsync({
-                projectId: 'your-project-id', // Replace with your Expo project ID
+                projectId: '8407bd10-6e8b-4739-b399-e3f2189fe0ca',
             });
 
             this.expoPushToken = tokenData.data;
 
             // Save token to AsyncStorage
-            await AsyncStorage.setItem('expoPushToken', this.expoPushToken);
+            await AsyncStorage.setItem('nyumbasync_push_token', this.expoPushToken);
 
             console.log('Expo Push Token:', this.expoPushToken);
             return this.expoPushToken;
@@ -133,7 +133,7 @@ class NotificationService {
      */
     async sendPushTokenToBackend(token, apiClient) {
         try {
-            await apiClient.post('/users/push-token', {
+            await apiClient.post('/notifications/push-token', {
                 token: token || this.expoPushToken,
                 platform: Platform.OS,
             });

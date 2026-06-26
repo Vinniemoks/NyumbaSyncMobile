@@ -4,26 +4,35 @@
  */
 
 // Environment-based API URL configuration
+// In Expo SDK 49+, use EXPO_PUBLIC_API_URL in your .env file
+// For React Native CLI, use react-native-dotenv or react-native-config
 const getApiUrl = () => {
-  // Check if running in development, staging, or production
-  const env = process.env.NODE_ENV || 'development';
-  
-  switch (env) {
-    case 'production':
-      return process.env.API_URL || 'https://nyumbasync-backend.onrender.com/api';
-    case 'staging':
-      return process.env.API_URL || 'https://nyumbasync-backend.onrender.com/api';
-    case 'development':
-    default:
-      // For Android emulator, use 10.0.2.2 to access host machine's localhost
-      // For iOS simulator, use localhost
-      // For physical device, use your computer's IP address (e.g., 192.168.1.100)
-      return process.env.API_URL || 'http://10.0.2.2:3001/api';
+  // Expo SDK 49+ public env vars are available at runtime
+  const expoPublicUrl = process.env.EXPO_PUBLIC_API_URL;
+  if (expoPublicUrl) {
+    return expoPublicUrl;
   }
+  
+  // Fallback: check standard API_URL env var
+  const standardUrl = process.env.API_URL;
+  if (standardUrl) {
+    return standardUrl;
+  }
+  
+  // For Android emulator, use 10.0.2.2 to access host machine's localhost
+  // For iOS simulator, use localhost
+  // For physical device, use your computer's IP address (e.g., 192.168.1.100)
+  return 'http://10.0.2.2:3001/api';
 };
 
 // WebSocket configuration
 const getSocketUrl = () => {
+  // Expo SDK 49+ public env vars
+  const expoPublicSocketUrl = process.env.EXPO_PUBLIC_SOCKET_URL;
+  if (expoPublicSocketUrl) {
+    return expoPublicSocketUrl;
+  }
+  
   const apiUrl = getApiUrl();
   // Remove /api suffix and replace http with ws
   return apiUrl.replace('/api', '').replace('http', 'ws');

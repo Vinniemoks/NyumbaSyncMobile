@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import receiptService from '../services/receiptService';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const ReceiptHistoryScreen = ({ navigation }) => {
     const [receipts, setReceipts] = useState([]);
@@ -184,7 +185,7 @@ const ReceiptHistoryScreen = ({ navigation }) => {
             activeOpacity={0.7}
         >
             <View style={styles.receiptIcon}>
-                <Ionicons name="document-text" size={32} color="#6366F1" />
+                <Ionicons name="document-text" size={32} color={colors.info} />
             </View>
             <View style={styles.receiptInfo}>
                 <Text style={styles.receiptName} numberOfLines={1}>
@@ -198,13 +199,13 @@ const ReceiptHistoryScreen = ({ navigation }) => {
                     style={styles.actionButton}
                     onPress={() => handlePrint(item)}
                 >
-                    <Ionicons name="print" size={20} color="#6366F1" />
+                    <Ionicons name="print" size={20} color={colors.info} />
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={styles.actionButton}
                     onPress={() => handleShare(item)}
                 >
-                    <Ionicons name="share-social" size={20} color="#10B981" />
+                    <Ionicons name="share-social" size={20} color={colors.success} />
                 </TouchableOpacity>
             </View>
         </TouchableOpacity>
@@ -213,7 +214,7 @@ const ReceiptHistoryScreen = ({ navigation }) => {
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#6366F1" />
+                <ActivityIndicator size="large" color={colors.info} />
                 <Text style={styles.loadingText}>Loading receipts...</Text>
             </View>
         );
@@ -232,7 +233,7 @@ const ReceiptHistoryScreen = ({ navigation }) => {
 
             {/* Search Bar */}
             <View style={styles.searchContainer}>
-                <Ionicons name="search" size={20} color="#64748B" style={styles.searchIcon} />
+                <Ionicons name="search" size={20} color={colors.textMuted} style={styles.searchIcon} />
                 <TextInput
                     style={styles.searchInput}
                     placeholder="Search by name or date..."
@@ -242,7 +243,7 @@ const ReceiptHistoryScreen = ({ navigation }) => {
                 />
                 {searchQuery.length > 0 && (
                     <TouchableOpacity onPress={() => setSearchQuery('')}>
-                        <Ionicons name="close-circle" size={20} color="#64748B" />
+                        <Ionicons name="close-circle" size={20} color={colors.textMuted} />
                     </TouchableOpacity>
                 )}
             </View>
@@ -283,12 +284,12 @@ const ReceiptHistoryScreen = ({ navigation }) => {
                     <RefreshControl
                         refreshing={refreshing}
                         onRefresh={handleRefresh}
-                        tintColor="#6366F1"
+                        tintColor={colors.info}
                     />
                 }
                 ListEmptyComponent={
                     <View style={styles.emptyState}>
-                        <Ionicons name="document-text-outline" size={64} color="#64748B" />
+                        <Ionicons name="document-text-outline" size={64} color={colors.textMuted} />
                         <Text style={styles.emptyText}>No receipts found</Text>
                         <Text style={styles.emptySubtext}>
                             {searchQuery || filterYear !== 'all'
@@ -314,96 +315,96 @@ const ReceiptHistoryScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#020617',
+        backgroundColor: colors.bg,
     },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#020617',
+        backgroundColor: colors.bg,
     },
     loadingText: {
-        marginTop: 12,
-        fontSize: 16,
-        color: '#94A3B8',
+        marginTop: spacing[3],
+        fontSize: typography.base,
+        color: colors.textSecondary,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 16,
-        backgroundColor: '#0F172A',
+        padding: spacing[4],
+        backgroundColor: colors.surface,
         borderBottomWidth: 1,
         borderBottomColor: '#1E293B',
     },
     headerTitle: {
-        fontSize: 20,
-        fontWeight: '600',
-        color: '#F8FAFC',
+        fontSize: typography.xl,
+        fontWeight: typography.fontWeight.semibold,
+        color: colors.textPrimary,
     },
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#0F172A',
-        margin: 16,
-        padding: 12,
-        borderRadius: 12,
+        backgroundColor: colors.surface,
+        margin: spacing[4],
+        padding: spacing[3],
+        borderRadius: borderRadius.xl,
         borderWidth: 1,
         borderColor: '#1E293B',
     },
     searchIcon: {
-        marginRight: 8,
+        marginRight: spacing[2],
     },
     searchInput: {
         flex: 1,
         fontSize: 15,
-        color: '#F8FAFC',
+        color: colors.textPrimary,
     },
     filterContainer: {
-        paddingHorizontal: 16,
-        marginBottom: 16,
+        paddingHorizontal: spacing[4],
+        marginBottom: spacing[4],
     },
     filterLabel: {
         fontSize: 13,
-        color: '#94A3B8',
-        marginBottom: 8,
+        color: colors.textSecondary,
+        marginBottom: spacing[2],
     },
     yearButtons: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 8,
+        gap: spacing[2],
     },
     yearButton: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        backgroundColor: '#0F172A',
+        paddingHorizontal: spacing[4],
+        paddingVertical: spacing[2],
+        backgroundColor: colors.surface,
         borderRadius: 20,
         borderWidth: 1,
         borderColor: '#1E293B',
     },
     yearButtonActive: {
-        backgroundColor: '#6366F1',
-        borderColor: '#6366F1',
+        backgroundColor: colors.darkBlue,
+    borderColor: colors.info,
     },
     yearButtonText: {
         fontSize: 13,
-        color: '#94A3B8',
-        fontWeight: '500',
+        color: colors.textSecondary,
+        fontWeight: typography.fontWeight.medium,
     },
     yearButtonTextActive: {
         color: '#fff',
     },
     listContent: {
-        padding: 16,
+        padding: spacing[4],
         paddingTop: 0,
     },
     receiptCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#0F172A',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 12,
+        backgroundColor: colors.surface,
+        borderRadius: borderRadius.xl,
+        padding: spacing[4],
+        marginBottom: spacing[3],
         borderWidth: 1,
         borderColor: '#1E293B',
     },
@@ -414,29 +415,29 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(99, 102, 241, 0.1)',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 12,
+        marginRight: spacing[3],
     },
     receiptInfo: {
         flex: 1,
     },
     receiptName: {
         fontSize: 15,
-        fontWeight: '600',
-        color: '#F8FAFC',
-        marginBottom: 4,
+        fontWeight: typography.fontWeight.semibold,
+        color: colors.textPrimary,
+        marginBottom: spacing[1],
     },
     receiptDate: {
-        fontSize: 12,
-        color: '#94A3B8',
+        fontSize: typography.xs,
+        color: colors.textSecondary,
         marginBottom: 2,
     },
     receiptSize: {
         fontSize: 11,
-        color: '#64748B',
+        color: colors.textMuted,
     },
     receiptActions: {
         flexDirection: 'row',
-        gap: 8,
+        gap: spacing[2],
     },
     actionButton: {
         width: 36,
@@ -452,26 +453,26 @@ const styles = StyleSheet.create({
         paddingVertical: 80,
     },
     emptyText: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#94A3B8',
-        marginTop: 16,
+        fontSize: typography.lg,
+        fontWeight: typography.fontWeight.semibold,
+        color: colors.textSecondary,
+        marginTop: spacing[4],
     },
     emptySubtext: {
-        fontSize: 14,
-        color: '#64748B',
-        marginTop: 8,
+        fontSize: typography.sm,
+        color: colors.textMuted,
+        marginTop: spacing[2],
         textAlign: 'center',
     },
     footer: {
-        padding: 16,
+        padding: spacing[4],
         borderTopWidth: 1,
         borderTopColor: '#1E293B',
-        backgroundColor: '#0F172A',
+        backgroundColor: colors.surface,
     },
     footerText: {
         fontSize: 13,
-        color: '#94A3B8',
+        color: colors.textSecondary,
         textAlign: 'center',
     },
 });

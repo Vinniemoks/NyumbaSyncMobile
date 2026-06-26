@@ -10,6 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const MaintenanceScreen = () => {
   const [showForm, setShowForm] = useState(false);
@@ -253,18 +254,18 @@ const MaintenanceScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#020617', // slate-950
+    backgroundColor: colors.bg, // slate-950
   },
   statsRow: {
     flexDirection: 'row',
-    padding: 20,
+    padding: spacing[5],
     justifyContent: 'space-between',
   },
   statBox: {
     flex: 1,
-    backgroundColor: '#0F172A', // slate-900
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.surface, // slate-900
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
     marginHorizontal: 4,
     alignItems: 'center',
     shadowColor: '#000',
@@ -274,26 +275,26 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   statNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#F8FAFC', // slate-50
-    marginBottom: 4,
+    fontSize: typography['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary, // slate-50
+    marginBottom: spacing[1],
   },
   statLabel: {
     fontSize: 10,
-    color: '#94A3B8', // slate-400
+    color: colors.textSecondary, // slate-400
     textTransform: 'capitalize',
     textAlign: 'center',
   },
   requestsList: {
-    padding: 20,
+    padding: spacing[5],
     paddingTop: 0,
   },
   requestCard: {
-    backgroundColor: '#0F172A', // slate-900
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: colors.surface, // slate-900
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
+    marginBottom: spacing[3],
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -304,29 +305,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 8,
+    marginBottom: spacing[2],
   },
   requestTitle: {
     flex: 1,
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#F8FAFC', // slate-50
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textPrimary, // slate-50
   },
   priorityBadge: {
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    marginLeft: 8,
+    borderRadius: borderRadius.xl,
+    paddingHorizontal: spacing[2],
+    paddingVertical: spacing[1],
+    marginLeft: spacing[2],
   },
   priorityText: {
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
     textTransform: 'uppercase',
   },
   requestDescription: {
-    fontSize: 14,
-    color: '#94A3B8', // slate-400
-    marginBottom: 12,
+    fontSize: typography.sm,
+    color: colors.textSecondary, // slate-400
+    marginBottom: spacing[3],
   },
   requestFooter: {
     flexDirection: 'row',
@@ -335,22 +336,22 @@ const styles = StyleSheet.create({
   requestMeta: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: spacing[4],
   },
   metaText: {
-    fontSize: 12,
-    color: '#94A3B8', // slate-400
-    marginLeft: 4,
+    fontSize: typography.xs,
+    color: colors.textSecondary, // slate-400
+    marginLeft: spacing[1],
   },
   statusBadge: {
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    borderRadius: borderRadius.xl,
+    paddingHorizontal: spacing[2],
+    paddingVertical: spacing[1],
     marginLeft: 'auto',
   },
   statusText: {
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
     textTransform: 'capitalize',
   },
   fab: {
@@ -375,33 +376,33 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#0F172A', // slate-900
+    backgroundColor: colors.surface, // slate-900
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    padding: 24,
+    padding: spacing[6],
     maxHeight: '90%',
   },
   modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#F8FAFC', // slate-50
-    marginBottom: 24,
+    fontSize: typography['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary, // slate-50
+    marginBottom: spacing[6],
   },
   inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#E2E8F0', // slate-200
-    marginBottom: 8,
+    fontSize: typography.sm,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.slate[200], // slate-200
+    marginBottom: spacing[2],
   },
   input: {
-    backgroundColor: '#1E293B', // slate-800
+    backgroundColor: colors.slate[800], // slate-800
     borderWidth: 1,
     borderColor: '#334155', // slate-700
-    borderRadius: 8,
-    padding: 16,
-    fontSize: 16,
-    marginBottom: 20,
-    color: '#F8FAFC', // slate-50
+    borderRadius: borderRadius.lg,
+    padding: spacing[4],
+    fontSize: typography.base,
+    marginBottom: spacing[5],
+    color: colors.textPrimary, // slate-50
   },
   textArea: {
     height: 100,
@@ -410,55 +411,55 @@ const styles = StyleSheet.create({
   pickerContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 20,
+    marginBottom: spacing[5],
   },
   pickerOption: {
-    backgroundColor: '#1E293B', // slate-800
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginRight: 8,
-    marginBottom: 8,
+    backgroundColor: colors.slate[800], // slate-800
+    borderRadius: borderRadius.lg,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[2],
+    marginRight: spacing[2],
+    marginBottom: spacing[2],
   },
   pickerOptionSelected: {
-    backgroundColor: '#6366F1', // indigo-500
+    backgroundColor: colors.darkBlue, 
   },
   pickerText: {
-    fontSize: 14,
-    color: '#94A3B8', // slate-400
+    fontSize: typography.sm,
+    color: colors.textSecondary, // slate-400
     textTransform: 'capitalize',
   },
   pickerTextSelected: {
     color: '#fff',
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
   },
   modalButtons: {
     flexDirection: 'row',
-    marginTop: 24,
+    marginTop: spacing[6],
   },
   modalButton: {
     flex: 1,
-    padding: 16,
-    borderRadius: 8,
+    padding: spacing[4],
+    borderRadius: borderRadius.lg,
     alignItems: 'center',
   },
   cancelButton: {
-    backgroundColor: '#1E293B', // slate-800
-    marginRight: 8,
+    backgroundColor: colors.slate[800], // slate-800
+    marginRight: spacing[2],
   },
   cancelButtonText: {
-    color: '#E2E8F0', // slate-200
-    fontSize: 16,
-    fontWeight: '600',
+    color: colors.slate[200], // slate-200
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
   },
   submitButton: {
     backgroundColor: '#10B981',
-    marginLeft: 8,
+    marginLeft: spacing[2],
   },
   submitButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: colors.gold,
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
   },
 });
 

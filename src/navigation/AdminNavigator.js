@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
+import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../config/theme';
 
 // Admin Screens
 import AdminHomeScreen from '../screens/Admin/HomeScreen';
@@ -22,9 +23,9 @@ const ProfileStack = () => {
         headerStyle: {
           backgroundColor: '#0F172A',
         },
-        headerTintColor: '#F8FAFC',
+        headerTintColor: colors.textPrimary,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: typography.fontWeight.bold,
         },
       }}
     >
@@ -65,8 +66,8 @@ const AdminNavigator = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#EF4444',
-        tabBarInactiveTintColor: '#64748B',
+        tabBarActiveTintColor: colors.gold,
+        tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
           backgroundColor: '#0F172A',
           borderTopColor: '#1E293B',
@@ -75,9 +76,9 @@ const AdminNavigator = () => {
         headerStyle: {
           backgroundColor: '#0F172A',
         },
-        headerTintColor: '#F8FAFC',
+        headerTintColor: colors.textPrimary,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: typography.fontWeight.bold,
         },
       })}
     >

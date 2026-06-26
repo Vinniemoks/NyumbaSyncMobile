@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
+import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../config/theme';
 
 // Property Manager Screens
 import PropertyManagerHomeScreen from '../screens/PropertyManager/HomeScreen';
@@ -26,9 +27,9 @@ const PropertiesStack = () => {
         headerStyle: {
           backgroundColor: '#0F172A',
         },
-        headerTintColor: '#F8FAFC',
+        headerTintColor: colors.textPrimary,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: typography.fontWeight.bold,
         },
       }}
     >
@@ -54,9 +55,9 @@ const MessagesStack = () => {
         headerStyle: {
           backgroundColor: '#0F172A',
         },
-        headerTintColor: '#F8FAFC',
+        headerTintColor: colors.textPrimary,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: typography.fontWeight.bold,
         },
       }}
     >
@@ -82,9 +83,9 @@ const ProfileStack = () => {
         headerStyle: {
           backgroundColor: '#0F172A',
         },
-        headerTintColor: '#F8FAFC',
+        headerTintColor: colors.textPrimary,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: typography.fontWeight.bold,
         },
       }}
     >
@@ -125,8 +126,8 @@ const PropertyManagerNavigator = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#6366F1',
-        tabBarInactiveTintColor: '#64748B',
+        tabBarActiveTintColor: colors.gold,
+        tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
           backgroundColor: '#0F172A',
           borderTopColor: '#1E293B',
@@ -135,9 +136,9 @@ const PropertyManagerNavigator = () => {
         headerStyle: {
           backgroundColor: '#0F172A',
         },
-        headerTintColor: '#F8FAFC',
+        headerTintColor: colors.textPrimary,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: typography.fontWeight.bold,
         },
       })}
     >

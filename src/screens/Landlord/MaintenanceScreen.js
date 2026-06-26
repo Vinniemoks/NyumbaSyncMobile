@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { maintenanceService } from '../../services/api';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const LandlordMaintenanceScreen = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
@@ -128,7 +129,7 @@ const LandlordMaintenanceScreen = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6366F1" />
+        <ActivityIndicator size="large" color={colors.info} />
       </View>
     );
   }
@@ -142,11 +143,11 @@ const LandlordMaintenanceScreen = () => {
       >
         <View style={styles.statsRow}>
           <View style={styles.statBox}>
-            <Text style={[styles.statNumber, { color: '#F59E0B' }]}>{counts.pending}</Text>
+            <Text style={[styles.statNumber, { color: colors.warning }]}>{counts.pending}</Text>
             <Text style={styles.statLabel}>Pending</Text>
           </View>
           <View style={styles.statBox}>
-            <Text style={[styles.statNumber, { color: '#3B82F6' }]}>{counts.assigned}</Text>
+            <Text style={[styles.statNumber, { color: colors.info }]}>{counts.assigned}</Text>
             <Text style={styles.statLabel}>Assigned</Text>
           </View>
           <View style={styles.statBox}>
@@ -154,7 +155,7 @@ const LandlordMaintenanceScreen = () => {
             <Text style={styles.statLabel}>In Progress</Text>
           </View>
           <View style={styles.statBox}>
-            <Text style={[styles.statNumber, { color: '#10B981' }]}>{counts.completed}</Text>
+            <Text style={[styles.statNumber, { color: colors.success }]}>{counts.completed}</Text>
             <Text style={styles.statLabel}>Completed</Text>
           </View>
         </View>
@@ -187,19 +188,19 @@ const LandlordMaintenanceScreen = () => {
 
               <View style={styles.requestDetails}>
                 <View style={styles.detailRow}>
-                  <Ionicons name="person-outline" size={16} color="#94A3B8" />
+                  <Ionicons name="person-outline" size={16} color={colors.textSecondary} />
                   <Text style={styles.detailText}>{request.tenant?.firstName} {request.tenant?.lastName}</Text>
                 </View>
                 <View style={styles.detailRow}>
-                  <Ionicons name="home-outline" size={16} color="#94A3B8" />
+                  <Ionicons name="home-outline" size={16} color={colors.textSecondary} />
                   <Text style={styles.detailText}>{request.property?.name} - {request.unitNumber}</Text>
                 </View>
                 <View style={styles.detailRow}>
-                  <Ionicons name="pricetag-outline" size={16} color="#94A3B8" />
+                  <Ionicons name="pricetag-outline" size={16} color={colors.textSecondary} />
                   <Text style={styles.detailText}>{request.category}</Text>
                 </View>
                 <View style={styles.detailRow}>
-                  <Ionicons name="calendar-outline" size={16} color="#94A3B8" />
+                  <Ionicons name="calendar-outline" size={16} color={colors.textSecondary} />
                   <Text style={styles.detailText}>{new Date(request.createdAt).toLocaleDateString()}</Text>
                 </View>
               </View>
@@ -207,12 +208,12 @@ const LandlordMaintenanceScreen = () => {
               {request.contractor && (
                 <View style={styles.assignmentInfo}>
                   <View style={styles.detailRow}>
-                    <Ionicons name="construct-outline" size={16} color="#6366F1" />
+                    <Ionicons name="construct-outline" size={16} color={colors.info} />
                     <Text style={styles.contractorText}>{request.contractor}</Text>
                   </View>
                   {request.estimatedCost > 0 && (
                     <View style={styles.detailRow}>
-                      <Ionicons name="cash-outline" size={16} color="#10B981" />
+                      <Ionicons name="cash-outline" size={16} color={colors.success} />
                       <Text style={styles.costText}>KSh {request.estimatedCost.toLocaleString()}</Text>
                     </View>
                   )}
@@ -239,7 +240,7 @@ const LandlordMaintenanceScreen = () => {
                       style={styles.actionButton}
                       onPress={() => handleAssign(request)}
                     >
-                      <Ionicons name="person-add-outline" size={18} color="#6366F1" />
+                      <Ionicons name="person-add-outline" size={18} color={colors.info} />
                       <Text style={styles.actionButtonText}>Assign</Text>
                     </TouchableOpacity>
                   )}
@@ -257,7 +258,7 @@ const LandlordMaintenanceScreen = () => {
                       style={styles.actionButton}
                       onPress={() => handleUpdateStatus(request.id, 'completed')}
                     >
-                      <Ionicons name="checkmark-outline" size={18} color="#10B981" />
+                      <Ionicons name="checkmark-outline" size={18} color={colors.success} />
                       <Text style={styles.actionButtonText}>Complete</Text>
                     </TouchableOpacity>
                   )}
@@ -268,7 +269,7 @@ const LandlordMaintenanceScreen = () => {
 
           {requests.length === 0 && (
             <View style={styles.emptyState}>
-              <Ionicons name="construct-outline" size={64} color="#64748B" />
+              <Ionicons name="construct-outline" size={64} color={colors.textMuted} />
               <Text style={styles.emptyStateText}>No maintenance requests</Text>
               <Text style={styles.emptyStateSubtext}>Requests from your tenants will appear here</Text>
             </View>
@@ -347,24 +348,24 @@ const LandlordMaintenanceScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#020617',
+    backgroundColor: colors.bg,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#020617',
+    backgroundColor: colors.bg,
   },
   statsRow: {
     flexDirection: 'row',
-    padding: 20,
+    padding: spacing[5],
     justifyContent: 'space-between',
   },
   statBox: {
     flex: 1,
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 12,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[3],
     marginHorizontal: 4,
     alignItems: 'center',
     shadowColor: '#000',
@@ -374,24 +375,24 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   statNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 4,
+    fontSize: typography['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    marginBottom: spacing[1],
   },
   statLabel: {
     fontSize: 10,
-    color: '#94A3B8',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   requestsList: {
-    padding: 20,
+    padding: spacing[5],
     paddingTop: 0,
   },
   requestCard: {
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
+    marginBottom: spacing[3],
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -399,7 +400,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   requestHeader: {
-    marginBottom: 8,
+    marginBottom: spacing[2],
   },
   requestTitleRow: {
     flexDirection: 'row',
@@ -408,56 +409,56 @@ const styles = StyleSheet.create({
   },
   requestTitle: {
     flex: 1,
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#F8FAFC',
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textPrimary,
   },
   priorityBadge: {
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    marginLeft: 8,
+    borderRadius: borderRadius.xl,
+    paddingHorizontal: spacing[2],
+    paddingVertical: spacing[1],
+    marginLeft: spacing[2],
   },
   priorityText: {
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
     textTransform: 'uppercase',
   },
   requestDescription: {
-    fontSize: 14,
-    color: '#94A3B8',
-    marginBottom: 12,
+    fontSize: typography.sm,
+    color: colors.textSecondary,
+    marginBottom: spacing[3],
   },
   requestDetails: {
-    marginBottom: 12,
+    marginBottom: spacing[3],
   },
   detailRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: spacing[1] + 2,
   },
   detailText: {
     fontSize: 13,
-    color: '#94A3B8',
-    marginLeft: 8,
+    color: colors.textSecondary,
+    marginLeft: spacing[2],
   },
   assignmentInfo: {
-    backgroundColor: '#1E293B',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
+    backgroundColor: colors.slate[800],
+    borderRadius: borderRadius.lg,
+    padding: spacing[3],
+    marginBottom: spacing[3],
   },
   contractorText: {
     fontSize: 13,
-    color: '#818CF8',
-    marginLeft: 8,
-    fontWeight: '500',
+    color: colors.blue[400],
+    marginLeft: spacing[2],
+    fontWeight: typography.fontWeight.medium,
   },
   costText: {
     fontSize: 13,
-    color: '#10B981',
-    marginLeft: 8,
-    fontWeight: '500',
+    color: colors.success,
+    marginLeft: spacing[2],
+    fontWeight: typography.fontWeight.medium,
   },
   requestFooter: {
     flexDirection: 'row',
@@ -465,13 +466,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statusBadge: {
-    borderRadius: 12,
+    borderRadius: borderRadius.xl,
     paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingVertical: spacing[1] + 2,
   },
   statusText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
     textTransform: 'capitalize',
   },
   actionButtons: {
@@ -480,17 +481,17 @@ const styles = StyleSheet.create({
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1E293B',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginLeft: 8,
+    backgroundColor: colors.slate[800],
+    borderRadius: borderRadius.lg,
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[2],
+    marginLeft: spacing[2],
   },
   actionButtonText: {
     fontSize: 13,
-    color: '#E2E8F0',
-    marginLeft: 6,
-    fontWeight: '500',
+    color: colors.slate[200],
+    marginLeft: spacing[1] + 2,
+    fontWeight: typography.fontWeight.medium,
   },
   modalOverlay: {
     flex: 1,
@@ -498,49 +499,49 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#0F172A',
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    padding: 24,
+    padding: spacing[6],
     maxHeight: '80%',
   },
   modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#F8FAFC',
-    marginBottom: 20,
+    fontSize: typography['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary,
+    marginBottom: spacing[5],
   },
   requestSummary: {
-    backgroundColor: '#1E293B',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 20,
+    backgroundColor: colors.slate[800],
+    borderRadius: borderRadius.lg,
+    padding: spacing[3],
+    marginBottom: spacing[5],
   },
   summaryTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#F8FAFC',
-    marginBottom: 4,
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textPrimary,
+    marginBottom: spacing[1],
   },
   summaryText: {
     fontSize: 13,
-    color: '#94A3B8',
+    color: colors.textSecondary,
   },
   inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#E2E8F0',
-    marginBottom: 8,
+    fontSize: typography.sm,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.slate[200],
+    marginBottom: spacing[2],
   },
   input: {
-    backgroundColor: '#1E293B',
+    backgroundColor: colors.slate[800],
     borderWidth: 1,
     borderColor: '#334155',
-    borderRadius: 8,
-    padding: 16,
-    fontSize: 16,
-    marginBottom: 20,
-    color: '#F8FAFC',
+    borderRadius: borderRadius.lg,
+    padding: spacing[4],
+    fontSize: typography.base,
+    marginBottom: spacing[5],
+    color: colors.textPrimary,
   },
   textArea: {
     height: 80,
@@ -548,31 +549,31 @@ const styles = StyleSheet.create({
   },
   modalButtons: {
     flexDirection: 'row',
-    marginTop: 24,
+    marginTop: spacing[6],
   },
   modalButton: {
     flex: 1,
-    padding: 16,
-    borderRadius: 8,
+    padding: spacing[4],
+    borderRadius: borderRadius.lg,
     alignItems: 'center',
   },
   cancelButton: {
-    backgroundColor: '#1E293B',
-    marginRight: 8,
+    backgroundColor: colors.slate[800],
+    marginRight: spacing[2],
   },
   cancelButtonText: {
-    color: '#E2E8F0',
-    fontSize: 16,
-    fontWeight: '600',
+    color: colors.slate[200],
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
   },
   submitButton: {
-    backgroundColor: '#6366F1',
-    marginLeft: 8,
+    backgroundColor: colors.darkBlue,
+    marginLeft: spacing[2],
   },
   submitButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: colors.gold,
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
   },
   emptyState: {
     alignItems: 'center',
@@ -580,15 +581,15 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
   },
   emptyStateText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#94A3B8',
-    marginTop: 16,
+    fontSize: typography.lg,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textSecondary,
+    marginTop: spacing[4],
   },
   emptyStateSubtext: {
-    fontSize: 14,
-    color: '#64748B',
-    marginTop: 8,
+    fontSize: typography.sm,
+    color: colors.textMuted,
+    marginTop: spacing[2],
   },
 });
 

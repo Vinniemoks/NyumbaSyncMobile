@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const VendorHomeScreen = ({ navigation }) => {
   const { user } = useAuth();
@@ -18,17 +19,17 @@ const VendorHomeScreen = ({ navigation }) => {
 
       <View style={styles.statsGrid}>
         <View style={styles.statCard}>
-          <Ionicons name="construct-outline" size={32} color="#F59E0B" />
+          <Ionicons name="construct-outline" size={32} color={colors.warning} />
           <Text style={styles.statValue}>8</Text>
           <Text style={styles.statLabel}>Active Jobs</Text>
         </View>
         <View style={styles.statCard}>
-          <Ionicons name="checkmark-circle-outline" size={32} color="#10B981" />
+          <Ionicons name="checkmark-circle-outline" size={32} color={colors.success} />
           <Text style={styles.statValue}>45</Text>
           <Text style={styles.statLabel}>Completed</Text>
         </View>
         <View style={styles.statCard}>
-          <Ionicons name="cash-outline" size={32} color="#3B82F6" />
+          <Ionicons name="cash-outline" size={32} color={colors.info} />
           <Text style={styles.statValue}>KSh 125K</Text>
           <Text style={styles.statLabel}>This Month</Text>
         </View>
@@ -46,21 +47,21 @@ const VendorHomeScreen = ({ navigation }) => {
             style={styles.actionCard}
             onPress={() => navigation.navigate('Jobs')}
           >
-            <Ionicons name="list-outline" size={32} color="#6366F1" />
+            <Ionicons name="list-outline" size={32} color={colors.info} />
             <Text style={styles.actionCardText}>My Jobs</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.actionCard}
             onPress={() => navigation.navigate('Jobs')}
           >
-            <Ionicons name="add-circle-outline" size={32} color="#10B981" />
+            <Ionicons name="add-circle-outline" size={32} color={colors.success} />
             <Text style={styles.actionCardText}>New Requests</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.actionCard}
             onPress={() => navigation.navigate('Earnings')}
           >
-            <Ionicons name="wallet-outline" size={32} color="#F59E0B" />
+            <Ionicons name="wallet-outline" size={32} color={colors.warning} />
             <Text style={styles.actionCardText}>Earnings</Text>
           </TouchableOpacity>
           <TouchableOpacity 
@@ -97,16 +98,16 @@ const VendorHomeScreen = ({ navigation }) => {
             </View>
             <View style={styles.jobDetails}>
               <View style={styles.jobDetailRow}>
-                <Ionicons name="business-outline" size={16} color="#94A3B8" />
+                <Ionicons name="business-outline" size={16} color={colors.textSecondary} />
                 <Text style={styles.jobDetailText}>{job.property}</Text>
               </View>
               <View style={styles.jobDetailRow}>
-                <Ionicons name="home-outline" size={16} color="#94A3B8" />
+                <Ionicons name="home-outline" size={16} color={colors.textSecondary} />
                 <Text style={styles.jobDetailText}>Unit {job.unit}</Text>
               </View>
               <View style={styles.jobDetailRow}>
-                <Ionicons name="cash-outline" size={16} color="#10B981" />
-                <Text style={[styles.jobDetailText, { color: '#10B981' }]}>KSh {job.amount.toLocaleString()}</Text>
+                <Ionicons name="cash-outline" size={16} color={colors.success} />
+                <Text style={[styles.jobDetailText, { color: colors.success }]}>KSh {job.amount.toLocaleString()}</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -119,46 +120,46 @@ const VendorHomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#020617',
+    backgroundColor: colors.bg,
   },
   header: {
-    backgroundColor: '#0F172A',
-    padding: 20,
+    backgroundColor: colors.surface,
+    padding: spacing[5],
     alignItems: 'center',
   },
   greeting: {
-    fontSize: 14,
-    color: '#94A3B8',
+    fontSize: typography.sm,
+    color: colors.textSecondary,
   },
   userName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#F8FAFC',
-    marginTop: 4,
+    fontSize: typography['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary,
+    marginTop: spacing[1],
   },
   roleBadge: {
     backgroundColor: '#422006',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    marginTop: 8,
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[1] + 2,
+    borderRadius: borderRadius.xl,
+    marginTop: spacing[2],
   },
   roleText: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: typography.xs,
+    fontWeight: typography.fontWeight.semibold,
     color: '#FED7AA',
     textTransform: 'uppercase',
   },
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    padding: 20,
+    padding: spacing[5],
   },
   statCard: {
     width: '48%',
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 20,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[5],
     margin: '1%',
     alignItems: 'center',
     shadowColor: '#000',
@@ -168,25 +169,25 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   statValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#F8FAFC',
-    marginTop: 8,
+    fontSize: typography['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary,
+    marginTop: spacing[2],
   },
   statLabel: {
-    fontSize: 12,
-    color: '#94A3B8',
-    marginTop: 4,
+    fontSize: typography.xs,
+    color: colors.textSecondary,
+    marginTop: spacing[1],
     textAlign: 'center',
   },
   section: {
-    padding: 20,
+    padding: spacing[5],
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#F8FAFC',
-    marginBottom: 16,
+    fontSize: typography.lg,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary,
+    marginBottom: spacing[4],
   },
   actionsGrid: {
     flexDirection: 'row',
@@ -195,11 +196,11 @@ const styles = StyleSheet.create({
   },
   actionCard: {
     width: '48%',
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 20,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[5],
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing[3],
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -207,16 +208,16 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   actionCardText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#E2E8F0',
-    marginTop: 8,
+    fontSize: typography.sm,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.slate[200],
+    marginTop: spacing[2],
   },
   jobCard: {
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
+    marginBottom: spacing[3],
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -227,26 +228,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing[3],
   },
   jobTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#F8FAFC',
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textPrimary,
     flex: 1,
   },
   statusBadge: {
-    borderRadius: 12,
+    borderRadius: borderRadius.xl,
     paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingVertical: spacing[1] + 2,
   },
   statusText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
     textTransform: 'capitalize',
   },
   jobDetails: {
-    gap: 8,
+    gap: spacing[2],
   },
   jobDetailRow: {
     flexDirection: 'row',
@@ -254,8 +255,8 @@ const styles = StyleSheet.create({
   },
   jobDetailText: {
     fontSize: 13,
-    color: '#94A3B8',
-    marginLeft: 8,
+    color: colors.textSecondary,
+    marginLeft: spacing[2],
   },
 });
 

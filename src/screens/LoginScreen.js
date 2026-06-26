@@ -10,13 +10,14 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import Logo from '../components/Logo';
 import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../services/api';
+import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../config/theme';
 
 const LoginScreen = ({ navigation }) => {
-  const [identifier, setIdentifier] = useState(''); // Email or phone number
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  const [forgotEmail, setForgotEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
 
@@ -32,7 +33,6 @@ const LoginScreen = ({ navigation }) => {
       const result = response.data;
 
       if (result.mfaRequired) {
-        // Navigate to MFA verification if enabled
         navigation.navigate('MFAVerify', { mfaSessionToken: result.mfaSessionToken });
         return;
       }
@@ -58,49 +58,25 @@ const LoginScreen = ({ navigation }) => {
   };
 
   const handleForgotPassword = () => {
-    Alert.alert(
-      'Reset Password',
-      'Enter your email address to receive a password reset link.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Send Reset Link',
-          onPress: async () => {
-            if (!identifier) {
-              Alert.alert('Error', 'Please enter your email address in the field above first.');
-              return;
-            }
-            setLoading(true);
-            try {
-              await apiClient.post('/v1/auth/forgot-password', { email: identifier });
-              Alert.alert('Success', 'If your email is registered, you will receive a reset link shortly.');
-            } catch (error) {
-              Alert.alert('Error', 'Failed to send reset email. Please try again.');
-            } finally {
-              setLoading(false);
-            }
-          }
-        }
-      ]
-    );
+    navigation.navigate('ForgotPassword');
   };
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={commonStyles.container}
     >
-      <View style={styles.content}>
-        <Text style={styles.logo}>🏠</Text>
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Sign in with your email or phone number</Text>
+      <View style={commonStyles.content}>
+        <Logo size={76} style={{ marginBottom: 20 }} />
+        <Text style={commonStyles.title}>Welcome Back</Text>
+        <Text style={commonStyles.subtitle}>Sign in with your email or phone number</Text>
 
-        <View style={styles.form}>
-          <Text style={styles.label}>Email or Phone Number</Text>
+        <View style={commonStyles.form}>
+          <Text style={commonStyles.label}>Email or Phone Number</Text>
           <TextInput
-            style={styles.input}
+            style={commonStyles.input}
             placeholder="email@example.com or +254712345678"
-            placeholderTextColor="#64748B"
+            placeholderTextColor={colors.textMuted}
             value={identifier}
             onChangeText={setIdentifier}
             keyboardType="default"
@@ -108,11 +84,11 @@ const LoginScreen = ({ navigation }) => {
             autoCorrect={false}
           />
 
-          <Text style={styles.label}>Password</Text>
+          <Text style={commonStyles.label}>Password</Text>
           <TextInput
-            style={styles.input}
+            style={commonStyles.input}
             placeholder="Enter your password"
-            placeholderTextColor="#64748B"
+            placeholderTextColor={colors.textMuted}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -123,27 +99,27 @@ const LoginScreen = ({ navigation }) => {
             style={styles.forgotButton}
             onPress={handleForgotPassword}
           >
-            <Text style={styles.forgotText}>Forgot Password?</Text>
+            <Text style={commonStyles.textLinkBold}>Forgot Password?</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.button}
+            style={commonStyles.button}
             onPress={handleLogin}
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={colors.white} />
             ) : (
-              <Text style={styles.buttonText}>Sign In</Text>
+              <Text style={commonStyles.buttonText}>Sign In</Text>
             )}
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.linkButton}
-            onPress={() => navigation.navigate('Signup')}
+            style={commonStyles.linkButton}
+            onPress={() => navigation.replace('Signup')}
           >
-            <Text style={styles.linkText}>
-              Don't have an account? <Text style={styles.linkTextBold}>Sign Up</Text>
+            <Text style={commonStyles.textLink}>
+              Don't have an account? <Text style={commonStyles.textLinkBold}>Sign Up</Text>
             </Text>
           </TouchableOpacity>
         </View>
@@ -153,87 +129,9 @@ const LoginScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#020617', // slate-950
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  logo: {
-    fontSize: 60,
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#F8FAFC', // slate-50
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#94A3B8', // slate-400
-    marginBottom: 40,
-    textAlign: 'center',
-    paddingHorizontal: 20,
-  },
-  form: {
-    width: '100%',
-    maxWidth: 400,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#E2E8F0', // slate-200
-    marginBottom: 8,
-    marginLeft: 4,
-  },
-  input: {
-    backgroundColor: '#0F172A', // slate-900
-    borderWidth: 1,
-    borderColor: '#334155', // slate-700
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    fontSize: 16,
-    color: '#F8FAFC', // slate-50
-  },
   forgotButton: {
     alignSelf: 'flex-end',
-    marginBottom: 16,
-  },
-  forgotText: {
-    color: '#818CF8', // indigo-400
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  button: {
-    backgroundColor: '#6366F1', // indigo-500
-    borderRadius: 8,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  linkButton: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  linkText: {
-    color: '#94A3B8', // slate-400
-    fontSize: 14,
-  },
-  linkTextBold: {
-    color: '#818CF8', // indigo-400
-    fontWeight: '600',
+    marginBottom: spacing[4],
   },
 });
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
+import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../config/theme';
 
 import AgentHomeScreen from '../screens/Agent/HomeScreen';
 import LandlordPropertiesScreen from '../screens/Landlord/PropertiesScreen';
@@ -16,9 +17,9 @@ const ProfileStack = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: '#0F172A' },
-        headerTintColor: '#F8FAFC',
-        headerTitleStyle: { fontWeight: 'bold' },
+        headerStyle: { backgroundColor: colors.surface },
+        headerTintColor: colors.textPrimary,
+        headerTitleStyle: { fontWeight: typography.fontWeight.bold },
       }}
     >
       <Stack.Screen name="ProfileMain" component={AgentProfileScreen} options={{ headerShown: false }} />
@@ -39,13 +40,13 @@ const AgentNavigator = () => {
           else if (route.name === 'Profile') iconName = focused ? 'person' : 'person-outline';
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#3B82F6',
-        tabBarInactiveTintColor: '#64748B',
-        tabBarStyle: { backgroundColor: '#0F172A', borderTopColor: '#1E293B' },
+        tabBarActiveTintColor: colors.gold,
+        tabBarInactiveTintColor: colors.textMuted,
+        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.surfaceHover },
         headerShown: true,
-        headerStyle: { backgroundColor: '#0F172A' },
-        headerTintColor: '#F8FAFC',
-        headerTitleStyle: { fontWeight: 'bold' },
+        headerStyle: { backgroundColor: colors.surface },
+        headerTintColor: colors.textPrimary,
+        headerTitleStyle: { fontWeight: typography.fontWeight.bold },
       })}
     >
       <Tab.Screen name="Home" component={AgentHomeScreen} options={{ title: 'Dashboard' }} />

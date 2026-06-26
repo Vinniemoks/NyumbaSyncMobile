@@ -13,6 +13,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { leaseService, tenantService, propertyService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const LeasesScreen = ({ navigation }) => {
   const { user } = useAuth();
@@ -198,7 +199,7 @@ const LeasesScreen = ({ navigation }) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6366F1" />
+        <ActivityIndicator size="large" color={colors.info} />
       </View>
     );
   }
@@ -303,7 +304,7 @@ const LeasesScreen = ({ navigation }) => {
                 <View style={styles.leaseDetails}>
                   <View style={styles.detailRow}>
                     <View style={styles.detailItem}>
-                      <Ionicons name="calendar-outline" size={16} color="#94A3B8" />
+                      <Ionicons name="calendar-outline" size={16} color={colors.textSecondary} />
                       <Text style={styles.detailText}>
                         {lease.startDate} - {lease.endDate}
                       </Text>
@@ -311,7 +312,7 @@ const LeasesScreen = ({ navigation }) => {
                   </View>
                   <View style={styles.detailRow}>
                     <View style={styles.detailItem}>
-                      <Ionicons name="cash-outline" size={16} color="#94A3B8" />
+                      <Ionicons name="cash-outline" size={16} color={colors.textSecondary} />
                       <Text style={styles.detailText}>
                         KSh {lease.monthlyRent.toLocaleString()}/mo
                       </Text>
@@ -321,7 +322,7 @@ const LeasesScreen = ({ navigation }) => {
 
                 {status === 'expiring' && (
                   <View style={styles.expiryWarning}>
-                    <Ionicons name="alert-circle" size={16} color="#EF4444" />
+                    <Ionicons name="alert-circle" size={16} color={colors.danger} />
                     <Text style={styles.expiryWarningText}>
                       Expires in {lease.daysUntilExpiry} days
                     </Text>
@@ -334,7 +335,7 @@ const LeasesScreen = ({ navigation }) => {
 
         {filteredLeases.length === 0 && (
           <View style={styles.emptyState}>
-            <Ionicons name="document-text-outline" size={64} color="#64748B" />
+            <Ionicons name="document-text-outline" size={64} color={colors.textMuted} />
             <Text style={styles.emptyStateText}>No leases found</Text>
             <Text style={styles.emptyStateSubtext}>
               {filterStatus === 'all'
@@ -353,7 +354,7 @@ const LeasesScreen = ({ navigation }) => {
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Create Lease Agreement</Text>
                 <TouchableOpacity onPress={() => setShowCreateModal(false)}>
-                  <Ionicons name="close" size={24} color="#94A3B8" />
+                  <Ionicons name="close" size={24} color={colors.textSecondary} />
                 </TouchableOpacity>
               </View>
 
@@ -481,7 +482,7 @@ const LeasesScreen = ({ navigation }) => {
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Lease Details</Text>
                 <TouchableOpacity onPress={() => setShowDetailsModal(false)}>
-                  <Ionicons name="close" size={24} color="#94A3B8" />
+                  <Ionicons name="close" size={24} color={colors.textSecondary} />
                 </TouchableOpacity>
               </View>
 
@@ -532,7 +533,7 @@ const LeasesScreen = ({ navigation }) => {
                     Alert.alert('Info', 'View document feature coming soon');
                   }}
                 >
-                  <Ionicons name="document-text-outline" size={20} color="#6366F1" />
+                  <Ionicons name="document-text-outline" size={20} color={colors.info} />
                   <Text style={styles.actionButtonSmallText}>View Doc</Text>
                 </TouchableOpacity>
 
@@ -540,7 +541,7 @@ const LeasesScreen = ({ navigation }) => {
                   style={styles.actionButtonSmall}
                   onPress={() => handleRenewLease(selectedLease)}
                 >
-                  <Ionicons name="refresh-outline" size={20} color="#10B981" />
+                  <Ionicons name="refresh-outline" size={20} color={colors.success} />
                   <Text style={styles.actionButtonSmallText}>Renew</Text>
                 </TouchableOpacity>
 
@@ -548,7 +549,7 @@ const LeasesScreen = ({ navigation }) => {
                   style={styles.actionButtonSmall}
                   onPress={() => handleTerminateLease(selectedLease)}
                 >
-                  <Ionicons name="close-circle-outline" size={20} color="#EF4444" />
+                  <Ionicons name="close-circle-outline" size={20} color={colors.danger} />
                   <Text style={styles.actionButtonSmallText}>Terminate</Text>
                 </TouchableOpacity>
               </View>
@@ -561,71 +562,76 @@ const LeasesScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#020617' },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#020617' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, backgroundColor: '#0F172A' },
-  headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#F8FAFC' },
-  headerSubtitle: { fontSize: 14, color: '#94A3B8', marginTop: 4 },
-  addButton: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#6366F1', justifyContent: 'center', alignItems: 'center' },
-  statsContainer: { flexDirection: 'row', padding: 20, paddingTop: 16 },
-  statCard: { flex: 1, backgroundColor: '#0F172A', borderRadius: 12, padding: 16, marginHorizontal: 4, alignItems: 'center' },
-  statValue: { fontSize: 24, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 4 },
-  statLabel: { fontSize: 12, color: '#94A3B8' },
-  filterContainer: { paddingHorizontal: 20, marginBottom: 16 },
-  filterTab: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: '#0F172A', marginRight: 8 },
-  filterTabActive: { backgroundColor: '#6366F1' },
-  filterTabText: { fontSize: 13, color: '#94A3B8', fontWeight: '500', textTransform: 'capitalize' },
-  filterTabTextActive: { color: '#fff', fontWeight: '600' },
-  leasesList: { padding: 20, paddingTop: 0 },
-  leaseCard: { backgroundColor: '#0F172A', borderRadius: 12, padding: 16, marginBottom: 12 },
-  leaseHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  container: { flex: 1, backgroundColor: colors.bg },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing[5], backgroundColor: colors.surface },
+  headerTitle: { fontSize: typography['2xl'], fontWeight: typography.fontWeight.bold, color: colors.textPrimary },
+  headerSubtitle: { fontSize: typography.sm, color: colors.textSecondary, marginTop: spacing[1] },
+  addButton: { width: 48, height: 48, borderRadius: borderRadius['3xl'], backgroundColor: colors.darkBlue, justifyContent: 'center', alignItems: 'center' },
+  statsContainer: { flexDirection: 'row', padding: spacing[5], paddingTop: spacing[4] },
+  statCard: { flex: 1, backgroundColor: colors.surface, borderRadius: borderRadius.xl, padding: spacing[4], marginHorizontal: 4, alignItems: 'center' },
+  statValue: { fontSize: typography['2xl'], fontWeight: typography.fontWeight.bold, color: colors.textPrimary, marginBottom: spacing[1] },
+  statLabel: { fontSize: typography.xs, color: colors.textSecondary },
+  filterContainer: { paddingHorizontal: spacing[5], marginBottom: spacing[4] },
+  filterTab: { paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: 20, backgroundColor: colors.surface, marginRight: spacing[2] },
+  filterTabActive: { backgroundColor: colors.darkBlue,
+  },
+  filterTabText: { fontSize: 13, color: colors.textSecondary, fontWeight: typography.fontWeight.medium, textTransform: 'capitalize' },
+  filterTabTextActive: { color: '#fff', fontWeight: typography.fontWeight.semibold },
+  leasesList: { padding: spacing[5], paddingTop: 0 },
+  leaseCard: { backgroundColor: colors.surface, borderRadius: borderRadius.xl, padding: spacing[4], marginBottom: spacing[3] },
+  leaseHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing[3] },
   tenantInfo: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  tenantAvatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#6366F1', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
-  tenantAvatarText: { fontSize: 14, fontWeight: 'bold', color: '#fff' },
+  tenantAvatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.darkBlue,
+    justifyContent: 'center', alignItems: 'center', marginRight: spacing[3] },
+  tenantAvatarText: { fontSize: typography.sm, fontWeight: typography.fontWeight.bold, color: '#fff' },
   tenantDetails: { flex: 1 },
-  tenantName: { fontSize: 16, fontWeight: '600', color: '#F8FAFC', marginBottom: 2 },
-  propertyText: { fontSize: 13, color: '#94A3B8' },
-  statusBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12 },
-  statusText: { fontSize: 11, fontWeight: '600', marginLeft: 4, textTransform: 'capitalize' },
-  leaseDetails: { marginBottom: 8 },
-  detailRow: { marginBottom: 6 },
+  tenantName: { fontSize: typography.base, fontWeight: typography.fontWeight.semibold, color: colors.textPrimary, marginBottom: 2 },
+  propertyText: { fontSize: 13, color: colors.textSecondary },
+  statusBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: spacing[1] + 2, borderRadius: borderRadius.xl },
+  statusText: { fontSize: 11, fontWeight: typography.fontWeight.semibold, marginLeft: spacing[1], textTransform: 'capitalize' },
+  leaseDetails: { marginBottom: spacing[2] },
+  detailRow: { marginBottom: spacing[1] + 2 },
   detailItem: { flexDirection: 'row', alignItems: 'center' },
-  detailText: { fontSize: 13, color: '#94A3B8', marginLeft: 8 },
-  expiryWarning: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#7F1D1D', borderRadius: 8, padding: 10, marginTop: 8 },
-  expiryWarningText: { fontSize: 12, color: '#FCA5A5', marginLeft: 8, fontWeight: '600' },
+  detailText: { fontSize: 13, color: colors.textSecondary, marginLeft: spacing[2] },
+  expiryWarning: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#7F1D1D', borderRadius: borderRadius.lg, padding: 10, marginTop: spacing[2] },
+  expiryWarningText: { fontSize: typography.xs, color: '#FCA5A5', marginLeft: spacing[2], fontWeight: typography.fontWeight.semibold },
   emptyState: { alignItems: 'center', justifyContent: 'center', paddingVertical: 60 },
-  emptyStateText: { fontSize: 18, fontWeight: '600', color: '#94A3B8', marginTop: 16 },
-  emptyStateSubtext: { fontSize: 14, color: '#64748B', marginTop: 8 },
+  emptyStateText: { fontSize: typography.lg, fontWeight: typography.fontWeight.semibold, color: colors.textSecondary, marginTop: spacing[4] },
+  emptyStateSubtext: { fontSize: typography.sm, color: colors.textMuted, marginTop: spacing[2] },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'flex-end' },
   modalScrollContent: { flexGrow: 1, justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#0F172A', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 24, maxHeight: '90%' },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
-  modalTitle: { fontSize: 24, fontWeight: 'bold', color: '#F8FAFC' },
-  inputLabel: { fontSize: 14, fontWeight: '600', color: '#E2E8F0', marginBottom: 8 },
-  input: { backgroundColor: '#1E293B', borderWidth: 1, borderColor: '#334155', borderRadius: 8, padding: 16, fontSize: 16, color: '#F8FAFC', marginBottom: 16 },
-  selector: { marginBottom: 16 },
-  selectorOption: { backgroundColor: '#1E293B', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 10, marginRight: 8 },
-  selectorOptionSelected: { backgroundColor: '#6366F1' },
-  selectorOptionText: { fontSize: 14, color: '#94A3B8' },
-  selectorOptionTextSelected: { color: '#fff', fontWeight: '600' },
+  modalContent: { backgroundColor: colors.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: spacing[6], maxHeight: '90%' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing[6] },
+  modalTitle: { fontSize: typography['2xl'], fontWeight: typography.fontWeight.bold, color: colors.textPrimary },
+  inputLabel: { fontSize: typography.sm, fontWeight: typography.fontWeight.semibold, color: colors.slate[200], marginBottom: spacing[2] },
+  input: { backgroundColor: colors.slate[800], borderWidth: 1, borderColor: '#334155', borderRadius: borderRadius.lg, padding: spacing[4], fontSize: typography.base, color: colors.textPrimary, marginBottom: spacing[4] },
+  selector: { marginBottom: spacing[4] },
+  selectorOption: { backgroundColor: colors.slate[800], borderRadius: borderRadius.lg, paddingHorizontal: spacing[4], paddingVertical: 10, marginRight: spacing[2] },
+  selectorOptionSelected: { backgroundColor: colors.darkBlue,
+  },
+  selectorOptionText: { fontSize: typography.sm, color: colors.textSecondary },
+  selectorOptionTextSelected: { color: '#fff', fontWeight: typography.fontWeight.semibold },
   row: { flexDirection: 'row', justifyContent: 'space-between' },
   halfWidth: { width: '48%' },
-  modalButtons: { flexDirection: 'row', marginTop: 24 },
-  modalButton: { flex: 1, padding: 16, borderRadius: 8, alignItems: 'center' },
-  cancelButton: { backgroundColor: '#1E293B', marginRight: 8 },
-  cancelButtonText: { color: '#E2E8F0', fontSize: 16, fontWeight: '600' },
-  saveButton: { backgroundColor: '#6366F1', marginLeft: 8 },
-  saveButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  detailsSection: { marginBottom: 24 },
-  sectionTitle: { fontSize: 16, fontWeight: '600', color: '#E2E8F0', marginTop: 16, marginBottom: 12 },
-  detailValue: { fontSize: 16, color: '#F8FAFC', fontWeight: '500', marginBottom: 4 },
-  detailSubtext: { fontSize: 14, color: '#94A3B8', marginBottom: 2 },
-  termRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#1E293B' },
-  termLabel: { fontSize: 14, color: '#94A3B8' },
-  termValue: { fontSize: 14, color: '#F8FAFC', fontWeight: '500' },
+  modalButtons: { flexDirection: 'row', marginTop: spacing[6] },
+  modalButton: { flex: 1, padding: spacing[4], borderRadius: borderRadius.lg, alignItems: 'center' },
+  cancelButton: { backgroundColor: colors.slate[800], marginRight: spacing[2] },
+  cancelButtonText: { color: colors.slate[200], fontSize: typography.base, fontWeight: typography.fontWeight.semibold },
+  saveButton: { backgroundColor: colors.darkBlue,
+    marginLeft: spacing[2] },
+  saveButtonText: { color: colors.gold,
+    fontSize: typography.base, fontWeight: typography.fontWeight.semibold },
+  detailsSection: { marginBottom: spacing[6] },
+  sectionTitle: { fontSize: typography.base, fontWeight: typography.fontWeight.semibold, color: colors.slate[200], marginTop: spacing[4], marginBottom: spacing[3] },
+  detailValue: { fontSize: typography.base, color: colors.textPrimary, fontWeight: typography.fontWeight.medium, marginBottom: spacing[1] },
+  detailSubtext: { fontSize: typography.sm, color: colors.textSecondary, marginBottom: 2 },
+  termRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: spacing[2], borderBottomWidth: 1, borderBottomColor: '#1E293B' },
+  termLabel: { fontSize: typography.sm, color: colors.textSecondary },
+  termValue: { fontSize: typography.sm, color: colors.textPrimary, fontWeight: typography.fontWeight.medium },
   actionButtonsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  actionButtonSmall: { width: '31%', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#1E293B', borderRadius: 8, padding: 16, marginBottom: 12 },
-  actionButtonSmallText: { fontSize: 12, fontWeight: '600', color: '#E2E8F0', marginTop: 8 },
+  actionButtonSmall: { width: '31%', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.slate[800], borderRadius: borderRadius.lg, padding: spacing[4], marginBottom: spacing[3] },
+  actionButtonSmallText: { fontSize: typography.xs, fontWeight: typography.fontWeight.semibold, color: colors.slate[200], marginTop: spacing[2] },
 });
 
 export default LeasesScreen;

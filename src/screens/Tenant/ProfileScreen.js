@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const ProfileScreen = ({ navigation }) => {
   const { user, logout } = useAuth();
@@ -54,16 +55,16 @@ const ProfileScreen = ({ navigation }) => {
             }}
           >
             <View style={styles.menuItemLeft}>
-              <Ionicons name={item.icon} size={24} color="#818CF8" />
+              <Ionicons name={item.icon} size={24} color={colors.blue[400]} />
               <Text style={styles.menuItemText}>{item.title}</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#64748B" />
+            <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
           </TouchableOpacity>
         ))}
       </View>
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Ionicons name="log-out-outline" size={24} color="#EF4444" />
+        <Ionicons name="log-out-outline" size={24} color={colors.danger} />
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
 
@@ -75,47 +76,47 @@ const ProfileScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#020617', // slate-950
+    backgroundColor: colors.bg, // slate-950
   },
   profileHeader: {
-    backgroundColor: '#0F172A', // slate-900
+    backgroundColor: colors.surface, // slate-900
     alignItems: 'center',
-    padding: 32,
-    marginBottom: 20,
+    padding: spacing[8],
+    marginBottom: spacing[5],
   },
   avatar: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#6366F1', // indigo-500
+    backgroundColor: colors.darkBlue, 
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: spacing[4],
   },
   avatarText: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: typography.fontWeight.bold,
     color: '#fff',
   },
   userName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#F8FAFC', // slate-50
-    marginBottom: 4,
+    fontSize: typography['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary, // slate-50
+    marginBottom: spacing[1],
   },
   userEmail: {
-    fontSize: 14,
-    color: '#94A3B8', // slate-400
+    fontSize: typography.sm,
+    color: colors.textSecondary, // slate-400
   },
   menuSection: {
-    backgroundColor: '#0F172A', // slate-900
-    marginBottom: 20,
+    backgroundColor: colors.surface, // slate-900
+    marginBottom: spacing[5],
   },
   menuItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: spacing[4],
     borderBottomWidth: 1,
     borderBottomColor: '#1E293B', // slate-800
   },
@@ -124,33 +125,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   menuItemText: {
-    fontSize: 16,
-    color: '#E2E8F0', // slate-200
-    marginLeft: 16,
+    fontSize: typography.base,
+    color: colors.slate[200], // slate-200
+    marginLeft: spacing[4],
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#0F172A', // slate-900
-    padding: 16,
+    backgroundColor: colors.surface, // slate-900
+    padding: spacing[4],
     marginHorizontal: 20,
-    borderRadius: 12,
-    marginBottom: 20,
+    borderRadius: borderRadius.xl,
+    marginBottom: spacing[5],
     borderWidth: 1,
-    borderColor: '#EF4444',
+    borderColor: colors.danger,
   },
   logoutText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#EF4444',
-    marginLeft: 8,
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.danger,
+    marginLeft: spacing[2],
   },
   version: {
     textAlign: 'center',
-    fontSize: 12,
-    color: '#64748B', // slate-500
-    marginBottom: 40,
+    fontSize: typography.xs,
+    color: colors.textMuted, // slate-500
+    marginBottom: spacing[10],
   },
 });
 

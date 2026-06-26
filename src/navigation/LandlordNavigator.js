@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
+import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../config/theme';
 
 // Landlord Screens
 import LandlordHomeScreen from '../screens/Landlord/HomeScreen';
@@ -28,9 +29,9 @@ const PropertiesStack = () => {
         headerStyle: {
           backgroundColor: '#0F172A',
         },
-        headerTintColor: '#F8FAFC',
+        headerTintColor: colors.textPrimary,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: typography.fontWeight.bold,
         },
       }}
     >
@@ -56,9 +57,9 @@ const MessagesStack = () => {
         headerStyle: {
           backgroundColor: '#0F172A',
         },
-        headerTintColor: '#F8FAFC',
+        headerTintColor: colors.textPrimary,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: typography.fontWeight.bold,
         },
       }}
     >
@@ -84,9 +85,9 @@ const ProfileStack = () => {
         headerStyle: {
           backgroundColor: '#0F172A',
         },
-        headerTintColor: '#F8FAFC',
+        headerTintColor: colors.textPrimary,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: typography.fontWeight.bold,
         },
       }}
     >
@@ -129,8 +130,8 @@ const LandlordNavigator = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#6366F1',
-        tabBarInactiveTintColor: '#64748B',
+        tabBarActiveTintColor: colors.gold,
+        tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
           backgroundColor: '#0F172A',
           borderTopColor: '#1E293B',
@@ -139,9 +140,9 @@ const LandlordNavigator = () => {
         headerStyle: {
           backgroundColor: '#0F172A',
         },
-        headerTintColor: '#F8FAFC',
+        headerTintColor: colors.textPrimary,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: typography.fontWeight.bold,
         },
       })}
     >

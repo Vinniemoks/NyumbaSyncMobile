@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { documentService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const DocumentsScreen = ({ userType = 'tenant' }) => {
   const { user } = useAuth();
@@ -211,7 +212,7 @@ const DocumentsScreen = ({ userType = 'tenant' }) => {
 
   const getCategoryColor = (category) => {
     const colors = {
-      lease: '#6366F1',
+      lease: '#3B82F6',
       receipt: '#10B981',
       inspection: '#F59E0B',
       maintenance: '#EF4444',
@@ -239,7 +240,7 @@ const DocumentsScreen = ({ userType = 'tenant' }) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6366F1" />
+        <ActivityIndicator size="large" color={colors.info} />
       </View>
     );
   }
@@ -261,17 +262,17 @@ const DocumentsScreen = ({ userType = 'tenant' }) => {
         {/* Stats Cards */}
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
-            <Ionicons name="document-text" size={24} color="#6366F1" />
+            <Ionicons name="document-text" size={24} color={colors.info} />
             <Text style={styles.statValue}>{stats.lease}</Text>
             <Text style={styles.statLabel}>Leases</Text>
           </View>
           <View style={styles.statCard}>
-            <Ionicons name="receipt" size={24} color="#10B981" />
+            <Ionicons name="receipt" size={24} color={colors.success} />
             <Text style={styles.statValue}>{stats.receipt}</Text>
             <Text style={styles.statLabel}>Receipts</Text>
           </View>
           <View style={styles.statCard}>
-            <Ionicons name="clipboard" size={24} color="#F59E0B" />
+            <Ionicons name="clipboard" size={24} color={colors.warning} />
             <Text style={styles.statValue}>{stats.inspection}</Text>
             <Text style={styles.statLabel}>Inspections</Text>
           </View>
@@ -362,7 +363,7 @@ const DocumentsScreen = ({ userType = 'tenant' }) => {
                   onPress={() => handleDownloadDocument(document)}
                   style={styles.downloadButton}
                 >
-                  <Ionicons name="download-outline" size={20} color="#6366F1" />
+                  <Ionicons name="download-outline" size={20} color={colors.info} />
                 </TouchableOpacity>
               </View>
             </TouchableOpacity>
@@ -371,7 +372,7 @@ const DocumentsScreen = ({ userType = 'tenant' }) => {
 
         {filteredDocuments.length === 0 && (
           <View style={styles.emptyState}>
-            <Ionicons name="folder-open-outline" size={64} color="#64748B" />
+            <Ionicons name="folder-open-outline" size={64} color={colors.textMuted} />
             <Text style={styles.emptyStateText}>No documents found</Text>
             <Text style={styles.emptyStateSubtext}>
               {filterCategory === 'all'
@@ -389,7 +390,7 @@ const DocumentsScreen = ({ userType = 'tenant' }) => {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Upload Document</Text>
               <TouchableOpacity onPress={() => setShowUploadModal(false)}>
-                <Ionicons name="close" size={24} color="#94A3B8" />
+                <Ionicons name="close" size={24} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
@@ -443,7 +444,7 @@ const DocumentsScreen = ({ userType = 'tenant' }) => {
 
             <Text style={styles.inputLabel}>Select File *</Text>
             <TouchableOpacity style={styles.filePickerButton} onPress={handlePickDocument}>
-              <Ionicons name="document-attach-outline" size={24} color="#6366F1" />
+              <Ionicons name="document-attach-outline" size={24} color={colors.info} />
               <Text style={styles.filePickerText}>
                 {formData.file ? formData.file.name : 'Choose file...'}
               </Text>
@@ -487,7 +488,7 @@ const DocumentsScreen = ({ userType = 'tenant' }) => {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Document Details</Text>
               <TouchableOpacity onPress={() => setShowDetailsModal(false)}>
-                <Ionicons name="close" size={24} color="#94A3B8" />
+                <Ionicons name="close" size={24} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
@@ -543,7 +544,7 @@ const DocumentsScreen = ({ userType = 'tenant' }) => {
                 style={styles.actionButtonLarge}
                 onPress={() => handleDownloadDocument(selectedDocument)}
               >
-                <Ionicons name="download-outline" size={24} color="#6366F1" />
+                <Ionicons name="download-outline" size={24} color={colors.info} />
                 <Text style={styles.actionButtonLargeText}>Download</Text>
               </TouchableOpacity>
 
@@ -551,7 +552,7 @@ const DocumentsScreen = ({ userType = 'tenant' }) => {
                 style={styles.actionButtonLarge}
                 onPress={() => handleShareDocument(selectedDocument)}
               >
-                <Ionicons name="share-outline" size={24} color="#10B981" />
+                <Ionicons name="share-outline" size={24} color={colors.success} />
                 <Text style={styles.actionButtonLargeText}>Share</Text>
               </TouchableOpacity>
 
@@ -560,7 +561,7 @@ const DocumentsScreen = ({ userType = 'tenant' }) => {
                   style={styles.actionButtonLarge}
                   onPress={() => handleDeleteDocument(selectedDocument)}
                 >
-                  <Ionicons name="trash-outline" size={24} color="#EF4444" />
+                  <Ionicons name="trash-outline" size={24} color={colors.danger} />
                   <Text style={styles.actionButtonLargeText}>Delete</Text>
                 </TouchableOpacity>
               )}
@@ -573,69 +574,74 @@ const DocumentsScreen = ({ userType = 'tenant' }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#020617' },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#020617' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, backgroundColor: '#0F172A' },
-  headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#F8FAFC' },
-  headerSubtitle: { fontSize: 14, color: '#94A3B8', marginTop: 4 },
-  addButton: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#6366F1', justifyContent: 'center', alignItems: 'center' },
-  statsContainer: { flexDirection: 'row', padding: 20, paddingTop: 16 },
-  statCard: { flex: 1, backgroundColor: '#0F172A', borderRadius: 12, padding: 16, marginHorizontal: 4, alignItems: 'center' },
-  statValue: { fontSize: 20, fontWeight: 'bold', color: '#F8FAFC', marginTop: 8, marginBottom: 4 },
-  statLabel: { fontSize: 11, color: '#94A3B8' },
-  filterContainer: { paddingHorizontal: 20, marginBottom: 16 },
-  filterTab: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, backgroundColor: '#0F172A', marginRight: 8 },
-  filterTabActive: { backgroundColor: '#6366F1' },
-  filterTabText: { fontSize: 12, color: '#94A3B8', fontWeight: '500', marginLeft: 6 },
-  filterTabTextActive: { color: '#fff', fontWeight: '600' },
-  documentsList: { padding: 20, paddingTop: 0 },
-  documentCard: { backgroundColor: '#0F172A', borderRadius: 12, padding: 16, marginBottom: 12 },
-  documentHeader: { flexDirection: 'row', marginBottom: 12 },
-  documentIcon: { width: 48, height: 48, borderRadius: 24, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  container: { flex: 1, backgroundColor: colors.bg },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing[5], backgroundColor: colors.surface },
+  headerTitle: { fontSize: typography['2xl'], fontWeight: typography.fontWeight.bold, color: colors.textPrimary },
+  headerSubtitle: { fontSize: typography.sm, color: colors.textSecondary, marginTop: spacing[1] },
+  addButton: { width: 48, height: 48, borderRadius: borderRadius['3xl'], backgroundColor: colors.darkBlue,
+    justifyContent: 'center', alignItems: 'center' },
+  statsContainer: { flexDirection: 'row', padding: spacing[5], paddingTop: spacing[4] },
+  statCard: { flex: 1, backgroundColor: colors.surface, borderRadius: borderRadius.xl, padding: spacing[4], marginHorizontal: 4, alignItems: 'center' },
+  statValue: { fontSize: typography.xl, fontWeight: typography.fontWeight.bold, color: colors.textPrimary, marginTop: spacing[2], marginBottom: spacing[1] },
+  statLabel: { fontSize: 11, color: colors.textSecondary },
+  filterContainer: { paddingHorizontal: spacing[5], marginBottom: spacing[4] },
+  filterTab: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: 20, backgroundColor: colors.surface, marginRight: spacing[2] },
+  filterTabActive: { backgroundColor: colors.darkBlue,
+  },
+  filterTabText: { fontSize: typography.xs, color: colors.textSecondary, fontWeight: typography.fontWeight.medium, marginLeft: spacing[1] + 2 },
+  filterTabTextActive: { color: '#fff', fontWeight: typography.fontWeight.semibold },
+  documentsList: { padding: spacing[5], paddingTop: 0 },
+  documentCard: { backgroundColor: colors.surface, borderRadius: borderRadius.xl, padding: spacing[4], marginBottom: spacing[3] },
+  documentHeader: { flexDirection: 'row', marginBottom: spacing[3] },
+  documentIcon: { width: 48, height: 48, borderRadius: borderRadius['3xl'], justifyContent: 'center', alignItems: 'center', marginRight: spacing[3] },
   documentInfo: { flex: 1 },
-  documentTitle: { fontSize: 16, fontWeight: '600', color: '#F8FAFC', marginBottom: 4 },
-  documentFileName: { fontSize: 13, color: '#94A3B8', marginBottom: 4 },
+  documentTitle: { fontSize: typography.base, fontWeight: typography.fontWeight.semibold, color: colors.textPrimary, marginBottom: spacing[1] },
+  documentFileName: { fontSize: 13, color: colors.textSecondary, marginBottom: spacing[1] },
   documentMeta: { flexDirection: 'row', alignItems: 'center' },
-  documentMetaText: { fontSize: 11, color: '#64748B', marginRight: 6 },
-  documentFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 12, borderTopWidth: 1, borderTopColor: '#1E293B' },
-  categoryBadge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12 },
-  categoryBadgeText: { fontSize: 11, fontWeight: '600', textTransform: 'capitalize' },
-  downloadButton: { padding: 8 },
+  documentMetaText: { fontSize: 11, color: colors.textMuted, marginRight: spacing[1] + 2 },
+  documentFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: spacing[3], borderTopWidth: 1, borderTopColor: '#1E293B' },
+  categoryBadge: { paddingHorizontal: 10, paddingVertical: spacing[1] + 2, borderRadius: borderRadius.xl },
+  categoryBadgeText: { fontSize: 11, fontWeight: typography.fontWeight.semibold, textTransform: 'capitalize' },
+  downloadButton: { padding: spacing[2] },
   emptyState: { alignItems: 'center', justifyContent: 'center', paddingVertical: 60 },
-  emptyStateText: { fontSize: 18, fontWeight: '600', color: '#94A3B8', marginTop: 16 },
-  emptyStateSubtext: { fontSize: 14, color: '#64748B', marginTop: 8 },
+  emptyStateText: { fontSize: typography.lg, fontWeight: typography.fontWeight.semibold, color: colors.textSecondary, marginTop: spacing[4] },
+  emptyStateSubtext: { fontSize: typography.sm, color: colors.textMuted, marginTop: spacing[2] },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#0F172A', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 24, maxHeight: '90%' },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
-  modalTitle: { fontSize: 24, fontWeight: 'bold', color: '#F8FAFC' },
-  inputLabel: { fontSize: 14, fontWeight: '600', color: '#E2E8F0', marginBottom: 8, marginTop: 8 },
-  input: { backgroundColor: '#1E293B', borderWidth: 1, borderColor: '#334155', borderRadius: 8, padding: 16, fontSize: 16, color: '#F8FAFC', marginBottom: 16 },
+  modalContent: { backgroundColor: colors.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: spacing[6], maxHeight: '90%' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing[6] },
+  modalTitle: { fontSize: typography['2xl'], fontWeight: typography.fontWeight.bold, color: colors.textPrimary },
+  inputLabel: { fontSize: typography.sm, fontWeight: typography.fontWeight.semibold, color: colors.slate[200], marginBottom: spacing[2], marginTop: spacing[2] },
+  input: { backgroundColor: colors.slate[800], borderWidth: 1, borderColor: '#334155', borderRadius: borderRadius.lg, padding: spacing[4], fontSize: typography.base, color: colors.textPrimary, marginBottom: spacing[4] },
   textArea: { height: 80, textAlignVertical: 'top' },
-  categorySelector: { marginBottom: 16 },
-  categoryOption: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1E293B', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, marginRight: 8 },
-  categoryOptionSelected: { backgroundColor: '#6366F1' },
-  categoryOptionText: { fontSize: 12, color: '#94A3B8', marginLeft: 6 },
-  categoryOptionTextSelected: { color: '#fff', fontWeight: '600' },
-  filePickerButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1E293B', borderWidth: 2, borderColor: '#334155', borderRadius: 8, padding: 16, marginBottom: 8, borderStyle: 'dashed' },
-  filePickerText: { fontSize: 14, color: '#94A3B8', marginLeft: 12, flex: 1 },
-  fileSizeText: { fontSize: 12, color: '#64748B', marginBottom: 16 },
-  modalButtons: { flexDirection: 'row', marginTop: 24 },
-  modalButton: { flex: 1, padding: 16, borderRadius: 8, alignItems: 'center' },
-  cancelButton: { backgroundColor: '#1E293B', marginRight: 8 },
-  cancelButtonText: { color: '#E2E8F0', fontSize: 16, fontWeight: '600' },
-  saveButton: { backgroundColor: '#6366F1', marginLeft: 8 },
-  saveButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  detailsSection: { alignItems: 'center', marginBottom: 24 },
-  documentIconLarge: { width: 80, height: 80, borderRadius: 40, justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
-  detailTitle: { fontSize: 20, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 4, textAlign: 'center' },
-  detailFileName: { fontSize: 14, color: '#94A3B8', marginBottom: 20, textAlign: 'center' },
-  detailRow: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#1E293B' },
-  detailLabel: { fontSize: 14, color: '#94A3B8', fontWeight: '500' },
-  detailValue: { fontSize: 14, color: '#F8FAFC', fontWeight: '500', textTransform: 'capitalize' },
-  detailDescription: { fontSize: 14, color: '#E2E8F0', marginTop: 8, lineHeight: 20 },
+  categorySelector: { marginBottom: spacing[4] },
+  categoryOption: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.slate[800], borderRadius: borderRadius.lg, paddingHorizontal: spacing[3], paddingVertical: 10, marginRight: spacing[2] },
+  categoryOptionSelected: { backgroundColor: colors.darkBlue,
+  },
+  categoryOptionText: { fontSize: typography.xs, color: colors.textSecondary, marginLeft: spacing[1] + 2 },
+  categoryOptionTextSelected: { color: '#fff', fontWeight: typography.fontWeight.semibold },
+  filePickerButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.slate[800], borderWidth: 2, borderColor: '#334155', borderRadius: borderRadius.lg, padding: spacing[4], marginBottom: spacing[2], borderStyle: 'dashed' },
+  filePickerText: { fontSize: typography.sm, color: colors.textSecondary, marginLeft: spacing[3], flex: 1 },
+  fileSizeText: { fontSize: typography.xs, color: colors.textMuted, marginBottom: spacing[4] },
+  modalButtons: { flexDirection: 'row', marginTop: spacing[6] },
+  modalButton: { flex: 1, padding: spacing[4], borderRadius: borderRadius.lg, alignItems: 'center' },
+  cancelButton: { backgroundColor: colors.slate[800], marginRight: spacing[2] },
+  cancelButtonText: { color: colors.slate[200], fontSize: typography.base, fontWeight: typography.fontWeight.semibold },
+  saveButton: { backgroundColor: colors.darkBlue,
+    marginLeft: spacing[2] },
+  saveButtonText: { color: colors.gold,
+    fontSize: typography.base, fontWeight: typography.fontWeight.semibold },
+  detailsSection: { alignItems: 'center', marginBottom: spacing[6] },
+  documentIconLarge: { width: 80, height: 80, borderRadius: 40, justifyContent: 'center', alignItems: 'center', marginBottom: spacing[4] },
+  detailTitle: { fontSize: typography.xl, fontWeight: typography.fontWeight.bold, color: colors.textPrimary, marginBottom: spacing[1], textAlign: 'center' },
+  detailFileName: { fontSize: typography.sm, color: colors.textSecondary, marginBottom: spacing[5], textAlign: 'center' },
+  detailRow: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', paddingVertical: spacing[3], borderBottomWidth: 1, borderBottomColor: '#1E293B' },
+  detailLabel: { fontSize: typography.sm, color: colors.textSecondary, fontWeight: typography.fontWeight.medium },
+  detailValue: { fontSize: typography.sm, color: colors.textPrimary, fontWeight: typography.fontWeight.medium, textTransform: 'capitalize' },
+  detailDescription: { fontSize: typography.sm, color: colors.slate[200], marginTop: spacing[2], lineHeight: 20 },
   actionButtonsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  actionButtonLarge: { width: '48%', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#1E293B', borderRadius: 8, padding: 20, marginBottom: 12 },
-  actionButtonLargeText: { fontSize: 14, fontWeight: '600', color: '#E2E8F0', marginTop: 8 },
+  actionButtonLarge: { width: '48%', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.slate[800], borderRadius: borderRadius.lg, padding: spacing[5], marginBottom: spacing[3] },
+  actionButtonLargeText: { fontSize: typography.sm, fontWeight: typography.fontWeight.semibold, color: colors.slate[200], marginTop: spacing[2] },
 });
 
 export default DocumentsScreen;

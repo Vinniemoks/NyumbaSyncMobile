@@ -10,6 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const VendorJobsScreen = () => {
   const [filterStatus, setFilterStatus] = useState('all');
@@ -83,20 +84,20 @@ const VendorJobsScreen = () => {
 
             <View style={styles.jobDetails}>
               <View style={styles.jobDetailRow}>
-                <Ionicons name="business-outline" size={16} color="#94A3B8" />
+                <Ionicons name="business-outline" size={16} color={colors.textSecondary} />
                 <Text style={styles.jobDetailText}>{job.property}</Text>
               </View>
               <View style={styles.jobDetailRow}>
-                <Ionicons name="home-outline" size={16} color="#94A3B8" />
+                <Ionicons name="home-outline" size={16} color={colors.textSecondary} />
                 <Text style={styles.jobDetailText}>Unit {job.unit}</Text>
               </View>
               <View style={styles.jobDetailRow}>
-                <Ionicons name="calendar-outline" size={16} color="#94A3B8" />
+                <Ionicons name="calendar-outline" size={16} color={colors.textSecondary} />
                 <Text style={styles.jobDetailText}>{job.date}</Text>
               </View>
               <View style={styles.jobDetailRow}>
-                <Ionicons name="cash-outline" size={16} color="#10B981" />
-                <Text style={[styles.jobDetailText, { color: '#10B981', fontWeight: '600' }]}>
+                <Ionicons name="cash-outline" size={16} color={colors.success} />
+                <Text style={[styles.jobDetailText, { color: colors.success, fontWeight: typography.fontWeight.semibold }]}>
                   KSh {job.amount.toLocaleString()}
                 </Text>
               </View>
@@ -113,7 +114,7 @@ const VendorJobsScreen = () => {
               )}
               {job.status === 'in_progress' && (
                 <TouchableOpacity
-                  style={[styles.actionButton, { backgroundColor: '#6366F1' }]}
+                  style={[styles.actionButton, { backgroundColor: colors.darkBlue }]}
                   onPress={() => handleJobAction(job, 'complete')}
                 >
                   <Text style={styles.actionButtonText}>Mark Complete</Text>
@@ -153,7 +154,7 @@ const VendorJobsScreen = () => {
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Amount:</Text>
-                  <Text style={[styles.detailValue, { color: '#10B981' }]}>
+                  <Text style={[styles.detailValue, { color: colors.success }]}>
                     KSh {selectedJob.amount.toLocaleString()}
                   </Text>
                 </View>
@@ -183,39 +184,39 @@ const VendorJobsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#020617',
+    backgroundColor: colors.bg,
   },
   filterContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: spacing[5],
+    paddingVertical: spacing[4],
   },
   filterChip: {
-    backgroundColor: '#0F172A',
+    backgroundColor: colors.surface,
     borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginRight: 8,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[2],
+    marginRight: spacing[2],
   },
   filterChipActive: {
-    backgroundColor: '#6366F1',
+    backgroundColor: colors.darkBlue,
   },
   filterChipText: {
-    fontSize: 14,
-    color: '#94A3B8',
+    fontSize: typography.sm,
+    color: colors.textSecondary,
   },
   filterChipTextActive: {
     color: '#fff',
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
   },
   jobsList: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing[5],
   },
   jobCard: {
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
+    marginBottom: spacing[3],
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -226,32 +227,32 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: spacing[2],
   },
   jobTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#F8FAFC',
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textPrimary,
     flex: 1,
   },
   statusBadge: {
-    borderRadius: 12,
+    borderRadius: borderRadius.xl,
     paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingVertical: spacing[1] + 2,
   },
   statusText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
     textTransform: 'capitalize',
   },
   jobDescription: {
-    fontSize: 14,
-    color: '#94A3B8',
-    marginBottom: 12,
+    fontSize: typography.sm,
+    color: colors.textSecondary,
+    marginBottom: spacing[3],
   },
   jobDetails: {
-    gap: 8,
-    marginBottom: 12,
+    gap: spacing[2],
+    marginBottom: spacing[3],
   },
   jobDetailRow: {
     flexDirection: 'row',
@@ -259,21 +260,21 @@ const styles = StyleSheet.create({
   },
   jobDetailText: {
     fontSize: 13,
-    color: '#94A3B8',
-    marginLeft: 8,
+    color: colors.textSecondary,
+    marginLeft: spacing[2],
   },
   jobActions: {
-    marginTop: 8,
+    marginTop: spacing[2],
   },
   actionButton: {
-    borderRadius: 8,
-    padding: 12,
+    borderRadius: borderRadius.lg,
+    padding: spacing[3],
     alignItems: 'center',
   },
   actionButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
+    color: colors.gold,
+    fontSize: typography.sm,
+    fontWeight: typography.fontWeight.semibold,
   },
   modalOverlay: {
     flex: 1,
@@ -282,45 +283,45 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#0F172A',
+    backgroundColor: colors.surface,
     borderRadius: 20,
-    padding: 24,
+    padding: spacing[6],
     width: '90%',
     maxWidth: 400,
     maxHeight: '80%',
   },
   modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#F8FAFC',
-    marginBottom: 20,
+    fontSize: typography['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary,
+    marginBottom: spacing[5],
   },
   detailRow: {
-    paddingVertical: 12,
+    paddingVertical: spacing[3],
     borderBottomWidth: 1,
     borderBottomColor: '#1E293B',
   },
   detailLabel: {
-    fontSize: 12,
-    color: '#94A3B8',
-    marginBottom: 4,
+    fontSize: typography.xs,
+    color: colors.textSecondary,
+    marginBottom: spacing[1],
   },
   detailValue: {
-    fontSize: 14,
-    color: '#F8FAFC',
-    fontWeight: '500',
+    fontSize: typography.sm,
+    color: colors.textPrimary,
+    fontWeight: typography.fontWeight.medium,
   },
   closeButton: {
-    backgroundColor: '#6366F1',
-    borderRadius: 8,
-    padding: 16,
+    backgroundColor: colors.darkBlue,
+    borderRadius: borderRadius.lg,
+    padding: spacing[4],
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: spacing[5],
   },
   closeButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: colors.gold,
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
   },
 });
 

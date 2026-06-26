@@ -1,32 +1,47 @@
-<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
-  <rect width="1024" height="1024" fill="#6366F1" rx="180"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bgGrad1024" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0D1F3C;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#050A14;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="goldGrad1024" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8C84A;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#D4AF37;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B6914;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow1024" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="25.6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
   
-  <!-- House Icon -->
-  <g transform="translate(512, 512)">
-    <!-- Roof -->
-    <path d="M -200 -100 L 0 -250 L 200 -100 L 200 -50 L 150 -50 L 150 -120 L 0 -200 L -150 -120 L -150 -50 L -200 -50 Z" 
-          fill="white"/>
-    
-    <!-- House Body -->
-    <rect x="-180" y="-50" width="360" height="280" fill="white"/>
-    
-    <!-- Door -->
-    <rect x="-60" y="80" width="120" height="150" fill="#6366F1" rx="10"/>
-    <circle cx="30" cy="155" r="8" fill="white"/>
-    
-    <!-- Windows -->
-    <rect x="-140" y="20" width="60" height="60" fill="#6366F1" rx="5"/>
-    <rect x="80" y="20" width="60" height="60" fill="#6366F1" rx="5"/>
-    
-    <!-- Window Panes -->
-    <line x1="-110" y1="20" x2="-110" y2="80" stroke="white" stroke-width="3"/>
-    <line x1="-140" y1="50" x2="-80" y2="50" stroke="white" stroke-width="3"/>
-    <line x1="110" y1="20" x2="110" y2="80" stroke="white" stroke-width="3"/>
-    <line x1="80" y1="50" x2="140" y2="50" stroke="white" stroke-width="3"/>
-  </g>
+  <!-- Background rounded square -->
+  <rect x="0" y="0" width="1024" height="1024" rx="170.66666666666666" ry="170.66666666666666" fill="url(#bgGrad1024)" />
   
-  <!-- App Name -->
-  <text x="512" y="880" font-family="Arial, sans-serif" font-size="80" font-weight="bold" 
-        fill="white" text-anchor="middle">NyumbaSync</text>
+  <!-- Gold border -->
+  <rect x="8" y="8" width="1008" height="1008" rx="170.66666666666666" ry="170.66666666666666" 
+        fill="none" stroke="url(#goldGrad1024)" stroke-width="8" opacity="0.6" />
+  
+  <!-- Roof -->
+  <polygon points="179.2,657.0666666666667 512,442.02666666666676 844.8,657.0666666666667" fill="url(#goldGrad1024)" />
+  
+  <!-- House body -->
+  <rect x="256" y="657.0666666666667" width="512" height="358.4" fill="url(#goldGrad1024)" />
+  
+  <!-- Door (cutout showing background) -->
+  <rect x="426.6666666666667" y="836.2666666666667" width="170.66666666666666" height="179.2" fill="#0A1628" rx="21.333333333333332" />
+  <circle cx="533.3333333333334" cy="925.8666666666667" r="21.333333333333332" fill="url(#goldGrad1024)" />
+  
+  <!-- Left window -->
+  <rect x="320" y="716.8000000000001" width="102.4" height="102.4" fill="#0A1628" rx="12.8" />
+  <line x1="371.2" y1="716.8000000000001" x2="371.2" y2="819.2" stroke="url(#goldGrad1024)" stroke-width="4" />
+  <line x1="320" y1="768.0000000000001" x2="422.4" y2="768.0000000000001" stroke="url(#goldGrad1024)" stroke-width="4" />
+  
+  <!-- Right window -->
+  <rect x="601.6" y="716.8000000000001" width="102.4" height="102.4" fill="#0A1628" rx="12.8" />
+  <line x1="652.8000000000001" y1="716.8000000000001" x2="652.8000000000001" y2="819.2" stroke="url(#goldGrad1024)" stroke-width="4" />
+  <line x1="601.6" y1="768.0000000000001" x2="704" y2="768.0000000000001" stroke="url(#goldGrad1024)" stroke-width="4" />
+  
+  <!-- Subtle gold glow at top -->
+  <ellipse cx="512" cy="170.66666666666666" rx="341.3333333333333" ry="102.4" fill="url(#goldGrad1024)" opacity="0.08" filter="url(#glow1024)" />
 </svg>

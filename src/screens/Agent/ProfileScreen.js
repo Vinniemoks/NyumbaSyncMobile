@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const AgentProfileScreen = ({ navigation }) => {
   const { user, logout } = useAuth();
@@ -49,16 +50,16 @@ const AgentProfileScreen = ({ navigation }) => {
             }}
           >
             <View style={styles.menuItemLeft}>
-              <Ionicons name={item.icon} size={24} color="#818CF8" />
+              <Ionicons name={item.icon} size={24} color={colors.blue[400]} />
               <Text style={styles.menuItemText}>{item.title}</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#64748B" />
+            <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
           </TouchableOpacity>
         ))}
       </View>
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Ionicons name="log-out-outline" size={24} color="#EF4444" />
+        <Ionicons name="log-out-outline" size={24} color={colors.danger} />
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
 
@@ -68,21 +69,22 @@ const AgentProfileScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#020617' },
-  profileHeader: { backgroundColor: '#0F172A', alignItems: 'center', padding: 32, marginBottom: 20 },
-  avatar: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#3B82F6', justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
-  avatarText: { fontSize: 32, fontWeight: 'bold', color: '#fff' },
-  userName: { fontSize: 24, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 4 },
-  userEmail: { fontSize: 14, color: '#94A3B8', marginBottom: 8 },
-  roleBadge: { backgroundColor: '#1E3A8A', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
-  roleText: { fontSize: 12, fontWeight: '600', color: '#BFDBFE', textTransform: 'uppercase' },
-  menuSection: { backgroundColor: '#0F172A', marginBottom: 20 },
-  menuItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#1E293B' },
+  container: { flex: 1, backgroundColor: colors.bg },
+  profileHeader: { backgroundColor: colors.surface, alignItems: 'center', padding: spacing[8], marginBottom: spacing[5] },
+  avatar: { width: 80, height: 80, borderRadius: 40, backgroundColor: colors.darkBlue,
+    justifyContent: 'center', alignItems: 'center', marginBottom: spacing[4] },
+  avatarText: { fontSize: 32, fontWeight: typography.fontWeight.bold, color: '#fff' },
+  userName: { fontSize: typography['2xl'], fontWeight: typography.fontWeight.bold, color: colors.textPrimary, marginBottom: spacing[1] },
+  userEmail: { fontSize: typography.sm, color: colors.textSecondary, marginBottom: spacing[2] },
+  roleBadge: { backgroundColor: '#1E3A8A', paddingHorizontal: spacing[3], paddingVertical: spacing[1] + 2, borderRadius: borderRadius.xl },
+  roleText: { fontSize: typography.xs, fontWeight: typography.fontWeight.semibold, color: '#BFDBFE', textTransform: 'uppercase' },
+  menuSection: { backgroundColor: colors.surface, marginBottom: spacing[5] },
+  menuItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing[4], borderBottomWidth: 1, borderBottomColor: '#1E293B' },
   menuItemLeft: { flexDirection: 'row', alignItems: 'center' },
-  menuItemText: { fontSize: 16, color: '#E2E8F0', marginLeft: 16 },
-  logoutButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0F172A', padding: 16, marginHorizontal: 20, borderRadius: 12, marginBottom: 20, borderWidth: 1, borderColor: '#EF4444' },
-  logoutText: { fontSize: 16, fontWeight: '600', color: '#EF4444', marginLeft: 8 },
-  version: { textAlign: 'center', fontSize: 12, color: '#64748B', marginBottom: 40 },
+  menuItemText: { fontSize: typography.base, color: colors.slate[200], marginLeft: spacing[4] },
+  logoutButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface, padding: spacing[4], marginHorizontal: 20, borderRadius: borderRadius.xl, marginBottom: spacing[5], borderWidth: 1, borderColor: colors.danger },
+  logoutText: { fontSize: typography.base, fontWeight: typography.fontWeight.semibold, color: colors.danger, marginLeft: spacing[2] },
+  version: { textAlign: 'center', fontSize: typography.xs, color: colors.textMuted, marginBottom: spacing[10] },
 });
 
 export default AgentProfileScreen;

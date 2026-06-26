@@ -13,6 +13,7 @@ import { analyticsService } from '../../services/api';
 import IncomeExpenseChart from '../../components/Charts/IncomeExpenseChart';
 import OccupancyPieChart from '../../components/Charts/OccupancyPieChart';
 import PropertyPerformanceChart from '../../components/Charts/PropertyPerformanceChart';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const FinancesScreen = () => {
   const [stats, setStats] = useState(null);
@@ -68,7 +69,7 @@ const FinancesScreen = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6366F1" />
+        <ActivityIndicator size="large" color={colors.info} />
       </View>
     );
   }
@@ -87,7 +88,7 @@ const FinancesScreen = () => {
     <View style={styles.container}>
       <ScrollView
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#6366F1" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.info} />
         }
       >
         {/* Header */}
@@ -123,10 +124,10 @@ const FinancesScreen = () => {
         <View style={styles.summaryCards}>
           <View style={[styles.summaryCard, styles.incomeCard]}>
             <View style={styles.cardHeader}>
-              <Ionicons name="trending-up" size={24} color="#10B981" />
+              <Ionicons name="trending-up" size={24} color={colors.success} />
               <Text style={styles.cardLabel}>Total Income</Text>
             </View>
-            <Text style={[styles.cardValue, { color: '#10B981' }]}>
+            <Text style={[styles.cardValue, { color: colors.success }]}>
               KSh {monthlyIncome.toLocaleString()}
             </Text>
             <Text style={styles.cardSubtext}>
@@ -136,10 +137,10 @@ const FinancesScreen = () => {
 
           <View style={[styles.summaryCard, styles.expenseCard]}>
             <View style={styles.cardHeader}>
-              <Ionicons name="trending-down" size={24} color="#EF4444" />
+              <Ionicons name="trending-down" size={24} color={colors.danger} />
               <Text style={styles.cardLabel}>Expenses</Text>
             </View>
-            <Text style={[styles.cardValue, { color: '#EF4444' }]}>
+            <Text style={[styles.cardValue, { color: colors.danger }]}>
               KSh {estimatedExpenses.toLocaleString()}
             </Text>
             <Text style={styles.cardSubtext}>
@@ -156,7 +157,7 @@ const FinancesScreen = () => {
               <Text style={styles.netIncomePeriod}>{getMonthName()} {new Date().getFullYear()}</Text>
             </View>
             <View style={styles.netIncomeIconContainer}>
-              <Ionicons name="cash" size={32} color="#6366F1" />
+              <Ionicons name="cash" size={32} color={colors.info} />
             </View>
           </View>
           <Text style={styles.netIncomeValue}>
@@ -185,22 +186,22 @@ const FinancesScreen = () => {
         {/* Quick Stats */}
         <View style={styles.statsGrid}>
           <View style={styles.statItem}>
-            <Ionicons name="home" size={24} color="#6366F1" />
+            <Ionicons name="home" size={24} color={colors.info} />
             <Text style={styles.statValue}>{totalProperties}</Text>
             <Text style={styles.statLabel}>Total Properties</Text>
           </View>
           <View style={styles.statItem}>
-            <Ionicons name="checkmark-circle" size={24} color="#10B981" />
+            <Ionicons name="checkmark-circle" size={24} color={colors.success} />
             <Text style={styles.statValue}>{occupiedProperties}</Text>
             <Text style={styles.statLabel}>Occupied</Text>
           </View>
           <View style={styles.statItem}>
-            <Ionicons name="close-circle" size={24} color="#64748B" />
+            <Ionicons name="close-circle" size={24} color={colors.textMuted} />
             <Text style={styles.statValue}>{totalProperties - occupiedProperties}</Text>
             <Text style={styles.statLabel}>Vacant</Text>
           </View>
           <View style={styles.statItem}>
-            <Ionicons name="construct" size={24} color="#F59E0B" />
+            <Ionicons name="construct" size={24} color={colors.warning} />
             <Text style={styles.statValue}>{pendingMaintenance}</Text>
             <Text style={styles.statLabel}>Maintenance</Text>
           </View>
@@ -243,7 +244,7 @@ const FinancesScreen = () => {
           <View style={styles.breakdownCard}>
             <View style={styles.breakdownItem}>
               <View style={styles.breakdownLeft}>
-                <View style={[styles.breakdownDot, { backgroundColor: '#6366F1' }]} />
+                <View style={[styles.breakdownDot, { backgroundColor: colors.darkBlue }]} />
                 <Text style={styles.breakdownLabel}>Rent Payments</Text>
               </View>
               <Text style={styles.breakdownValue}>KSh {monthlyIncome.toLocaleString()}</Text>
@@ -299,7 +300,7 @@ const FinancesScreen = () => {
 
         {/* Info Note */}
         <View style={styles.infoNote}>
-          <Ionicons name="information-circle" size={20} color="#6366F1" />
+          <Ionicons name="information-circle" size={20} color={colors.info} />
           <Text style={styles.infoText}>
             Financial data is calculated based on your property portfolio and current rental income.
           </Text>
@@ -312,130 +313,130 @@ const FinancesScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#020617',
+    backgroundColor: colors.bg,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#020617',
+    backgroundColor: colors.bg,
   },
   header: {
-    padding: 20,
+    padding: spacing[5],
     paddingTop: 10,
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#F8FAFC',
-    marginBottom: 4,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary,
+    marginBottom: spacing[1],
   },
   headerSubtitle: {
-    fontSize: 16,
-    color: '#94A3B8',
+    fontSize: typography.base,
+    color: colors.textSecondary,
   },
   periodSelector: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    marginBottom: 20,
+    paddingHorizontal: spacing[5],
+    marginBottom: spacing[5],
   },
   periodTab: {
     flex: 1,
     paddingVertical: 10,
-    paddingHorizontal: 12,
-    backgroundColor: '#0F172A',
-    borderRadius: 8,
+    paddingHorizontal: spacing[3],
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
     marginHorizontal: 4,
     alignItems: 'center',
   },
   periodTabActive: {
-    backgroundColor: '#6366F1',
+    backgroundColor: colors.darkBlue,
   },
   periodTabText: {
     fontSize: 13,
-    color: '#94A3B8',
-    fontWeight: '500',
+    color: colors.textSecondary,
+    fontWeight: typography.fontWeight.medium,
   },
   periodTabTextActive: {
     color: '#fff',
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
   },
   summaryCards: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    marginBottom: 20,
+    paddingHorizontal: spacing[5],
+    marginBottom: spacing[5],
   },
   summaryCard: {
     flex: 1,
-    backgroundColor: '#0F172A',
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius['2xl'],
+    padding: spacing[4],
     marginHorizontal: 4,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing[3],
   },
   cardLabel: {
     fontSize: 13,
-    color: '#94A3B8',
-    marginLeft: 8,
-    fontWeight: '500',
+    color: colors.textSecondary,
+    marginLeft: spacing[2],
+    fontWeight: typography.fontWeight.medium,
   },
   cardValue: {
     fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 4,
+    fontWeight: typography.fontWeight.bold,
+    marginBottom: spacing[1],
   },
   cardSubtext: {
     fontSize: 11,
-    color: '#64748B',
+    color: colors.textMuted,
   },
   netIncomeCard: {
     marginHorizontal: 20,
-    marginBottom: 20,
-    backgroundColor: '#0F172A',
-    borderRadius: 16,
-    padding: 20,
+    marginBottom: spacing[5],
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius['2xl'],
+    padding: spacing[5],
     borderWidth: 1,
-    borderColor: '#6366F1',
+    borderColor: colors.info,
   },
   netIncomeHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 12,
+    marginBottom: spacing[3],
   },
   netIncomeLabel: {
     fontSize: 15,
-    color: '#94A3B8',
-    fontWeight: '500',
+    color: colors.textSecondary,
+    fontWeight: typography.fontWeight.medium,
   },
   netIncomePeriod: {
-    fontSize: 12,
-    color: '#64748B',
+    fontSize: typography.xs,
+    color: colors.textMuted,
     marginTop: 2,
   },
   netIncomeIconContainer: {
     width: 48,
     height: 48,
-    borderRadius: 24,
-    backgroundColor: '#6366F120',
+    borderRadius: borderRadius['3xl'],
+    backgroundColor: '#3B82F620',
     justifyContent: 'center',
     alignItems: 'center',
   },
   netIncomeValue: {
     fontSize: 32,
-    fontWeight: 'bold',
-    color: '#6366F1',
-    marginBottom: 16,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.info,
+    marginBottom: spacing[4],
   },
   netIncomeFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: 16,
+    paddingTop: spacing[4],
     borderTopWidth: 1,
     borderTopColor: '#1E293B',
   },
@@ -445,71 +446,71 @@ const styles = StyleSheet.create({
   },
   metricLabel: {
     fontSize: 11,
-    color: '#64748B',
-    marginBottom: 4,
+    color: colors.textMuted,
+    marginBottom: spacing[1],
   },
   metricValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#F8FAFC',
+    fontSize: typography.sm,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textPrimary,
   },
   divider: {
     width: 1,
     height: 30,
-    backgroundColor: '#1E293B',
+    backgroundColor: colors.slate[800],
   },
   statsGrid: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    marginBottom: 20,
+    paddingHorizontal: spacing[5],
+    marginBottom: spacing[5],
   },
   statItem: {
     flex: 1,
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 12,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[3],
     marginHorizontal: 4,
     alignItems: 'center',
   },
   statValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#F8FAFC',
-    marginTop: 8,
+    fontSize: typography.xl,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary,
+    marginTop: spacing[2],
     marginBottom: 2,
   },
   statLabel: {
     fontSize: 10,
-    color: '#64748B',
+    color: colors.textMuted,
     textAlign: 'center',
   },
   section: {
-    paddingHorizontal: 20,
-    marginBottom: 20,
+    paddingHorizontal: spacing[5],
+    marginBottom: spacing[5],
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#F8FAFC',
-    marginBottom: 12,
+    fontSize: typography.lg,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textPrimary,
+    marginBottom: spacing[3],
   },
   chartCard: {
-    backgroundColor: '#0F172A',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius['2xl'],
+    padding: spacing[4],
+    marginBottom: spacing[3],
     overflow: 'hidden',
   },
   breakdownCard: {
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
   },
   breakdownItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: spacing[3],
   },
   breakdownLeft: {
     flexDirection: 'row',
@@ -518,38 +519,38 @@ const styles = StyleSheet.create({
   breakdownDot: {
     width: 12,
     height: 12,
-    borderRadius: 6,
-    marginRight: 12,
+    borderRadius: borderRadius.md,
+    marginRight: spacing[3],
   },
   breakdownLabel: {
-    fontSize: 14,
-    color: '#E2E8F0',
-    fontWeight: '500',
+    fontSize: typography.sm,
+    color: colors.slate[200],
+    fontWeight: typography.fontWeight.medium,
   },
   breakdownValue: {
-    fontSize: 14,
-    color: '#F8FAFC',
-    fontWeight: '600',
+    fontSize: typography.sm,
+    color: colors.textPrimary,
+    fontWeight: typography.fontWeight.semibold,
   },
   breakdownDivider: {
     height: 1,
-    backgroundColor: '#1E293B',
+    backgroundColor: colors.slate[800],
   },
   infoNote: {
     flexDirection: 'row',
-    backgroundColor: '#6366F110',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: '#3B82F610',
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
     marginHorizontal: 20,
-    marginBottom: 20,
+    marginBottom: spacing[5],
     borderWidth: 1,
-    borderColor: '#6366F130',
+    borderColor: '#3B82F630',
   },
   infoText: {
     flex: 1,
     fontSize: 13,
-    color: '#94A3B8',
-    marginLeft: 12,
+    color: colors.textSecondary,
+    marginLeft: spacing[3],
     lineHeight: 18,
   },
 });

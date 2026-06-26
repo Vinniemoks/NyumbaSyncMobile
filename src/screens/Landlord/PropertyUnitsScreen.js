@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { propertyService } from '../../services/api';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const PropertyUnitsScreen = ({ route, navigation }) => {
   const { propertyId, propertyName } = route.params;
@@ -184,7 +185,7 @@ const PropertyUnitsScreen = ({ route, navigation }) => {
   const getStatusColor = (status) => {
     const colors = {
       vacant: '#10B981',
-      occupied: '#6366F1',
+      occupied: '#3B82F6',
       maintenance: '#F59E0B',
       reserved: '#8B5CF6',
     };
@@ -220,7 +221,7 @@ const PropertyUnitsScreen = ({ route, navigation }) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6366F1" />
+        <ActivityIndicator size="large" color={colors.info} />
       </View>
     );
   }
@@ -322,22 +323,22 @@ const PropertyUnitsScreen = ({ route, navigation }) => {
 
               <View style={styles.unitDetails}>
                 <View style={styles.detailItem}>
-                  <Ionicons name="bed-outline" size={16} color="#94A3B8" />
+                  <Ionicons name="bed-outline" size={16} color={colors.textSecondary} />
                   <Text style={styles.detailText}>{unit.bedrooms} Beds</Text>
                 </View>
                 <View style={styles.detailItem}>
-                  <Ionicons name="water-outline" size={16} color="#94A3B8" />
+                  <Ionicons name="water-outline" size={16} color={colors.textSecondary} />
                   <Text style={styles.detailText}>{unit.bathrooms} Baths</Text>
                 </View>
                 <View style={styles.detailItem}>
-                  <Ionicons name="resize-outline" size={16} color="#94A3B8" />
+                  <Ionicons name="resize-outline" size={16} color={colors.textSecondary} />
                   <Text style={styles.detailText}>{unit.squareFeet} sqft</Text>
                 </View>
               </View>
 
               {unit.tenant && (
                 <View style={styles.tenantInfo}>
-                  <Ionicons name="person" size={16} color="#6366F1" />
+                  <Ionicons name="person" size={16} color={colors.info} />
                   <Text style={styles.tenantName}>{unit.tenant}</Text>
                 </View>
               )}
@@ -361,7 +362,7 @@ const PropertyUnitsScreen = ({ route, navigation }) => {
                   onPress={() => handleDeleteUnit(unit)}
                   style={styles.deleteIconButton}
                 >
-                  <Ionicons name="trash-outline" size={18} color="#EF4444" />
+                  <Ionicons name="trash-outline" size={18} color={colors.danger} />
                 </TouchableOpacity>
               </View>
             </TouchableOpacity>
@@ -370,7 +371,7 @@ const PropertyUnitsScreen = ({ route, navigation }) => {
 
         {filteredUnits.length === 0 && (
           <View style={styles.emptyState}>
-            <Ionicons name="home-outline" size={64} color="#64748B" />
+            <Ionicons name="home-outline" size={64} color={colors.textMuted} />
             <Text style={styles.emptyStateText}>No units found</Text>
             <Text style={styles.emptyStateSubtext}>
               {filterStatus === 'all'
@@ -405,7 +406,7 @@ const PropertyUnitsScreen = ({ route, navigation }) => {
                     resetForm();
                   }}
                 >
-                  <Ionicons name="close" size={24} color="#94A3B8" />
+                  <Ionicons name="close" size={24} color={colors.textSecondary} />
                 </TouchableOpacity>
               </View>
 
@@ -566,199 +567,199 @@ const PropertyUnitsScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#020617',
+    backgroundColor: colors.bg,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#020617',
+    backgroundColor: colors.bg,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#0F172A',
+    padding: spacing[5],
+    backgroundColor: colors.surface,
   },
   backButton: {
-    marginRight: 12,
+    marginRight: spacing[3],
   },
   headerInfo: {
     flex: 1,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#F8FAFC',
+    fontSize: typography.xl,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary,
   },
   headerSubtitle: {
-    fontSize: 14,
-    color: '#94A3B8',
+    fontSize: typography.sm,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   addButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#6366F1',
+    backgroundColor: colors.darkBlue,
     justifyContent: 'center',
     alignItems: 'center',
   },
   statsContainer: {
     flexDirection: 'row',
-    padding: 20,
-    paddingTop: 16,
+    padding: spacing[5],
+    paddingTop: spacing[4],
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 12,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[3],
     marginHorizontal: 4,
     alignItems: 'center',
   },
   statValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#F8FAFC',
-    marginBottom: 4,
+    fontSize: typography.xl,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary,
+    marginBottom: spacing[1],
   },
   statLabel: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.textSecondary,
   },
   filterContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 16,
+    paddingHorizontal: spacing[5],
+    marginBottom: spacing[4],
   },
   filterTab: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[2],
     borderRadius: 20,
-    backgroundColor: '#0F172A',
-    marginRight: 8,
+    backgroundColor: colors.surface,
+    marginRight: spacing[2],
   },
   filterTabActive: {
-    backgroundColor: '#6366F1',
+    backgroundColor: colors.darkBlue,
   },
   filterTabText: {
     fontSize: 13,
-    color: '#94A3B8',
-    fontWeight: '500',
+    color: colors.textSecondary,
+    fontWeight: typography.fontWeight.medium,
     textTransform: 'capitalize',
   },
   filterTabTextActive: {
     color: '#fff',
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
   },
   unitsList: {
-    padding: 20,
+    padding: spacing[5],
     paddingTop: 0,
   },
   unitCard: {
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
+    marginBottom: spacing[3],
   },
   unitHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing[3],
   },
   unitNumberContainer: {
     flex: 1,
   },
   unitNumber: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#F8FAFC',
+    fontSize: typography.lg,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary,
     marginBottom: 2,
   },
   floorText: {
-    fontSize: 12,
-    color: '#64748B',
+    fontSize: typography.xs,
+    color: colors.textMuted,
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingVertical: spacing[1] + 2,
+    borderRadius: borderRadius.xl,
   },
   statusText: {
     fontSize: 11,
-    fontWeight: '600',
-    marginLeft: 4,
+    fontWeight: typography.fontWeight.semibold,
+    marginLeft: spacing[1],
     textTransform: 'capitalize',
   },
   unitDetails: {
     flexDirection: 'row',
-    marginBottom: 12,
+    marginBottom: spacing[3],
   },
   detailItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: spacing[4],
   },
   detailText: {
     fontSize: 13,
-    color: '#94A3B8',
-    marginLeft: 4,
+    color: colors.textSecondary,
+    marginLeft: spacing[1],
   },
   tenantInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1E293B',
-    borderRadius: 8,
+    backgroundColor: colors.slate[800],
+    borderRadius: borderRadius.lg,
     padding: 10,
-    marginBottom: 12,
+    marginBottom: spacing[3],
   },
   tenantName: {
     fontSize: 13,
-    color: '#E2E8F0',
-    marginLeft: 8,
-    fontWeight: '500',
+    color: colors.slate[200],
+    marginLeft: spacing[2],
+    fontWeight: typography.fontWeight.medium,
   },
   featuresContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 12,
+    marginBottom: spacing[3],
   },
   featureTag: {
-    backgroundColor: '#312E81',
+    backgroundColor: '#1E3A8A',
     borderRadius: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    marginRight: 6,
-    marginBottom: 6,
+    paddingHorizontal: spacing[2],
+    paddingVertical: spacing[1],
+    marginRight: spacing[1] + 2,
+    marginBottom: spacing[1] + 2,
   },
   featureTagText: {
     fontSize: 10,
-    color: '#A5B4FC',
-    fontWeight: '500',
+    color: colors.blue[300],
+    fontWeight: typography.fontWeight.medium,
   },
   moreFeatures: {
     fontSize: 11,
-    color: '#64748B',
+    color: colors.textMuted,
     alignSelf: 'center',
   },
   unitFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: 12,
+    paddingTop: spacing[3],
     borderTopWidth: 1,
     borderTopColor: '#1E293B',
   },
   rentAmount: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#10B981',
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.success,
   },
   deleteIconButton: {
-    padding: 8,
+    padding: spacing[2],
   },
   emptyState: {
     alignItems: 'center',
@@ -766,15 +767,15 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
   },
   emptyStateText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#94A3B8',
-    marginTop: 16,
+    fontSize: typography.lg,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textSecondary,
+    marginTop: spacing[4],
   },
   emptyStateSubtext: {
-    fontSize: 14,
-    color: '#64748B',
-    marginTop: 8,
+    fontSize: typography.sm,
+    color: colors.textMuted,
+    marginTop: spacing[2],
   },
   modalOverlay: {
     flex: 1,
@@ -786,38 +787,38 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#0F172A',
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    padding: 24,
+    padding: spacing[6],
     maxHeight: '90%',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacing[6],
   },
   modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#F8FAFC',
+    fontSize: typography['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary,
   },
   inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#E2E8F0',
-    marginBottom: 8,
+    fontSize: typography.sm,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.slate[200],
+    marginBottom: spacing[2],
   },
   input: {
-    backgroundColor: '#1E293B',
+    backgroundColor: colors.slate[800],
     borderWidth: 1,
     borderColor: '#334155',
-    borderRadius: 8,
-    padding: 16,
-    fontSize: 16,
-    color: '#F8FAFC',
-    marginBottom: 16,
+    borderRadius: borderRadius.lg,
+    padding: spacing[4],
+    fontSize: typography.base,
+    color: colors.textPrimary,
+    marginBottom: spacing[4],
   },
   textArea: {
     height: 80,
@@ -833,79 +834,79 @@ const styles = StyleSheet.create({
   statusSelector: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 16,
+    marginBottom: spacing[4],
   },
   statusOption: {
-    backgroundColor: '#1E293B',
-    borderRadius: 8,
+    backgroundColor: colors.slate[800],
+    borderRadius: borderRadius.lg,
     paddingHorizontal: 14,
-    paddingVertical: 8,
-    marginRight: 8,
-    marginBottom: 8,
+    paddingVertical: spacing[2],
+    marginRight: spacing[2],
+    marginBottom: spacing[2],
   },
   statusOptionSelected: {
-    backgroundColor: '#6366F1',
+    backgroundColor: colors.darkBlue,
   },
   statusOptionText: {
     fontSize: 13,
-    color: '#94A3B8',
+    color: colors.textSecondary,
     textTransform: 'capitalize',
   },
   statusOptionTextSelected: {
     color: '#fff',
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
   },
   featuresGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 16,
+    marginBottom: spacing[4],
   },
   featureChip: {
-    backgroundColor: '#1E293B',
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginRight: 8,
-    marginBottom: 8,
+    backgroundColor: colors.slate[800],
+    borderRadius: borderRadius['2xl'],
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[1] + 2,
+    marginRight: spacing[2],
+    marginBottom: spacing[2],
   },
   featureChipSelected: {
-    backgroundColor: '#312E81',
+    backgroundColor: '#1E3A8A',
   },
   featureChipText: {
-    fontSize: 12,
-    color: '#94A3B8',
+    fontSize: typography.xs,
+    color: colors.textSecondary,
   },
   featureChipTextSelected: {
-    color: '#A5B4FC',
-    fontWeight: '600',
+    color: colors.blue[300],
+    fontWeight: typography.fontWeight.semibold,
   },
   modalButtons: {
     flexDirection: 'row',
-    marginTop: 24,
+    marginTop: spacing[6],
   },
   modalButton: {
     flex: 1,
-    padding: 16,
-    borderRadius: 8,
+    padding: spacing[4],
+    borderRadius: borderRadius.lg,
     alignItems: 'center',
   },
   cancelButton: {
-    backgroundColor: '#1E293B',
-    marginRight: 8,
+    backgroundColor: colors.slate[800],
+    marginRight: spacing[2],
   },
   cancelButtonText: {
-    color: '#E2E8F0',
-    fontSize: 16,
-    fontWeight: '600',
+    color: colors.slate[200],
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
   },
   saveButton: {
-    backgroundColor: '#6366F1',
-    marginLeft: 8,
+    backgroundColor: colors.darkBlue,
+    marginLeft: spacing[2],
   },
   saveButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: colors.gold,
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.semibold,
   },
 });
 

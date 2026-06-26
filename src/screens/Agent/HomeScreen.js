@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const AgentHomeScreen = ({ navigation }) => {
   const { user } = useAuth();
@@ -18,7 +19,7 @@ const AgentHomeScreen = ({ navigation }) => {
 
       <View style={styles.statsGrid}>
         <View style={styles.statCard}>
-          <Ionicons name="business-outline" size={32} color="#3B82F6" />
+          <Ionicons name="business-outline" size={32} color={colors.info} />
           <Text style={styles.statValue}>18</Text>
           <Text style={styles.statLabel}>Active Listings</Text>
         </View>
@@ -28,12 +29,12 @@ const AgentHomeScreen = ({ navigation }) => {
           <Text style={styles.statLabel}>Clients</Text>
         </View>
         <View style={styles.statCard}>
-          <Ionicons name="checkmark-circle-outline" size={32} color="#10B981" />
+          <Ionicons name="checkmark-circle-outline" size={32} color={colors.success} />
           <Text style={styles.statValue}>7</Text>
           <Text style={styles.statLabel}>Closed Deals</Text>
         </View>
         <View style={styles.statCard}>
-          <Ionicons name="cash-outline" size={32} color="#F59E0B" />
+          <Ionicons name="cash-outline" size={32} color={colors.warning} />
           <Text style={styles.statValue}>KSh 450K</Text>
           <Text style={styles.statLabel}>Commission</Text>
         </View>
@@ -43,15 +44,15 @@ const AgentHomeScreen = ({ navigation }) => {
         <Text style={styles.sectionTitle}>Quick Actions</Text>
         <View style={styles.actionsGrid}>
           <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('Listings')}>
-            <Ionicons name="business-outline" size={32} color="#6366F1" />
+            <Ionicons name="business-outline" size={32} color={colors.info} />
             <Text style={styles.actionCardText}>My Listings</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('Clients')}>
-            <Ionicons name="people-outline" size={32} color="#10B981" />
+            <Ionicons name="people-outline" size={32} color={colors.success} />
             <Text style={styles.actionCardText}>Clients</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionCard}>
-            <Ionicons name="add-circle-outline" size={32} color="#F59E0B" />
+            <Ionicons name="add-circle-outline" size={32} color={colors.warning} />
             <Text style={styles.actionCardText}>Add Listing</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionCard}>
@@ -79,13 +80,13 @@ const AgentHomeScreen = ({ navigation }) => {
             </View>
             <View style={styles.listingDetails}>
               <View style={styles.listingDetailRow}>
-                <Ionicons name="cash-outline" size={16} color="#10B981" />
-                <Text style={[styles.listingDetailText, { color: '#10B981', fontWeight: '600' }]}>
+                <Ionicons name="cash-outline" size={16} color={colors.success} />
+                <Text style={[styles.listingDetailText, { color: colors.success, fontWeight: typography.fontWeight.semibold }]}>
                   KSh {listing.price.toLocaleString()}/month
                 </Text>
               </View>
               <View style={styles.listingDetailRow}>
-                <Ionicons name="eye-outline" size={16} color="#94A3B8" />
+                <Ionicons name="eye-outline" size={16} color={colors.textSecondary} />
                 <Text style={styles.listingDetailText}>{listing.views} views</Text>
               </View>
             </View>
@@ -97,29 +98,29 @@ const AgentHomeScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#020617' },
-  header: { backgroundColor: '#0F172A', padding: 20, alignItems: 'center' },
-  greeting: { fontSize: 14, color: '#94A3B8' },
-  userName: { fontSize: 24, fontWeight: 'bold', color: '#F8FAFC', marginTop: 4 },
-  roleBadge: { backgroundColor: '#1E3A8A', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, marginTop: 8 },
-  roleText: { fontSize: 12, fontWeight: '600', color: '#BFDBFE', textTransform: 'uppercase' },
-  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', padding: 20 },
-  statCard: { width: '48%', backgroundColor: '#0F172A', borderRadius: 12, padding: 20, margin: '1%', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
-  statValue: { fontSize: 24, fontWeight: 'bold', color: '#F8FAFC', marginTop: 8 },
-  statLabel: { fontSize: 12, color: '#94A3B8', marginTop: 4, textAlign: 'center' },
-  section: { padding: 20 },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 16 },
+  container: { flex: 1, backgroundColor: colors.bg },
+  header: { backgroundColor: colors.surface, padding: spacing[5], alignItems: 'center' },
+  greeting: { fontSize: typography.sm, color: colors.textSecondary },
+  userName: { fontSize: typography['2xl'], fontWeight: typography.fontWeight.bold, color: colors.textPrimary, marginTop: spacing[1] },
+  roleBadge: { backgroundColor: '#1E3A8A', paddingHorizontal: spacing[3], paddingVertical: spacing[1] + 2, borderRadius: borderRadius.xl, marginTop: spacing[2] },
+  roleText: { fontSize: typography.xs, fontWeight: typography.fontWeight.semibold, color: '#BFDBFE', textTransform: 'uppercase' },
+  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', padding: spacing[5] },
+  statCard: { width: '48%', backgroundColor: colors.surface, borderRadius: borderRadius.xl, padding: spacing[5], margin: '1%', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
+  statValue: { fontSize: typography['2xl'], fontWeight: typography.fontWeight.bold, color: colors.textPrimary, marginTop: spacing[2] },
+  statLabel: { fontSize: typography.xs, color: colors.textSecondary, marginTop: spacing[1], textAlign: 'center' },
+  section: { padding: spacing[5] },
+  sectionTitle: { fontSize: typography.lg, fontWeight: typography.fontWeight.bold, color: colors.textPrimary, marginBottom: spacing[4] },
   actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  actionCard: { width: '48%', backgroundColor: '#0F172A', borderRadius: 12, padding: 20, alignItems: 'center', marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
-  actionCardText: { fontSize: 14, fontWeight: '600', color: '#E2E8F0', marginTop: 8 },
-  listingCard: { backgroundColor: '#0F172A', borderRadius: 12, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
-  listingHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  listingTitle: { fontSize: 16, fontWeight: '600', color: '#F8FAFC', flex: 1 },
-  statusBadge: { borderRadius: 12, paddingHorizontal: 10, paddingVertical: 6 },
-  statusText: { fontSize: 11, fontWeight: '600', textTransform: 'capitalize' },
+  actionCard: { width: '48%', backgroundColor: colors.surface, borderRadius: borderRadius.xl, padding: spacing[5], alignItems: 'center', marginBottom: spacing[3], shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
+  actionCardText: { fontSize: typography.sm, fontWeight: typography.fontWeight.semibold, color: colors.slate[200], marginTop: spacing[2] },
+  listingCard: { backgroundColor: colors.surface, borderRadius: borderRadius.xl, padding: spacing[4], marginBottom: spacing[3], shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
+  listingHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing[3] },
+  listingTitle: { fontSize: typography.base, fontWeight: typography.fontWeight.semibold, color: colors.textPrimary, flex: 1 },
+  statusBadge: { borderRadius: borderRadius.xl, paddingHorizontal: 10, paddingVertical: spacing[1] + 2 },
+  statusText: { fontSize: 11, fontWeight: typography.fontWeight.semibold, textTransform: 'capitalize' },
   listingDetails: { flexDirection: 'row', justifyContent: 'space-between' },
   listingDetailRow: { flexDirection: 'row', alignItems: 'center' },
-  listingDetailText: { fontSize: 13, color: '#94A3B8', marginLeft: 8 },
+  listingDetailText: { fontSize: 13, color: colors.textSecondary, marginLeft: spacing[2] },
 });
 
 export default AgentHomeScreen;

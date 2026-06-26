@@ -11,6 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { analyticsService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const { width } = Dimensions.get('window');
 
@@ -93,7 +94,7 @@ const AnalyticsScreen = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6366F1" />
+        <ActivityIndicator size="large" color={colors.info} />
       </View>
     );
   }
@@ -127,7 +128,7 @@ const AnalyticsScreen = () => {
         <View style={styles.metricsGrid}>
           <View style={styles.metricCard}>
             <View style={styles.metricHeader}>
-              <Ionicons name="trending-up" size={24} color="#10B981" />
+              <Ionicons name="trending-up" size={24} color={colors.success} />
               <View style={[styles.changeIndicator, { backgroundColor: getChangeColor(stats.revenueChange) + '20' }]}>
                 <Text style={[styles.changeText, { color: getChangeColor(stats.revenueChange) }]}>
                   {formatPercentage(stats.revenueChange)}
@@ -140,7 +141,7 @@ const AnalyticsScreen = () => {
 
           <View style={styles.metricCard}>
             <View style={styles.metricHeader}>
-              <Ionicons name="trending-down" size={24} color="#EF4444" />
+              <Ionicons name="trending-down" size={24} color={colors.danger} />
               <View style={[styles.changeIndicator, { backgroundColor: getChangeColor(stats.expensesChange) + '20' }]}>
                 <Text style={[styles.changeText, { color: getChangeColor(stats.expensesChange) }]}>
                   {formatPercentage(stats.expensesChange)}
@@ -153,7 +154,7 @@ const AnalyticsScreen = () => {
 
           <View style={styles.metricCard}>
             <View style={styles.metricHeader}>
-              <Ionicons name="cash" size={24} color="#6366F1" />
+              <Ionicons name="cash" size={24} color={colors.info} />
               <View style={[styles.changeIndicator, { backgroundColor: getChangeColor(stats.netIncomeChange) + '20' }]}>
                 <Text style={[styles.changeText, { color: getChangeColor(stats.netIncomeChange) }]}>
                   {formatPercentage(stats.netIncomeChange)}
@@ -166,7 +167,7 @@ const AnalyticsScreen = () => {
 
           <View style={styles.metricCard}>
             <View style={styles.metricHeader}>
-              <Ionicons name="home" size={24} color="#F59E0B" />
+              <Ionicons name="home" size={24} color={colors.warning} />
               <View style={[styles.changeIndicator, { backgroundColor: getChangeColor(stats.occupancyChange) + '20' }]}>
                 <Text style={[styles.changeText, { color: getChangeColor(stats.occupancyChange) }]}>
                   {formatPercentage(stats.occupancyChange)}
@@ -192,11 +193,11 @@ const AnalyticsScreen = () => {
             <Text style={styles.statLabel}>Total Units</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: '#10B981' }]}>{stats.occupiedUnits}</Text>
+            <Text style={[styles.statValue, { color: colors.success }]}>{stats.occupiedUnits}</Text>
             <Text style={styles.statLabel}>Occupied</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: '#EF4444' }]}>{stats.vacantUnits}</Text>
+            <Text style={[styles.statValue, { color: colors.danger }]}>{stats.vacantUnits}</Text>
             <Text style={styles.statLabel}>Vacant</Text>
           </View>
         </View>
@@ -260,19 +261,19 @@ const AnalyticsScreen = () => {
         <Text style={styles.sectionTitle}>Export Reports</Text>
         <View style={styles.actionsGrid}>
           <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="document-text" size={24} color="#6366F1" />
+            <Ionicons name="document-text" size={24} color={colors.info} />
             <Text style={styles.actionButtonText}>Financial Report</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="bar-chart" size={24} color="#10B981" />
+            <Ionicons name="bar-chart" size={24} color={colors.success} />
             <Text style={styles.actionButtonText}>Occupancy Report</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="people" size={24} color="#F59E0B" />
+            <Ionicons name="people" size={24} color={colors.warning} />
             <Text style={styles.actionButtonText}>Tenant Report</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="construct" size={24} color="#EF4444" />
+            <Ionicons name="construct" size={24} color={colors.danger} />
             <Text style={styles.actionButtonText}>Maintenance Report</Text>
           </TouchableOpacity>
         </View>
@@ -284,62 +285,62 @@ const AnalyticsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#020617',
+    backgroundColor: colors.bg,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#020617',
+    backgroundColor: colors.bg,
   },
   header: {
-    padding: 20,
-    backgroundColor: '#0F172A',
+    padding: spacing[5],
+    backgroundColor: colors.surface,
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#F8FAFC',
+    fontSize: typography['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary,
   },
   headerSubtitle: {
-    fontSize: 14,
-    color: '#94A3B8',
-    marginTop: 4,
+    fontSize: typography.sm,
+    color: colors.textSecondary,
+    marginTop: spacing[1],
   },
   periodSelector: {
     flexDirection: 'row',
-    padding: 20,
-    paddingBottom: 16,
+    padding: spacing[5],
+    paddingBottom: spacing[4],
   },
   periodButton: {
     flex: 1,
     paddingVertical: 10,
-    borderRadius: 8,
-    backgroundColor: '#0F172A',
+    borderRadius: borderRadius.lg,
+    backgroundColor: colors.surface,
     marginHorizontal: 4,
     alignItems: 'center',
   },
   periodButtonActive: {
-    backgroundColor: '#6366F1',
+    backgroundColor: colors.darkBlue,
   },
   periodButtonText: {
-    fontSize: 14,
-    color: '#94A3B8',
-    fontWeight: '500',
+    fontSize: typography.sm,
+    color: colors.textSecondary,
+    fontWeight: typography.fontWeight.medium,
   },
   periodButtonTextActive: {
     color: '#fff',
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
   },
   section: {
-    padding: 20,
+    padding: spacing[5],
     paddingTop: 0,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#F8FAFC',
-    marginBottom: 16,
+    fontSize: typography.lg,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary,
+    marginBottom: spacing[4],
   },
   metricsGrid: {
     flexDirection: 'row',
@@ -348,62 +349,62 @@ const styles = StyleSheet.create({
   },
   metricCard: {
     width: (width - 52) / 2,
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 16,
-    margin: 6,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
+    margin: spacing[1] + 2,
   },
   metricHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing[3],
   },
   changeIndicator: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: spacing[2],
+    paddingVertical: spacing[1],
+    borderRadius: borderRadius.xl,
   },
   changeText: {
     fontSize: 11,
-    fontWeight: 'bold',
+    fontWeight: typography.fontWeight.bold,
   },
   metricValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#F8FAFC',
-    marginBottom: 4,
+    fontSize: typography['2xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary,
+    marginBottom: spacing[1],
   },
   metricLabel: {
-    fontSize: 12,
-    color: '#94A3B8',
+    fontSize: typography.xs,
+    color: colors.textSecondary,
   },
   statsRow: {
     flexDirection: 'row',
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
   },
   statItem: {
     flex: 1,
     alignItems: 'center',
   },
   statValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#F8FAFC',
-    marginBottom: 4,
+    fontSize: typography.xl,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.textPrimary,
+    marginBottom: spacing[1],
   },
   statLabel: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   chartContainer: {
     flexDirection: 'row',
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
     justifyContent: 'space-around',
     alignItems: 'flex-end',
     height: 180,
@@ -415,72 +416,72 @@ const styles = StyleSheet.create({
   },
   bar: {
     width: 24,
-    backgroundColor: '#6366F1',
-    borderRadius: 4,
-    marginBottom: 8,
+    backgroundColor: colors.darkBlue,
+    borderRadius: borderRadius.DEFAULT,
+    marginBottom: spacing[2],
   },
   barLabel: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.textSecondary,
   },
   expenseItem: {
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
+    marginBottom: spacing[3],
   },
   expenseInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: spacing[2],
   },
   expenseCategory: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#F8FAFC',
+    fontSize: typography.sm,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textPrimary,
   },
   expenseAmount: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#10B981',
+    fontSize: typography.sm,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.success,
   },
   progressBar: {
     height: 6,
-    backgroundColor: '#1E293B',
+    backgroundColor: colors.slate[800],
     borderRadius: 3,
-    marginBottom: 8,
+    marginBottom: spacing[2],
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#6366F1',
+    backgroundColor: colors.darkBlue,
     borderRadius: 3,
   },
   expensePercentage: {
-    fontSize: 12,
-    color: '#94A3B8',
+    fontSize: typography.xs,
+    color: colors.textSecondary,
     textAlign: 'right',
   },
   propertyItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
+    marginBottom: spacing[3],
   },
   propertyRank: {
     width: 32,
     height: 32,
-    borderRadius: 16,
-    backgroundColor: '#6366F1',
+    borderRadius: borderRadius['2xl'],
+    backgroundColor: colors.darkBlue,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing[3],
   },
   propertyRankText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: typography.base,
+    fontWeight: typography.fontWeight.bold,
     color: '#fff',
   },
   propertyInfo: {
@@ -488,24 +489,24 @@ const styles = StyleSheet.create({
   },
   propertyName: {
     fontSize: 15,
-    fontWeight: '600',
-    color: '#F8FAFC',
-    marginBottom: 4,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.textPrimary,
+    marginBottom: spacing[1],
   },
   propertyRevenue: {
     fontSize: 13,
-    color: '#94A3B8',
+    color: colors.textSecondary,
   },
   propertyOccupancy: {
     backgroundColor: '#10B981' + '20',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[1] + 2,
+    borderRadius: borderRadius.xl,
   },
   propertyOccupancyText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#10B981',
+    fontSize: typography.sm,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.success,
   },
   actionsGrid: {
     flexDirection: 'row',
@@ -514,17 +515,17 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     width: (width - 52) / 2,
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    padding: 20,
-    margin: 6,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[5],
+    margin: spacing[1] + 2,
     alignItems: 'center',
   },
   actionButtonText: {
     fontSize: 13,
-    fontWeight: '600',
-    color: '#E2E8F0',
-    marginTop: 8,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.slate[200],
+    marginTop: spacing[2],
     textAlign: 'center',
   },
 });
