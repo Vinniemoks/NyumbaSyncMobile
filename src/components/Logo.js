@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   },
   bg: {
     position: 'absolute',
-    backgroundColor: colors.darkBlue,
+    backgroundColor: colors.primaryDark,
   },
   border: {
     position: 'absolute',
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   },
   door: {
     position: 'absolute',
-    backgroundColor: colors.darkBlue,
+    backgroundColor: colors.primaryDark,
     bottom: 0,
     borderTopLeftRadius: 2,
     borderTopRightRadius: 2,
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   },
   window: {
     position: 'absolute',
-    backgroundColor: colors.darkBlue,
+    backgroundColor: colors.primaryDark,
     borderRadius: 1,
   },
   windowCrossV: {

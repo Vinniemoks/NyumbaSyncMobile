@@ -10,6 +10,8 @@ import LandingScreen from './src/screens/LandingScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
 import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
+import MFAVerifyScreen from './src/screens/MFAVerifyScreen';
+import MFASetupScreen from './src/screens/MFASetupScreen';
 
 // Dashboard Navigators
 import LandlordNavigator from './src/navigation/LandlordNavigator';
@@ -48,6 +50,8 @@ export default function App() {
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Signup" component={SignupScreen} />
           <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+          <Stack.Screen name="MFAVerify" component={MFAVerifyScreen} />
+          <Stack.Screen name="MFASetup" component={MFASetupScreen} />
 
           {/* Dashboard Navigators */}
           <Stack.Screen name="LandlordDashboard" component={LandlordNavigator} />

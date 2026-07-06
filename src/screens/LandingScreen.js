@@ -11,6 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../config/theme';
 import Logo from '../components/Logo';
+import Button from '../components/Button';
 
 const { width } = Dimensions.get('window');
 
@@ -20,28 +21,28 @@ const FEATURES = [
     title: 'Manage Properties',
     description: 'List, track, and manage all your properties in one place.',
     gradient: ['#1E293B', '#0F172A'],
-    iconColor: colors.gold,
+    iconColor: colors.leaf,
   },
   {
     icon: 'cash-outline',
     title: 'Collect Rent',
     description: 'M-Pesa, card, or bank transfer — instant receipts.',
     gradient: ['#1E293B', '#0F172A'],
-    iconColor: colors.gold,
+    iconColor: colors.leaf,
   },
   {
     icon: 'construct-outline',
     title: 'Track Maintenance',
     description: 'Report issues, assign vendors, and follow repairs to completion.',
     gradient: ['#1E293B', '#0F172A'],
-    iconColor: colors.gold,
+    iconColor: colors.leaf,
   },
   {
     icon: 'chatbubbles-outline',
     title: 'Stay Connected',
     description: 'Chat with your landlord, tenant, or manager in real time.',
     gradient: ['#1E293B', '#0F172A'],
-    iconColor: colors.gold,
+    iconColor: colors.leaf,
   },
 ];
 
@@ -173,22 +174,22 @@ const LandingScreen = ({ navigation }) => {
             Join thousands of landlords and tenants managing properties smarter.
           </Text>
 
-          <TouchableOpacity
-            style={styles.ctaButton}
-            activeOpacity={0.8}
+          <Button
+            title="Get Started"
+            icon="arrow-forward"
+            iconPosition="right"
+            size="lg"
             onPress={() => navigation.navigate('Signup')}
-          >
-            <Text style={styles.ctaButtonText}>Get Started</Text>
-            <Ionicons name="arrow-forward" size={18} color={colors.gold} style={{ marginLeft: 8 }} />
-          </TouchableOpacity>
+            style={styles.ctaButton}
+          />
 
-          <TouchableOpacity
-            style={styles.ctaSecondary}
-            activeOpacity={0.8}
+          <Button
+            variant="ghost"
             onPress={() => navigation.navigate('Login')}
+            style={styles.ctaSecondary}
           >
             <Text style={styles.ctaSecondaryText}>I already have an account</Text>
-          </TouchableOpacity>
+          </Button>
         </View>
 
         {/* FOOTER */}
@@ -222,7 +223,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 10,
-    backgroundColor: 'rgba(2, 6, 23, 0.85)',
+    backgroundColor: 'rgba(10, 22, 40, 0.85)',
     backdropFilter: 'blur(10px)',
     paddingHorizontal: spacing[5],
     paddingTop: spacing[6],
@@ -256,14 +257,14 @@ const styles = StyleSheet.create({
     height: 300,
     top: -80,
     right: -60,
-    backgroundColor: colors.gold,
+    backgroundColor: colors.leaf,
   },
   orbBottom: {
     width: 200,
     height: 200,
     bottom: 40,
     left: -50,
-    backgroundColor: colors.gold,
+    backgroundColor: colors.leaf,
   },
   heroLogo: {
     width: 88,
@@ -362,7 +363,9 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 14,
-    backgroundColor: `${colors.gold}12`,
+    backgroundColor: `${colors.leaf}12`,
+    borderWidth: 1,
+    borderColor: `${colors.leaf}25`,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: spacing[3],
@@ -415,9 +418,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: `${colors.gold}12`,
+    backgroundColor: `${colors.leaf}12`,
     borderWidth: 1,
-    borderColor: `${colors.gold}25`,
+    borderColor: `${colors.leaf}25`,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: spacing[2],
@@ -477,28 +480,14 @@ const styles = StyleSheet.create({
     marginBottom: spacing[6],
   },
   ctaButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.darkBlue,
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing[4],
-    paddingHorizontal: spacing[8],
-    borderWidth: 1,
-    borderColor: `${colors.gold}50`,
-    ...shadows.card,
     marginBottom: spacing[4],
-  },
-  ctaButtonText: {
-    fontSize: typography.base,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.gold,
   },
   ctaSecondary: {
     padding: spacing[3],
   },
   ctaSecondaryText: {
     fontSize: typography.sm,
-    color: colors.blue[400],
+    color: colors.leaf,
     fontWeight: typography.fontWeight.semibold,
   },
 

@@ -19,10 +19,9 @@ const getApiUrl = () => {
     return standardUrl;
   }
   
-  // For Android emulator, use 10.0.2.2 to access host machine's localhost
-  // For iOS simulator, use localhost
-  // For physical device, use your computer's IP address (e.g., 192.168.1.100)
-  return 'http://10.0.2.2:3001/api';
+  // Production backend on Fly.io. Override with EXPO_PUBLIC_API_URL or
+  // API_URL for local development (e.g. http://10.0.2.2:3001/api).
+  return 'https://nyumbasync-api.fly.dev/api';
 };
 
 // WebSocket configuration

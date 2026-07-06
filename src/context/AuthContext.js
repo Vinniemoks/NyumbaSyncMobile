@@ -75,6 +75,27 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const setAuthSession = async ({ token: authToken, refreshToken, user: userData }) => {
+    try {
+      if (authToken) {
+        await AsyncStorage.setItem('nyumbasync_auth_token', authToken);
+        apiClient.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
+        setToken(authToken);
+      }
+      if (refreshToken) {
+        await AsyncStorage.setItem('nyumbasync_refresh_token', refreshToken);
+      }
+      if (userData) {
+        await AsyncStorage.setItem('nyumbasync_user_data', JSON.stringify(userData));
+        setUser(userData);
+      }
+      return { success: true, user: userData };
+    } catch (error) {
+      console.error('Failed to set auth session:', error);
+      return { success: false, error: 'Failed to save session' };
+    }
+  };
+
   const logout = async () => {
     try {
       await AsyncStorage.multiRemove([
@@ -91,7 +112,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, signup, setAuthSession, logout }}>
       {children}
     </AuthContext.Provider>
   );

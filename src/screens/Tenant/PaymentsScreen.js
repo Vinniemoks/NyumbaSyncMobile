@@ -14,6 +14,7 @@ import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
 import { paymentService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { normalizeKenyanPhone } from '../../utils/phone';
 import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const PaymentsScreen = () => {
@@ -32,15 +33,16 @@ const PaymentsScreen = () => {
   ]);
 
   useEffect(() => {
-    // Set default phone number from user profile
+    // Set default phone number from user profile, normalized to 254XXXXXXXXX.
     if (user?.phone) {
-      setPhoneNumber(user.phone);
+      setPhoneNumber(normalizeKenyanPhone(user.phone) || user.phone);
     }
   }, [user]);
 
   const handleMpesaSTKPush = async () => {
-    if (!phoneNumber || phoneNumber.length < 10) {
-      Alert.alert('Error', 'Please enter a valid phone number');
+    const normalizedPhone = normalizeKenyanPhone(phoneNumber);
+    if (!normalizedPhone) {
+      Alert.alert('Error', 'Please enter a valid Kenyan phone number (e.g. 0712345678)');
       return;
     }
 
@@ -48,7 +50,7 @@ const PaymentsScreen = () => {
     try {
       const response = await paymentService.initiateMpesaSTK({
         amount: parseFloat(amount),
-        phoneNumber: phoneNumber,
+        phoneNumber: normalizedPhone,
         tenantId: user?.id,
         description: 'Rent Payment',
       });
@@ -320,7 +322,7 @@ const PaymentsScreen = () => {
                   value={phoneNumber}
                   onChangeText={setPhoneNumber}
                   keyboardType="phone-pad"
-                  placeholder="254712345678"
+                  placeholder="0712345678"
                   placeholderTextColor="#64748B"
                 />
                 <Text style={styles.helperText}>
@@ -351,7 +353,7 @@ const PaymentsScreen = () => {
               ]}
               onPress={() => setPaymentMethod('card')}
             >
-              <Ionicons name="card-outline" size={24} color={colors.blue[400]} />
+              <Ionicons name="card-outline" size={24} color={colors.leaf} />
               <View style={styles.methodTextContainer}>
                 <Text style={styles.methodText}>Credit/Debit Card</Text>
                 <Text style={styles.methodSubtext}>Visa, Mastercard</Text>
@@ -445,7 +447,7 @@ const PaymentsScreen = () => {
                         onPress={() => copyToClipboard(paymentInstructions.paybillNumber, 'Paybill Number')}
                       >
                         <Text style={styles.copyableFieldText}>{paymentInstructions.paybillNumber}</Text>
-                        <Ionicons name="copy-outline" size={20} color={colors.blue[400]} />
+                        <Ionicons name="copy-outline" size={20} color={colors.leaf} />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -461,7 +463,7 @@ const PaymentsScreen = () => {
                         onPress={() => copyToClipboard(paymentInstructions.accountNumber, 'Account Number')}
                       >
                         <Text style={styles.copyableFieldText}>{paymentInstructions.accountNumber}</Text>
-                        <Ionicons name="copy-outline" size={20} color={colors.blue[400]} />
+                        <Ionicons name="copy-outline" size={20} color={colors.leaf} />
                       </TouchableOpacity>
                       <Text style={styles.importantNote}>⚠️ This account number is unique to your payment</Text>
                     </View>
@@ -516,7 +518,7 @@ const PaymentsScreen = () => {
                         onPress={() => copyToClipboard(paymentInstructions.accountNumber, 'Account Number')}
                       >
                         <Text style={styles.bankDetailValue}>{paymentInstructions.accountNumber}</Text>
-                        <Ionicons name="copy-outline" size={18} color={colors.blue[400]} />
+                        <Ionicons name="copy-outline" size={18} color={colors.leaf} />
                       </TouchableOpacity>
                     </View>
 
@@ -532,7 +534,7 @@ const PaymentsScreen = () => {
                         onPress={() => copyToClipboard(paymentInstructions.reference, 'Reference')}
                       >
                         <Text style={styles.bankDetailValue}>{paymentInstructions.reference}</Text>
-                        <Ionicons name="copy-outline" size={18} color={colors.blue[400]} />
+                        <Ionicons name="copy-outline" size={18} color={colors.leaf} />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -572,7 +574,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg, // slate-950
   },
   balanceCard: {
-    backgroundColor: '#10B981',
+    backgroundColor: colors.primary,
     margin: spacing[5],
     padding: spacing[6],
     borderRadius: borderRadius['2xl'],
@@ -628,7 +630,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing[4],
   },
   payButton: {
-    backgroundColor: colors.darkBlue, 
+    backgroundColor: colors.primaryDark, 
     borderRadius: borderRadius.lg,
     padding: spacing[4],
     alignItems: 'center',
@@ -747,8 +749,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing[3],
   },
   methodOptionSelected: {
-    borderColor: colors.info, // indigo-500
-    backgroundColor: '#1E3A8A', // indigo-900
+    borderColor: colors.leaf,
+    backgroundColor: colors.primaryDark,
   },
   methodTextContainer: {
     flex: 1,
@@ -791,7 +793,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeight.semibold,
   },
   confirmButton: {
-    backgroundColor: colors.darkBlue, 
+    backgroundColor: colors.primaryDark, 
     marginLeft: spacing[2],
   },
   confirmButtonText: {
@@ -837,7 +839,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: borderRadius['2xl'],
-    backgroundColor: colors.darkBlue, 
+    backgroundColor: colors.primaryDark, 
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: spacing[3],
@@ -891,25 +893,25 @@ const styles = StyleSheet.create({
     color: colors.success,
   },
   referenceBox: {
-    backgroundColor: '#1E3A8A', // indigo-900
+    backgroundColor: colors.primaryDark,
     borderRadius: borderRadius.xl,
     padding: spacing[4],
     marginTop: spacing[3],
   },
   referenceLabel: {
     fontSize: typography.xs,
-    color: colors.blue[300], // indigo-300
+    color: colors.leafTint,
     marginBottom: spacing[1],
   },
   referenceText: {
     fontSize: typography.base,
     fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary, // slate-50
+    color: colors.textPrimary,
     marginBottom: spacing[2],
   },
   referenceNote: {
     fontSize: typography.xs,
-    color: '#BFDBFE', // indigo-200
+    color: colors.leafTint,
     fontStyle: 'italic',
   },
   bankDetailsCard: {
@@ -966,7 +968,7 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   doneButton: {
-    backgroundColor: colors.darkBlue, 
+    backgroundColor: colors.primaryDark, 
     borderRadius: borderRadius.lg,
     padding: spacing[4],
     alignItems: 'center',

@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     marginTop: spacing[1],
   },
   roleBadge: {
-    backgroundColor: '#7C2D12',
+    backgroundColor: colors.primaryDark,
     paddingHorizontal: spacing[3],
     paddingVertical: spacing[1] + 2,
     borderRadius: borderRadius.xl,
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
   roleText: {
     fontSize: typography.xs,
     fontWeight: typography.fontWeight.semibold,
-    color: '#FED7AA',
+    color: colors.gold,
     textTransform: 'uppercase',
   },
   statsGrid: {

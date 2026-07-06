@@ -124,13 +124,20 @@ const gold = {
 };
 
 const colors = {
-  // Semantic aliases (match Tailwind config exactly)
-  primary: blue[600],      // '#2563eb'
+  // Semantic aliases (green-first, aligned with the redesigned web app)
+  primary: green[900],       // '#14532D'
+  primaryDark: green[950],   // '#052E16'
+  primaryLight: green[600],  // '#16A34A'
   secondary: green[500],     // '#22C55E'
   success: green[500],       // '#22C55E'
   warning: amber[500],       // '#F59E0B'
   danger: red[500],          // '#EF4444'
   info: blue[500],           // '#3B82F6'
+
+  // Leaf brand palette
+  leaf: green[500],          // '#22C55E'
+  leafDeep: green[900],      // '#14532D'
+  leafTint: green[100],      // '#DCFCE7'
 
   // Rent-specific aliases
   'rent-paid': green[500],
@@ -148,18 +155,19 @@ const colors = {
   gold,
 
   // Shorthand access for the most common dark-theme colors
-  bg: slate[950],            // page background
-  surface: slate[900],        // card / section background
-  surfaceHover: slate[800],   // hover state
-  border: slate[700],         // borders
-  textPrimary: slate[50],     // main text
-  textSecondary: slate[400],  // subtitles, labels
-  textMuted: slate[500],      // hints, disabled
-  // Executive button color — dark navy blue with gold text
-  darkBlue: "#0A1628",
+  bg: '#0A1628',             // page background (deep slate)
+  surface: slate[900],       // card / section background
+  surfaceAlt: slate[800],    // alternate card background
+  surfaceHover: slate[800],  // hover state
+  border: slate[700],        // borders
+  textPrimary: slate[50],    // main text
+  textSecondary: slate[400], // subtitles, labels
+  textMuted: slate[500],     // hints, disabled
+  // Backwards-compatible alias used by legacy components
+  darkBlue: '#0A1628',
 
   // Backward-compatible flat aliases
-  gold: gold.DEFAULT,         // string alias for Ionicons etc.
+  gold: gold.DEFAULT,        // string alias for Ionicons etc.
   white: '#FFFFFF',
   black: '#000000',
 };
@@ -449,11 +457,10 @@ const commonStyles = {
   },
 
   // ── Buttons ───────────────────────────────────────────────────────
-  // Executive dark navy blue buttons with gold lettering.
-  // Premium feel — dark blue background with gold text and gold border.
+  // Green primary buttons with gold lettering/border for contrast.
 
   button: {
-    backgroundColor: colors.darkBlue,
+    backgroundColor: colors.primaryDark,
     borderRadius: borderRadius.lg,
     padding: spacing[4],
     alignItems: 'center',
@@ -463,7 +470,7 @@ const commonStyles = {
     ...shadows.card,
   },
   buttonAccept: {
-    backgroundColor: colors.darkBlue,
+    backgroundColor: colors.primaryDark,
     borderRadius: borderRadius.lg,
     padding: spacing[4],
     alignItems: 'center',
@@ -473,7 +480,7 @@ const commonStyles = {
     ...shadows.card,
   },
   buttonPrimary: {
-    backgroundColor: colors.darkBlue,
+    backgroundColor: colors.primary,
     borderRadius: borderRadius.lg,
     padding: spacing[4],
     alignItems: 'center',
@@ -482,7 +489,7 @@ const commonStyles = {
     ...shadows.card,
   },
   buttonSecondary: {
-    backgroundColor: colors.darkBlue,
+    backgroundColor: colors.surfaceAlt,
     borderRadius: borderRadius.lg,
     padding: spacing[4],
     alignItems: 'center',
