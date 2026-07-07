@@ -6,17 +6,19 @@ import {
   ScrollView,
   TouchableOpacity,
   Modal,
+  RefreshControl,
   Alert,
   ActivityIndicator,
-  RefreshControl,
   Image,
+  TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import Button from '../../components/Button';
-import { propertyService } from '../../services/api';
-import { buildStaticMapUrl, openInGoogleMaps } from '../../services/locationService';
-import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../../config/theme';
+import Button from '../components/Button';
+import { propertyService } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import { buildStaticMapUrl, openInGoogleMaps } from '../services/locationService';
+import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../config/theme';
 
 const TYPE_ICONS = {
   apartment: 'business',
@@ -27,34 +29,39 @@ const TYPE_ICONS = {
   bedsitter: 'bed',
 };
 
-const PropertiesScreen = ({ navigation }) => {
+const PublicListingsScreen = ({ navigation }) => {
+  const { user } = useAuth();
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState(null);
+  const [applyLoading, setApplyLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
   const loadProperties = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await propertyService.getByLandlord();
+      const response = await propertyService.getPublic();
       const data = response?.data ?? response;
       setProperties(data?.properties || data || []);
     } catch (error) {
-      console.error('Error loading properties:', error);
-      // Fallback demo data
+      console.error('Error loading public listings:', error);
+      // Fallback demo data so the screen is reviewable without the backend
       setProperties([
         {
-          _id: '1',
+          _id: 'demo-1',
           title: 'Riverside Apartments',
-          address: { street: '123 Riverside Drive', city: 'Nairobi' },
+          address: { street: '123 Riverside Drive', area: 'Kileleshwa', city: 'Nairobi', coordinates: { latitude: -1.27, longitude: 36.8 } },
           type: 'apartment',
-          bedrooms: 3,
-          bathrooms: 2,
-          rent: { amount: 35000 },
-          houses: [{ houseNumber: 'A1', floor: '2nd' }],
-          occupied: 10,
-          units: 12,
+          bedrooms: 2,
+          bathrooms: 1,
+          rent: { amount: 28000 },
+          deposit: 28000,
+          serviceCharge: 2000,
+          utilities: [{ name: 'Water', amount: 500, isMandatory: true }, { name: 'Security', amount: 1500, isMandatory: true }],
+          houses: [{ houseNumber: 'B4', floor: '3rd', status: 'available' }],
           amenities: ['Parking', 'WiFi', 'Security', 'Water'],
+          description: 'Modern apartment close to the CBD with secure parking and 24/7 water.',
         },
       ]);
     } finally {
@@ -74,39 +81,6 @@ const PropertiesScreen = ({ navigation }) => {
     loadProperties();
   };
 
-  const handleDelete = (propertyId) => {
-    Alert.alert(
-      'Delete Property',
-      'Are you sure? This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await propertyService.delete(propertyId);
-              loadProperties();
-            } catch (error) {
-              Alert.alert('Error', 'Failed to delete property');
-            }
-          },
-        },
-      ]
-    );
-  };
-
-  const occupancyRate = (property) => {
-    if (!property.units) return 0;
-    return Math.round(((property.occupied || 0) / property.units) * 100);
-  };
-
-  const occupancyColor = (rate) => {
-    if (rate >= 90) return colors.success;
-    if (rate >= 70) return colors.warning;
-    return colors.danger;
-  };
-
   const formatAddress = (address) => {
     if (!address) return '';
     if (typeof address === 'string') return address;
@@ -117,6 +91,33 @@ const PropertiesScreen = ({ navigation }) => {
   const formatRent = (property) => {
     const amount = property.rent?.amount ?? property.rent ?? 0;
     return `KSh ${Number(amount).toLocaleString()}`;
+  };
+
+  const handleApply = async () => {
+    if (!user) {
+      Alert.alert('Sign in required', 'Please log in to apply for a property.');
+      return;
+    }
+    const id = selectedProperty?._id || selectedProperty?.id;
+    if (!id) return;
+
+    setApplyLoading(true);
+    try {
+      await propertyService.expressInterest(id, {
+        message: message.trim(),
+      });
+      Alert.alert(
+        'Interest Sent',
+        'The landlord and NyumbaSync front-office team have been notified. You will be contacted soon.',
+        [{ text: 'OK', onPress: () => setSelectedProperty(null) }]
+      );
+      setMessage('');
+    } catch (error) {
+      const errMsg = error?.response?.data?.message || error?.message || 'Failed to send interest.';
+      Alert.alert('Error', errMsg);
+    } finally {
+      setApplyLoading(false);
+    }
   };
 
   if (loading && !refreshing) {
@@ -138,18 +139,13 @@ const PropertiesScreen = ({ navigation }) => {
       >
         <View style={styles.header}>
           <View>
-            <Text style={styles.headerTitle}>My Properties</Text>
-            <Text style={styles.headerSubtitle}>{properties.length} listed</Text>
+            <Text style={styles.headerTitle}>Browse Properties</Text>
+            <Text style={styles.headerSubtitle}>{properties.length} available</Text>
           </View>
-          <Button
-            icon="add"
-            onPress={() => navigation.navigate('AddProperty')}
-          />
         </View>
 
         <View style={styles.list}>
           {properties.map((property) => {
-            const rate = occupancyRate(property);
             const iconName = TYPE_ICONS[property.type] || 'home';
             return (
               <TouchableOpacity
@@ -168,12 +164,6 @@ const PropertiesScreen = ({ navigation }) => {
                       {formatAddress(property.address)}
                     </Text>
                   </View>
-                  <TouchableOpacity
-                    onPress={() => handleDelete(property._id || property.id)}
-                    style={styles.deleteBtn}
-                  >
-                    <Ionicons name="trash-outline" size={20} color={colors.danger} />
-                  </TouchableOpacity>
                 </View>
 
                 <View style={styles.cardDetails}>
@@ -191,34 +181,15 @@ const PropertiesScreen = ({ navigation }) => {
                   </View>
                 </View>
 
-                {property.houses?.length > 0 && (
-                  <View style={styles.houseRow}>
-                    <Ionicons name="key-outline" size={14} color={colors.leaf} />
-                    <Text style={styles.houseText}>
-                      House {property.houses[0].houseNumber}
-                      {property.houses[0].floor ? ` • ${property.houses[0].floor} floor` : ''}
-                    </Text>
+                {property.amenities?.length > 0 && (
+                  <View style={styles.amenitiesWrap}>
+                    {property.amenities.slice(0, 4).map((a, i) => (
+                      <View key={i} style={styles.amenityChip}>
+                        <Text style={styles.amenityChipText}>{a}</Text>
+                      </View>
+                    ))}
                   </View>
                 )}
-
-                <View style={styles.cardFooter}>
-                  <View style={styles.occupancy}>
-                    <Text style={styles.occupancyText}>
-                      {property.occupied || 0}/{property.units || 1} units
-                    </Text>
-                    <View style={styles.occupancyBar}>
-                      <View
-                        style={[
-                          styles.occupancyFill,
-                          { width: `${rate}%`, backgroundColor: occupancyColor(rate) },
-                        ]}
-                      />
-                    </View>
-                  </View>
-                  <View style={styles.typeBadge}>
-                    <Text style={styles.typeBadgeText}>{property.type || 'property'}</Text>
-                  </View>
-                </View>
               </TouchableOpacity>
             );
           })}
@@ -227,19 +198,13 @@ const PropertiesScreen = ({ navigation }) => {
         {properties.length === 0 && (
           <View style={styles.emptyState}>
             <Ionicons name="home-outline" size={64} color={colors.textMuted} />
-            <Text style={styles.emptyTitle}>No properties yet</Text>
-            <Text style={styles.emptySubtitle}>Add your first property to get started.</Text>
-            <Button
-              title="Add Property"
-              icon="add"
-              onPress={() => navigation.navigate('AddProperty')}
-              style={{ marginTop: spacing[4] }}
-            />
+            <Text style={styles.emptyTitle}>No listings yet</Text>
+            <Text style={styles.emptySubtitle}>Check back soon for available properties.</Text>
           </View>
         )}
       </ScrollView>
 
-      {/* Detail Modal */}
+      {/* Detail / Apply Modal */}
       <Modal
         visible={Boolean(selectedProperty)}
         animationType="slide"
@@ -280,7 +245,7 @@ const PropertiesScreen = ({ navigation }) => {
                     />
                     <View style={styles.mapOverlay}>
                       <Ionicons name="map-outline" size={18} color={colors.white} />
-                      <Text style={styles.mapOverlayText}>Open in Google Maps</Text>
+                      <Text style={styles.mapOverlayText}>Get directions on Google Maps</Text>
                     </View>
                   </TouchableOpacity>
                 )}
@@ -291,12 +256,17 @@ const PropertiesScreen = ({ navigation }) => {
                 <Text style={styles.modalLabel}>Base Rent</Text>
                 <Text style={styles.modalValue}>{formatRent(selectedProperty)}</Text>
 
+                {selectedProperty.deposit ? (
+                  <>
+                    <Text style={styles.modalLabel}>Deposit</Text>
+                    <Text style={styles.modalValue}>KSh {Number(selectedProperty.deposit).toLocaleString()}</Text>
+                  </>
+                ) : null}
+
                 {selectedProperty.serviceCharge ? (
                   <>
                     <Text style={styles.modalLabel}>Service Charge</Text>
-                    <Text style={styles.modalValue}>
-                      KSh {Number(selectedProperty.serviceCharge).toLocaleString()}
-                    </Text>
+                    <Text style={styles.modalValue}>KSh {Number(selectedProperty.serviceCharge).toLocaleString()}</Text>
                   </>
                 ) : null}
 
@@ -317,38 +287,44 @@ const PropertiesScreen = ({ navigation }) => {
 
                 {selectedProperty.houses?.length > 0 && (
                   <>
-                    <Text style={styles.modalLabel}>House / Unit Details</Text>
+                    <Text style={styles.modalLabel}>House / Unit</Text>
                     {selectedProperty.houses.map((h, i) => (
                       <Text key={i} style={styles.modalValue}>
                         {h.houseNumber ? `House ${h.houseNumber}` : 'Unnumbered'}
                         {h.floor ? ` • ${h.floor} floor` : ''}
+                        {h.status ? ` • ${h.status}` : ''}
                       </Text>
                     ))}
                   </>
                 )}
 
-                {selectedProperty.amenities?.length > 0 && (
+                {selectedProperty.description ? (
                   <>
-                    <Text style={styles.modalLabel}>Amenities</Text>
-                    <View style={styles.amenitiesWrap}>
-                      {selectedProperty.amenities.map((a, i) => (
-                        <View key={i} style={styles.amenityChip}>
-                          <Text style={styles.amenityChipText}>{a}</Text>
-                        </View>
-                      ))}
-                    </View>
+                    <Text style={styles.modalLabel}>Description</Text>
+                    <Text style={styles.modalValue}>{selectedProperty.description}</Text>
                   </>
-                )}
+                ) : null}
+
+                <Text style={styles.modalLabel}>Message to landlord (optional)</Text>
+                <TextInput
+                  style={[styles.input, styles.textArea]}
+                  placeholder="Introduce yourself or ask a question..."
+                  placeholderTextColor={colors.textMuted}
+                  value={message}
+                  onChangeText={setMessage}
+                  multiline
+                  numberOfLines={3}
+                  textAlignVertical="top"
+                />
 
                 <Button
-                  title="Manage Units"
-                  variant="secondary"
-                  icon="list"
-                  onPress={() => {
-                    setSelectedProperty(null);
-                    navigation.navigate('PropertyUnits', { propertyId: selectedProperty._id || selectedProperty.id });
-                  }}
-                  style={{ marginTop: spacing[6] }}
+                  title="Apply / Express Interest"
+                  onPress={handleApply}
+                  loading={applyLoading}
+                  disabled={applyLoading}
+                  fullWidth
+                  size="lg"
+                  style={{ marginTop: spacing[4], marginBottom: spacing[6] }}
                 />
               </ScrollView>
             </View>
@@ -361,9 +337,6 @@ const PropertiesScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     padding: spacing[5],
     paddingTop: spacing[6],
   },
@@ -417,9 +390,6 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginTop: 2,
   },
-  deleteBtn: {
-    padding: spacing[2],
-  },
   cardDetails: {
     flexDirection: 'row',
     gap: spacing[2],
@@ -438,54 +408,20 @@ const styles = StyleSheet.create({
     fontSize: typography.xs,
     color: colors.textSecondary,
   },
-  houseRow: {
+  amenitiesWrap: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing[1],
-    marginBottom: spacing[3],
+    flexWrap: 'wrap',
+    gap: spacing[2],
   },
-  houseText: {
-    fontSize: typography.sm,
-    color: colors.leaf,
-    fontWeight: typography.fontWeight.semibold,
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  occupancy: {
-    flex: 1,
-    marginRight: spacing[3],
-  },
-  occupancyText: {
-    fontSize: typography.xs,
-    color: colors.textMuted,
-    marginBottom: spacing[1],
-  },
-  occupancyBar: {
-    height: 6,
-    backgroundColor: colors.slate[800],
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  occupancyFill: {
-    height: '100%',
-    borderRadius: 3,
-  },
-  typeBadge: {
-    backgroundColor: `${colors.leaf}15`,
-    borderWidth: 1,
-    borderColor: `${colors.leaf}25`,
-    borderRadius: borderRadius.lg,
+  amenityChip: {
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: borderRadius.full,
     paddingVertical: spacing[1],
     paddingHorizontal: spacing[3],
   },
-  typeBadgeText: {
+  amenityChipText: {
+    color: colors.textSecondary,
     fontSize: typography.xs,
-    color: colors.leaf,
-    fontWeight: typography.fontWeight.semibold,
-    textTransform: 'capitalize',
   },
   emptyState: {
     alignItems: 'center',
@@ -512,7 +448,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderTopLeftRadius: borderRadius['2xl'],
     borderTopRightRadius: borderRadius['2xl'],
-    maxHeight: '90%',
+    maxHeight: '92%',
     padding: spacing[5],
     paddingTop: spacing[4],
   },
@@ -582,21 +518,19 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontSize: typography.base,
   },
-  amenitiesWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing[2],
-  },
-  amenityChip: {
+  input: {
     backgroundColor: colors.surfaceAlt,
-    borderRadius: borderRadius.full,
-    paddingVertical: spacing[1],
-    paddingHorizontal: spacing[3],
+    borderWidth: 1,
+    borderColor: colors.slate[700],
+    borderRadius: borderRadius.lg,
+    padding: spacing[4],
+    color: colors.textPrimary,
+    fontSize: typography.base,
   },
-  amenityChipText: {
-    color: colors.textSecondary,
-    fontSize: typography.sm,
+  textArea: {
+    minHeight: 80,
+    textAlignVertical: 'top',
   },
 });
 
-export default PropertiesScreen;
+export default PublicListingsScreen;

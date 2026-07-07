@@ -7,6 +7,7 @@ import { colors, spacing, typography, shadows, borderRadius, commonStyles } from
 // Landlord Screens
 import LandlordHomeScreen from '../screens/Landlord/HomeScreen';
 import LandlordPropertiesScreen from '../screens/Landlord/PropertiesScreen';
+import AddPropertyScreen from '../screens/Landlord/AddPropertyScreen';
 import PropertyUnitsScreen from '../screens/Landlord/PropertyUnitsScreen';
 import LandlordTenantsScreen from '../screens/Landlord/TenantsScreen';
 import LandlordMaintenanceScreen from '../screens/Landlord/MaintenanceScreen';
@@ -27,7 +28,7 @@ const PropertiesStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#0F172A',
+          backgroundColor: colors.surface,
         },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: {
@@ -35,13 +36,18 @@ const PropertiesStack = () => {
         },
       }}
     >
-      <Stack.Screen 
-        name="PropertiesList" 
+      <Stack.Screen
+        name="PropertiesList"
         component={LandlordPropertiesScreen}
         options={{ headerShown: false }}
       />
-      <Stack.Screen 
-        name="PropertyUnits" 
+      <Stack.Screen
+        name="AddProperty"
+        component={AddPropertyScreen}
+        options={{ title: 'Add Property' }}
+      />
+      <Stack.Screen
+        name="PropertyUnits"
         component={PropertyUnitsScreen}
         options={{ title: 'Property Units' }}
       />
@@ -55,7 +61,7 @@ const MessagesStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#0F172A',
+          backgroundColor: colors.surface,
         },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: {
@@ -63,13 +69,13 @@ const MessagesStack = () => {
         },
       }}
     >
-      <Stack.Screen 
-        name="MessagesList" 
+      <Stack.Screen
+        name="MessagesList"
         component={LandlordMessagesScreen}
         options={{ headerShown: false }}
       />
-      <Stack.Screen 
-        name="Chat" 
+      <Stack.Screen
+        name="Chat"
         component={ChatScreen}
         options={{ title: 'Chat' }}
       />
@@ -83,7 +89,7 @@ const ProfileStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#0F172A',
+          backgroundColor: colors.surface,
         },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: {
@@ -91,13 +97,13 @@ const ProfileStack = () => {
         },
       }}
     >
-      <Stack.Screen 
-        name="ProfileMain" 
+      <Stack.Screen
+        name="ProfileMain"
         component={LandlordProfileScreen}
         options={{ headerShown: false }}
       />
-      <Stack.Screen 
-        name="Notifications" 
+      <Stack.Screen
+        name="Notifications"
         component={LandlordNotificationsScreen}
         options={{ title: 'Notifications' }}
       />
@@ -122,8 +128,6 @@ const LandlordNavigator = () => {
             iconName = focused ? 'construct' : 'construct-outline';
           } else if (route.name === 'Analytics') {
             iconName = focused ? 'stats-chart' : 'stats-chart-outline';
-          } else if (route.name === 'Messages') {
-            iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
           } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
           }
@@ -133,12 +137,12 @@ const LandlordNavigator = () => {
         tabBarActiveTintColor: colors.gold,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
-          backgroundColor: '#0F172A',
-          borderTopColor: '#1E293B',
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
         },
         headerShown: true,
         headerStyle: {
-          backgroundColor: '#0F172A',
+          backgroundColor: colors.surface,
         },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: {

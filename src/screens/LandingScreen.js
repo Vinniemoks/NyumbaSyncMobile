@@ -184,6 +184,16 @@ const LandingScreen = ({ navigation }) => {
           />
 
           <Button
+            variant="secondary"
+            icon="search"
+            size="md"
+            onPress={() => navigation.navigate('PublicListings')}
+            style={styles.ctaButton}
+          >
+            Browse Listings
+          </Button>
+
+          <Button
             variant="ghost"
             onPress={() => navigation.navigate('Login')}
             style={styles.ctaSecondary}

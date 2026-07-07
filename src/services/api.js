@@ -80,6 +80,13 @@ export const propertyService = {
   uploadImages: (propertyId, formData) => apiClient.post(`/properties/${propertyId}/images`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
+
+  // Public listings (unauthenticated / tenant browsing)
+  getPublic: () => apiClient.get('/v2/properties/public'),
+  getPublicById: (id) => apiClient.get(`/v2/properties/${id}/public`),
+
+  // Express interest in a public listing
+  expressInterest: (id, data) => apiClient.post(`/v2/properties/${id}/interest`, data),
 };
 
 export const tenantService = {

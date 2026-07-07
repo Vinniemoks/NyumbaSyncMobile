@@ -198,6 +198,13 @@ const TenantHomeScreen = ({ navigation }) => {
             <Ionicons name="construct-outline" size={32} color={colors.success} />
             <Text style={commonStyles.actionCardText}>Request Help</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={commonStyles.actionCard}
+            onPress={() => navigation.navigate('Browse')}
+          >
+            <Ionicons name="search-outline" size={32} color={colors.gold} />
+            <Text style={commonStyles.actionCardText}>Browse Listings</Text>
+          </TouchableOpacity>
           <TouchableOpacity 
             style={commonStyles.actionCard}
             onPress={() => navigation.navigate('Profile', { screen: 'ProfileMain', params: { navigateTo: 'Documents' } })}

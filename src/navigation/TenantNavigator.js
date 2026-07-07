@@ -12,6 +12,7 @@ import TenantDocumentsScreen from '../screens/Tenant/DocumentsScreen';
 import TenantMessagesScreen from '../screens/Tenant/MessagesScreen';
 import TenantProfileScreen from '../screens/Tenant/ProfileScreen';
 import TenantNotificationsScreen from '../screens/Tenant/NotificationsScreen';
+import PublicListingsScreen from '../screens/PublicListingsScreen';
 import ChatScreen from '../screens/Shared/ChatScreen';
 
 import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../config/theme';
@@ -87,6 +88,8 @@ const TenantNavigator = () => {
 
           if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Browse') {
+            iconName = focused ? 'search' : 'search-outline';
           } else if (route.name === 'Payments') {
             iconName = focused ? 'card' : 'card-outline';
           } else if (route.name === 'Lease') {
@@ -107,6 +110,7 @@ const TenantNavigator = () => {
       })}
     >
       <Tab.Screen name="Home" component={TenantHomeScreen} options={{ title: 'Dashboard' }} />
+      <Tab.Screen name="Browse" component={PublicListingsScreen} options={{ title: 'Browse' }} />
       <Tab.Screen name="Payments" component={TenantPaymentsScreen} />
       <Tab.Screen name="Lease" component={TenantLeaseScreen} />
       <Tab.Screen name="Maintenance" component={TenantMaintenanceScreen} />
