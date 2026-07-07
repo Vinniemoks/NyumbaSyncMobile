@@ -48,8 +48,9 @@ export const NotificationProvider = ({ children }) => {
       setExpoPushToken(token);
 
       // Register token with backend
-      if (user?.id) {
-        await notificationService.registerPushToken(user.id, token);
+      const userId = user?._id || user?.id;
+      if (userId) {
+        await notificationService.registerPushToken(userId, token);
       }
 
       // Android specific channel setup
@@ -58,7 +59,7 @@ export const NotificationProvider = ({ children }) => {
           name: 'default',
           importance: Notifications.AndroidImportance.MAX,
           vibrationPattern: [0, 250, 250, 250],
-          lightColor: '#3B82F6',
+          lightColor: '#14532D',
         });
       }
     } catch (error) {
@@ -89,11 +90,12 @@ export const NotificationProvider = ({ children }) => {
 
   const loadUnreadCount = async () => {
     try {
-      if (user?.id) {
-        const response = await notificationService.getUnreadCount(user.id);
-        if (response.data.success) {
-          setUnreadCount(response.data.count);
-        }
+      const userId = user?._id || user?.id;
+      if (userId) {
+        const response = await notificationService.getUnreadCount(userId);
+        const payload = response?.data ?? response;
+        const count = payload?.success ? payload.count : payload?.count ?? 0;
+        setUnreadCount(Number(count) || 0);
       }
     } catch (error) {
       console.error('Error loading unread count:', error);
@@ -144,8 +146,9 @@ export const NotificationProvider = ({ children }) => {
 
   const markAllAsRead = async () => {
     try {
-      if (user?.id) {
-        await notificationService.markAllAsRead(user.id);
+      const userId = user?._id || user?.id;
+      if (userId) {
+        await notificationService.markAllAsRead(userId);
         setUnreadCount(0);
       }
     } catch (error) {
