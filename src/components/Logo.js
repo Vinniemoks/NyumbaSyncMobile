@@ -1,120 +1,75 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { colors, spacing } from '../config/theme';
+import { View, Text, StyleSheet } from 'react-native';
+import { SvgXml } from 'react-native-svg';
+import { colors, typography, spacing } from '../config/theme';
 
 /**
  * NyumbaSync Logo Component
- * Renders the brand logo as a custom React Native component.
- * Dark navy rounded square background with gold house icon.
- * 
+ * Renders the brand logo as an SVG mark matching the web app logo.
+ *
  * Usage:
  *   <Logo size={88} />
- *   <Logo size={48} style={{ marginBottom: 16 }} />
+ *   <Logo size={64} showWordmark style={{ marginBottom: 24 }} />
  */
 
-const Logo = ({ size = 64, style }) => {
-  const scale = size / 64;
-  
+const logoSvg = (size) => `
+<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bgGrad512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#14532d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="goldGrad512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8C84A;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#D4AF37;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B6914;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow512" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12.8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="512" height="512" rx="85.3333" ry="85.3333" fill="url(#bgGrad512)" />
+  <rect x="4" y="4" width="504" height="504" rx="85.3333" ry="85.3333"
+        fill="none" stroke="url(#goldGrad512)" stroke-width="4" opacity="0.6" />
+  <polygon points="89.6,328.5333 256,221.0133 422.4,328.5333" fill="url(#goldGrad512)" />
+  <rect x="128" y="328.5333" width="256" height="179.2" fill="url(#goldGrad512)" />
+  <rect x="213.3333" y="418.1333" width="85.3333" height="89.6" fill="#0f172a" rx="10.6667" />
+  <circle cx="266.6667" cy="462.9333" r="10.6667" fill="url(#goldGrad512)" />
+  <rect x="160" y="358.4" width="51.2" height="51.2" fill="#0f172a" rx="6.4" />
+  <line x1="185.6" y1="358.4" x2="185.6" y2="409.6" stroke="url(#goldGrad512)" stroke-width="2" />
+  <line x1="160" y1="384" x2="211.2" y2="384" stroke="url(#goldGrad512)" stroke-width="2" />
+  <rect x="300.8" y="358.4" width="51.2" height="51.2" fill="#0f172a" rx="6.4" />
+  <line x1="326.4" y1="358.4" x2="326.4" y2="409.6" stroke="url(#goldGrad512)" stroke-width="2" />
+  <line x1="300.8" y1="384" x2="352" y2="384" stroke="url(#goldGrad512)" stroke-width="2" />
+  <ellipse cx="256" cy="85.3333" rx="170.6667" ry="51.2" fill="url(#goldGrad512)" opacity="0.08" filter="url(#glow512)" />
+</svg>
+`;
+
+const Logo = ({ size = 64, showWordmark = false, style }) => {
   return (
-    <View style={[styles.container, { width: size, height: size, borderRadius: size / 6 }, style]}>
-      {/* Background */}
-      <View style={[styles.bg, { width: size, height: size, borderRadius: size / 6 }]} />
-      
-      {/* Gold border */}
-      <View style={[styles.border, { width: size - 2, height: size - 2, borderRadius: size / 6 }]} />
-      
-      {/* House icon */}
-      <View style={styles.houseContainer}>
-        {/* Roof */}
-        <View style={[styles.roof, { 
-          borderLeftWidth: 18 * scale, 
-          borderRightWidth: 18 * scale, 
-          borderBottomWidth: 14 * scale,
-        }]} />
-        
-        {/* Body */}
-        <View style={[styles.body, { width: 24 * scale, height: 18 * scale }]} />
-        
-        {/* Door */}
-        <View style={[styles.door, { width: 8 * scale, height: 10 * scale }]} />
-        
-        {/* Door knob */}
-        <View style={[styles.knob, { width: 2 * scale, height: 2 * scale, borderRadius: scale }]} />
-        
-        {/* Left Window */}
-        <View style={[styles.window, { width: 6 * scale, height: 6 * scale, left: -10 * scale, top: -4 * scale }]} />
-        <View style={[styles.windowCrossV, { height: 6 * scale, left: -7 * scale, top: -4 * scale }]} />
-        <View style={[styles.windowCrossH, { width: 6 * scale, left: -10 * scale, top: -1 * scale }]} />
-        
-        {/* Right Window */}
-        <View style={[styles.window, { width: 6 * scale, height: 6 * scale, left: 4 * scale, top: -4 * scale }]} />
-        <View style={[styles.windowCrossV, { height: 6 * scale, left: 7 * scale, top: -4 * scale }]} />
-        <View style={[styles.windowCrossH, { width: 6 * scale, left: 4 * scale, top: -1 * scale }]} />
-      </View>
+    <View style={[styles.container, style]}>
+      <SvgXml xml={logoSvg(size)} width={size} height={size} />
+      {showWordmark && (
+        <Text style={[styles.wordmark, { fontSize: Math.max(16, size * 0.35) }]}>
+          NyumbaSync
+        </Text>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
     alignItems: 'center',
-    overflow: 'hidden',
-  },
-  bg: {
-    position: 'absolute',
-    backgroundColor: colors.primaryDark,
-  },
-  border: {
-    position: 'absolute',
-    borderWidth: 1,
-    borderColor: `${colors.gold}60`,
-  },
-  houseContainer: {
     justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
   },
-  roof: {
-    width: 0,
-    height: 0,
-    backgroundColor: 'transparent',
-    borderStyle: 'solid',
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderBottomColor: colors.gold,
-    marginBottom: -2,
-  },
-  body: {
-    backgroundColor: colors.gold,
-  },
-  door: {
-    position: 'absolute',
-    backgroundColor: colors.primaryDark,
-    bottom: 0,
-    borderTopLeftRadius: 2,
-    borderTopRightRadius: 2,
-  },
-  knob: {
-    position: 'absolute',
-    backgroundColor: colors.gold,
-    bottom: 4,
-    right: -2,
-  },
-  window: {
-    position: 'absolute',
-    backgroundColor: colors.primaryDark,
-    borderRadius: 1,
-  },
-  windowCrossV: {
-    position: 'absolute',
-    width: 1,
-    backgroundColor: colors.gold,
-  },
-  windowCrossH: {
-    position: 'absolute',
-    height: 1,
-    backgroundColor: colors.gold,
+  wordmark: {
+    marginTop: spacing[2],
+    color: colors.gold,
+    fontWeight: typography.fontWeight.bold,
+    letterSpacing: 0.5,
   },
 });
 

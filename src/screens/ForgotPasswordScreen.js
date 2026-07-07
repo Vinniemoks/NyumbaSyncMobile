@@ -3,16 +3,17 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
   Alert,
-  ActivityIndicator,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Logo from '../components/Logo';
+import Button from '../components/Button';
 import { apiClient } from '../services/api';
-import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../config/theme';
+import { API_CONFIG } from '../config/apiConfig';
+import { colors, spacing, typography, commonStyles } from '../config/theme';
 
 const ForgotPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -27,7 +28,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
 
     setLoading(true);
     try {
-      await apiClient.post('/v1/auth/forgot-password', { email: email.trim() });
+      await apiClient.post(API_CONFIG.ENDPOINTS.AUTH.FORGOT_PASSWORD, { email: email.trim() });
       setSent(true);
     } catch (error) {
       const message = error.response?.data?.error || 'Failed to send reset email. Please try again.';
@@ -65,17 +66,14 @@ const ForgotPasswordScreen = ({ navigation }) => {
                 autoCorrect={false}
               />
 
-              <TouchableOpacity
-                style={commonStyles.button}
+              <Button
+                title="Send Reset Link"
                 onPress={handleSubmit}
-                disabled={loading}
-              >
-                {loading ? (
-                  <ActivityIndicator color={colors.white} />
-                ) : (
-                  <Text style={commonStyles.buttonText}>Send Reset Link</Text>
-                )}
-              </TouchableOpacity>
+                loading={loading}
+                disabled={loading || !email.trim()}
+                fullWidth
+                size="lg"
+              />
             </View>
           </>
         ) : (
@@ -87,23 +85,24 @@ const ForgotPasswordScreen = ({ navigation }) => {
             <Text style={commonStyles.subtitle}>
               If your email is registered, you will receive a password reset link shortly.
             </Text>
-            <TouchableOpacity
-              style={commonStyles.button}
+            <Button
+              title="Back to Sign In"
               onPress={() => navigation.replace('Login')}
-            >
-              <Text style={commonStyles.buttonText}>Back to Sign In</Text>
-            </TouchableOpacity>
+              fullWidth
+              size="lg"
+            />
           </>
         )}
 
-        <TouchableOpacity
-          style={commonStyles.linkButton}
+        <Button
+          variant="ghost"
           onPress={() => navigation.replace('Login')}
+          style={{ marginTop: spacing[4] }}
         >
-          <Text style={commonStyles.textLink}>
-            Remembered your password? <Text style={commonStyles.textLinkBold}>Sign In</Text>
+          <Text style={styles.linkText}>
+            Remembered your password? <Text style={styles.linkTextBold}>Sign In</Text>
           </Text>
-        </TouchableOpacity>
+        </Button>
       </View>
     </KeyboardAvoidingView>
   );
@@ -118,6 +117,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: spacing[5],
+  },
+  linkText: {
+    color: colors.textSecondary,
+    fontSize: typography.sm,
+  },
+  linkTextBold: {
+    color: colors.leaf,
+    fontWeight: typography.fontWeight.semibold,
   },
 });
 

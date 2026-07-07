@@ -12,13 +12,15 @@ import { colors, spacing, typography, shadows, borderRadius } from '../config/th
  * Polymorphic Button component for NyumbaSync Mobile.
  *
  * Variants:
- *   - primary:   solid green background, gold text
+ *   - primary:   forest green background, white text, gold border accent
  *   - secondary: dark surface background, leaf text
  *   - outline:   transparent with leaf border/text
  *   - ghost:     transparent with muted text
+ *   - danger:    red background, white text
+ *   - soft:      tinted green surface, leaf text
  *
  * Usage:
- *   <Button title="Sign In" onPress={handleLogin} loading={loading} />
+ *   <Button title="Sign In" onPress={handleLogin} loading={loading} fullWidth />
  *   <Button variant="outline" onPress={handleCancel}>Cancel</Button>
  *   <Button icon="arrow-forward" iconPosition="right">Next</Button>
  */
@@ -32,53 +34,77 @@ const Button = ({
   size = 'md',
   icon,
   iconPosition = 'left',
+  fullWidth = false,
   style,
   textStyle,
 }) => {
   const isDisabled = disabled || loading;
-  const content = children || (title ? <Text style={[styles.text, styles[`${variant}Text`], textStyle]}>{title}</Text> : null);
+
+  const iconColor = () => {
+    switch (variant) {
+      case 'primary':
+      case 'danger':
+        return colors.white;
+      case 'secondary':
+      case 'outline':
+      case 'soft':
+        return colors.leaf;
+      default:
+        return colors.textSecondary;
+    }
+  };
 
   const renderIcon = () => {
-    if (!icon || typeof icon !== 'string') return null;
-    const iconColor = variant === 'primary'
-      ? colors.gold
-      : variant === 'secondary'
-      ? colors.leaf
-      : variant === 'outline'
-      ? colors.leaf
-      : colors.textSecondary;
+    if (loading) {
+      return (
+        <ActivityIndicator
+          size="small"
+          color={iconColor()}
+          style={iconPosition === 'right' ? styles.iconRight : styles.iconLeft}
+        />
+      );
+    }
+    if (!icon) return null;
+    if (typeof icon === 'string') {
+      return (
+        <Ionicons
+          name={icon}
+          size={18}
+          color={iconColor()}
+          style={iconPosition === 'right' ? styles.iconRight : styles.iconLeft}
+        />
+      );
+    }
     return (
-      <Ionicons
-        name={icon}
-        size={18}
-        color={iconColor}
-        style={iconPosition === 'right' ? styles.iconRight : styles.iconLeft}
-      />
+      <Text style={iconPosition === 'right' ? styles.iconRight : styles.iconLeft}>
+        {icon}
+      </Text>
     );
   };
 
+  const content = children || (
+    <Text style={[styles.text, styles[`${variant}Text`], textStyle]}>
+      {title}
+    </Text>
+  );
+
   return (
     <TouchableOpacity
-      activeOpacity={0.8}
+      activeOpacity={0.85}
       onPress={onPress}
       disabled={isDisabled}
       style={[
         styles.base,
-        styles[variant],
         styles[size],
+        styles[variant],
+        fullWidth && styles.fullWidth,
         isDisabled && styles.disabled,
         style,
       ]}
     >
-      {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? colors.gold : colors.leaf} />
-      ) : (
-        <>
-          {iconPosition === 'left' && renderIcon()}
-          {content}
-          {iconPosition === 'right' && renderIcon()}
-        </>
-      )}
+      {iconPosition === 'left' && renderIcon()}
+      {content}
+      {iconPosition === 'right' && renderIcon()}
     </TouchableOpacity>
   );
 };
@@ -88,23 +114,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: borderRadius.lg,
-    ...shadows.card,
+    borderRadius: borderRadius['2xl'],
   },
   sm: {
     paddingVertical: spacing[2],
     paddingHorizontal: spacing[4],
+    minHeight: 36,
   },
   md: {
-    paddingVertical: spacing[4],
+    paddingVertical: spacing[3],
     paddingHorizontal: spacing[5],
+    minHeight: 48,
   },
   lg: {
     paddingVertical: spacing[4],
     paddingHorizontal: spacing[8],
+    minHeight: 56,
+  },
+  fullWidth: {
+    width: '100%',
   },
   disabled: {
-    opacity: 0.5,
+    opacity: 0.45,
   },
   iconLeft: {
     marginRight: spacing[2],
@@ -120,16 +151,22 @@ const styles = StyleSheet.create({
   primary: {
     backgroundColor: colors.primary,
     borderWidth: 1,
-    borderColor: `${colors.gold}60`,
+    borderColor: `${colors.gold}55`,
+    ...shadows.card,
+    shadowColor: colors.primary,
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 5,
   },
   primaryText: {
-    color: colors.gold,
+    color: colors.white,
   },
 
   secondary: {
     backgroundColor: colors.surfaceAlt,
     borderWidth: 1,
     borderColor: `${colors.gold}40`,
+    ...shadows.card,
   },
   secondaryText: {
     color: colors.leaf,
@@ -137,7 +174,7 @@ const styles = StyleSheet.create({
 
   outline: {
     backgroundColor: 'transparent',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: colors.leaf,
   },
   outlineText: {
@@ -150,6 +187,25 @@ const styles = StyleSheet.create({
   },
   ghostText: {
     color: colors.textSecondary,
+  },
+
+  danger: {
+    backgroundColor: colors.danger,
+    borderWidth: 1,
+    borderColor: `${colors.danger}60`,
+    ...shadows.card,
+  },
+  dangerText: {
+    color: colors.white,
+  },
+
+  soft: {
+    backgroundColor: `${colors.leaf}15`,
+    borderWidth: 1,
+    borderColor: `${colors.leaf}25`,
+  },
+  softText: {
+    color: colors.leaf,
   },
 });
 

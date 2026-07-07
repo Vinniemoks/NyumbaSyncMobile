@@ -106,7 +106,7 @@ const LoginScreen = ({ navigation }) => {
       style={commonStyles.container}
     >
       <View style={commonStyles.content}>
-        <Logo size={76} style={{ marginBottom: 20 }} />
+        <Logo size={80} showWordmark style={{ marginBottom: spacing[6] }} />
         <Text style={commonStyles.title}>Welcome Back</Text>
         <Text style={commonStyles.subtitle}>Sign in with your email or phone number</Text>
 
@@ -143,12 +143,14 @@ const LoginScreen = ({ navigation }) => {
             onPress={handleLogin}
             loading={loading}
             disabled={loading || !identifier || !password}
+            fullWidth
+            size="lg"
           />
 
           <Button
             variant="ghost"
             onPress={() => navigation.replace('Signup')}
-            style={{ marginTop: spacing[2] }}
+            style={{ marginTop: spacing[4] }}
           >
             <Text style={styles.signUpText}>
               Don't have an account?{' '}

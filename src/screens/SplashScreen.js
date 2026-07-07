@@ -30,8 +30,7 @@ const SplashScreen = ({ navigation }) => {
 
   return (
     <View style={commonStyles.container}>
-      <Logo size={88} style={{ marginBottom: 24 }} />
-      <Text style={styles.title}>NyumbaSync</Text>
+      <Logo size={96} showWordmark style={{ marginBottom: spacing[6] }} />
       <Text style={styles.subtitle}>Property Management Made Simple</Text>
       <ActivityIndicator size="large" color={colors.gold} style={styles.loader} />
     </View>

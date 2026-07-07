@@ -2,6 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AuthProvider } from './src/context/AuthContext';
+import { NotificationProvider } from './src/context/NotificationContext';
 import { StatusBar } from 'expo-status-bar';
 
 // Auth Screens
@@ -36,14 +37,15 @@ const Stack = createStackNavigator();
 export default function App() {
   return (
     <AuthProvider>
-      <NavigationContainer>
-        <StatusBar style="auto" />
-        <Stack.Navigator
-          initialRouteName="Splash"
-          screenOptions={{
-            headerShown: false,
-          }}
-        >
+      <NotificationProvider>
+        <NavigationContainer>
+          <StatusBar style="light" backgroundColor="#0A1628" />
+          <Stack.Navigator
+            initialRouteName="Splash"
+            screenOptions={{
+              headerShown: false,
+            }}
+          >
           {/* Auth Flow */}
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="Landing" component={LandingScreen} />
@@ -72,6 +74,7 @@ export default function App() {
           <Stack.Screen name="AccessibilityScreen" component={AccessibilityScreen} />
         </Stack.Navigator>
       </NavigationContainer>
-    </AuthProvider>
+    </NotificationProvider>
+  </AuthProvider>
   );
 }
