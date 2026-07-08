@@ -29,6 +29,24 @@ const TYPE_ICONS = {
   bedsitter: 'bed',
 };
 
+const AMENITY_DISPLAY_MAP = {
+  parking: 'Parking',
+  security: 'Security',
+  wifi: 'WiFi',
+  water_tank: 'Water',
+  electricity: 'Electricity',
+  backup_generator: 'Generator',
+  gym: 'Gym',
+  pool: 'Pool',
+  garden: 'Garden',
+  balcony: 'Balcony',
+  elevator: 'Elevator',
+  cctv: 'CCTV',
+  playground: 'Playground',
+  laundry: 'Laundry',
+  shopping_center: 'Shopping Center',
+};
+
 const PublicListingsScreen = ({ navigation }) => {
   const { user } = useAuth();
   const [properties, setProperties] = useState([]);
@@ -37,38 +55,38 @@ const PublicListingsScreen = ({ navigation }) => {
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [applyLoading, setApplyLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    search: '',
+    city: '',
+    type: '',
+    bedrooms: '',
+    minRent: '',
+    maxRent: '',
+  });
 
   const loadProperties = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await propertyService.getPublic();
+      const params = {};
+      if (filters.search.trim()) params.search = filters.search.trim();
+      if (filters.city.trim()) params.city = filters.city.trim();
+      if (filters.type) params.type = filters.type;
+      if (filters.bedrooms) params.bedrooms = filters.bedrooms;
+      if (filters.minRent) params.minRent = filters.minRent;
+      if (filters.maxRent) params.maxRent = filters.maxRent;
+
+      const response = await propertyService.getPublic(params);
       const data = response?.data ?? response;
-      setProperties(data?.properties || data || []);
+      setProperties(data?.data || data?.properties || data || []);
     } catch (error) {
       console.error('Error loading public listings:', error);
-      // Fallback demo data so the screen is reviewable without the backend
-      setProperties([
-        {
-          _id: 'demo-1',
-          title: 'Riverside Apartments',
-          address: { street: '123 Riverside Drive', area: 'Kileleshwa', city: 'Nairobi', coordinates: { latitude: -1.27, longitude: 36.8 } },
-          type: 'apartment',
-          bedrooms: 2,
-          bathrooms: 1,
-          rent: { amount: 28000 },
-          deposit: 28000,
-          serviceCharge: 2000,
-          utilities: [{ name: 'Water', amount: 500, isMandatory: true }, { name: 'Security', amount: 1500, isMandatory: true }],
-          houses: [{ houseNumber: 'B4', floor: '3rd', status: 'available' }],
-          amenities: ['Parking', 'WiFi', 'Security', 'Water'],
-          description: 'Modern apartment close to the CBD with secure parking and 24/7 water.',
-        },
-      ]);
+      setProperties([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [filters]);
 
   useFocusEffect(
     useCallback(() => {
@@ -138,10 +156,97 @@ const PublicListingsScreen = ({ navigation }) => {
         }
       >
         <View style={styles.header}>
-          <View>
-            <Text style={styles.headerTitle}>Browse Properties</Text>
-            <Text style={styles.headerSubtitle}>{properties.length} available</Text>
+          <View style={styles.headerRow}>
+            <View>
+              <Text style={styles.headerTitle}>Browse Properties</Text>
+              <Text style={styles.headerSubtitle}>{properties.length} available</Text>
+            </View>
+            <TouchableOpacity
+              style={[styles.filterToggle, showFilters && styles.filterToggleActive]}
+              onPress={() => setShowFilters((s) => !s)}
+            >
+              <Ionicons name="options-outline" size={20} color={showFilters ? colors.gold : colors.textSecondary} />
+            </TouchableOpacity>
           </View>
+
+          {showFilters && (
+            <View style={styles.filtersCard}>
+              <TextInput
+                style={[styles.input, { marginBottom: spacing[3] }]}
+                placeholder="Search area or keyword"
+                placeholderTextColor={colors.textMuted}
+                value={filters.search}
+                onChangeText={(text) => setFilters((f) => ({ ...f, search: text }))}
+              />
+              <View style={styles.row}>
+                <TextInput
+                  style={[styles.input, styles.filterHalf]}
+                  placeholder="City"
+                  placeholderTextColor={colors.textMuted}
+                  value={filters.city}
+                  onChangeText={(text) => setFilters((f) => ({ ...f, city: text }))}
+                />
+                <TextInput
+                  style={[styles.input, styles.filterHalf]}
+                  placeholder="Bedrooms"
+                  placeholderTextColor={colors.textMuted}
+                  value={filters.bedrooms}
+                  onChangeText={(text) => setFilters((f) => ({ ...f, bedrooms: text }))}
+                  keyboardType="number-pad"
+                />
+              </View>
+              <View style={styles.row}>
+                <TextInput
+                  style={[styles.input, styles.filterHalf]}
+                  placeholder="Min rent (KES)"
+                  placeholderTextColor={colors.textMuted}
+                  value={filters.minRent}
+                  onChangeText={(text) => setFilters((f) => ({ ...f, minRent: text }))}
+                  keyboardType="number-pad"
+                />
+                <TextInput
+                  style={[styles.input, styles.filterHalf]}
+                  placeholder="Max rent (KES)"
+                  placeholderTextColor={colors.textMuted}
+                  value={filters.maxRent}
+                  onChangeText={(text) => setFilters((f) => ({ ...f, maxRent: text }))}
+                  keyboardType="number-pad"
+                />
+              </View>
+              <View style={styles.typeRow}>
+                {['apartment', 'house', 'studio', 'bedsitter', 'commercial'].map((type) => (
+                  <TouchableOpacity
+                    key={type}
+                    style={[
+                      styles.typeChip,
+                      filters.type === type && styles.typeChipActive,
+                    ]}
+                    onPress={() =>
+                      setFilters((f) => ({ ...f, type: f.type === type ? '' : type }))
+                    }
+                  >
+                    <Text
+                      style={[
+                        styles.typeChipText,
+                        filters.type === type && styles.typeChipTextActive,
+                      ]}
+                    >
+                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <Button
+                title="Apply Filters"
+                onPress={() => {
+                  setShowFilters(false);
+                  loadProperties();
+                }}
+                size="sm"
+                fullWidth
+              />
+            </View>
+          )}
         </View>
 
         <View style={styles.list}>
@@ -185,7 +290,9 @@ const PublicListingsScreen = ({ navigation }) => {
                   <View style={styles.amenitiesWrap}>
                     {property.amenities.slice(0, 4).map((a, i) => (
                       <View key={i} style={styles.amenityChip}>
-                        <Text style={styles.amenityChipText}>{a}</Text>
+                        <Text style={styles.amenityChipText}>
+                          {AMENITY_DISPLAY_MAP[typeof a === 'string' ? a : a?.name] || (typeof a === 'string' ? a : a?.name)}
+                        </Text>
                       </View>
                     ))}
                   </View>
@@ -349,6 +456,67 @@ const styles = StyleSheet.create({
     fontSize: typography.sm,
     color: colors.textSecondary,
     marginTop: spacing[1],
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  filterToggle: {
+    width: 44,
+    height: 44,
+    borderRadius: borderRadius.lg,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.slate[700],
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  filterToggleActive: {
+    borderColor: colors.gold,
+    backgroundColor: `${colors.gold}12`,
+  },
+  filtersCard: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing[4],
+    marginTop: spacing[4],
+    ...shadows.card,
+  },
+  row: {
+    flexDirection: 'row',
+    gap: spacing[3],
+    marginBottom: spacing[3],
+  },
+  filterHalf: {
+    flex: 1,
+    marginBottom: 0,
+  },
+  typeRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing[2],
+    marginBottom: spacing[4],
+  },
+  typeChip: {
+    backgroundColor: colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: colors.slate[700],
+    borderRadius: borderRadius.lg,
+    paddingVertical: spacing[2],
+    paddingHorizontal: spacing[3],
+  },
+  typeChipActive: {
+    borderColor: colors.gold,
+    backgroundColor: `${colors.gold}12`,
+  },
+  typeChipText: {
+    color: colors.textSecondary,
+    fontSize: typography.sm,
+  },
+  typeChipTextActive: {
+    color: colors.gold,
+    fontWeight: typography.fontWeight.semibold,
   },
   list: {
     paddingHorizontal: spacing[5],

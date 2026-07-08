@@ -39,6 +39,24 @@ const AMENITIES = [
   'Water Tank', 'Playground', 'Laundry',
 ];
 
+const AMENITY_MAP = {
+  Parking: 'parking',
+  Security: 'security',
+  WiFi: 'wifi',
+  Water: 'water_tank',
+  Electricity: 'electricity',
+  Generator: 'backup_generator',
+  Gym: 'gym',
+  Pool: 'pool',
+  Garden: 'garden',
+  Balcony: 'balcony',
+  Elevator: 'elevator',
+  CCTV: 'cctv',
+  'Water Tank': 'water_tank',
+  Playground: 'playground',
+  Laundry: 'laundry',
+};
+
 const DEFAULT_UTILITIES = [
   { name: 'Water', amount: '', enabled: false },
   { name: 'Security', amount: '', enabled: false },
@@ -176,48 +194,78 @@ const AddPropertyScreen = ({ navigation }) => {
       Alert.alert('Error', 'Property name is required');
       return;
     }
+    if (!form.address.area.trim()) {
+      Alert.alert('Error', 'Area / neighbourhood is required');
+      return;
+    }
     if (!form.address.street.trim()) {
       Alert.alert('Error', 'Street address is required');
       return;
     }
-    if (!form.rentAmount || isNaN(parseFloat(form.rentAmount))) {
-      Alert.alert('Error', 'Base rent is required');
+    if (!form.houseNumber.trim()) {
+      Alert.alert('Error', 'House / unit number is required');
+      return;
+    }
+    const bedrooms = parseInt(form.bedrooms, 10);
+    if (isNaN(bedrooms) || bedrooms < 0) {
+      Alert.alert('Error', 'Number of bedrooms is required');
+      return;
+    }
+    const bathrooms = parseInt(form.bathrooms, 10);
+    if (isNaN(bathrooms) || bathrooms < 0) {
+      Alert.alert('Error', 'Number of bathrooms is required');
+      return;
+    }
+    const rent = parseFloat(form.rentAmount);
+    if (isNaN(rent) || rent < 1000) {
+      Alert.alert('Error', 'Base rent is required and must be at least KES 1,000');
+      return;
+    }
+    const deposit = form.deposit ? parseFloat(form.deposit) : rent;
+    if (isNaN(deposit) || deposit < 0 || deposit > rent * 3) {
+      Alert.alert('Error', 'Deposit must be between 0 and 3 months\' rent');
+      return;
+    }
+    const description = form.description.trim();
+    if (description.length < 50) {
+      Alert.alert('Error', `Description must be at least 50 characters (currently ${description.length})`);
       return;
     }
 
     setSubmitting(true);
     try {
       const landlordId = user?._id || user?.id;
+      const geo = form.address.coordinates;
       const payload = {
         title: form.title.trim(),
-        description: form.description.trim(),
+        description,
         type: form.type,
-        bedrooms: parseInt(form.bedrooms) || 0,
-        bathrooms: parseInt(form.bathrooms) || 0,
-        squareFootage: parseFloat(form.squareFootage) || undefined,
+        bedrooms,
+        bathrooms,
+        squareFootage: form.squareFootage ? parseFloat(form.squareFootage) : undefined,
         address: {
           street: form.address.street.trim(),
           area: form.address.area.trim(),
           city: form.address.city.trim() || 'Nairobi',
           county: form.address.county.trim() || 'Nairobi',
-          coordinates: form.address.coordinates,
+          coordinates: geo ? { type: 'Point', coordinates: [geo.longitude, geo.latitude] } : undefined,
         },
         rent: {
-          amount: parseFloat(form.rentAmount),
+          amount: rent,
           currency: 'KES',
           paymentFrequency: 'monthly',
         },
-        deposit: parseFloat(form.deposit) || 0,
-        serviceCharge: parseFloat(form.serviceCharge) || 0,
+        deposit,
+        serviceCharge: form.serviceCharge ? parseFloat(form.serviceCharge) : 0,
         utilities: normalizeUtilities(),
         houses: [
           {
             houseNumber: form.houseNumber.trim(),
-            floor: form.floor.trim(),
+            floor: form.floor ? parseInt(form.floor, 10) : undefined,
             status: 'available',
           },
         ],
-        amenities: form.amenities,
+        amenities: form.amenities.map((a) => AMENITY_MAP[a] || a.toLowerCase().replace(/\s+/g, '_')),
         listing: { isListed: true },
         landlordId,
       };
@@ -225,16 +273,16 @@ const AddPropertyScreen = ({ navigation }) => {
       const response = await propertyService.create(payload);
       const data = response?.data ?? response;
 
-      if (data?.success || data?.property || data?._id) {
+      if (data?.success || data?.property || data?._id || data?.data?._id) {
         Alert.alert('Success', 'Property listed successfully!', [
           { text: 'OK', onPress: () => navigation.goBack() },
         ]);
       } else {
-        Alert.alert('Error', data?.message || 'Failed to add property');
+        Alert.alert('Error', data?.message || data?.error || 'Failed to add property');
       }
     } catch (error) {
       console.error('Add property error:', error);
-      Alert.alert('Error', error?.response?.data?.message || error?.message || 'Failed to add property');
+      Alert.alert('Error', error?.response?.data?.message || error?.response?.data?.error || error?.message || 'Failed to add property');
     } finally {
       setSubmitting(false);
     }
@@ -311,7 +359,7 @@ const AddPropertyScreen = ({ navigation }) => {
         <View style={styles.row}>
           <TextInput
             style={[styles.input, styles.half]}
-            placeholder="Area"
+            placeholder="Area *"
             placeholderTextColor={colors.textMuted}
             value={form.address.area}
             onChangeText={(text) => updateAddress({ area: text })}
@@ -387,7 +435,7 @@ const AddPropertyScreen = ({ navigation }) => {
         <View style={styles.row}>
           <TextInput
             style={[styles.input, styles.third]}
-            placeholder="Beds"
+            placeholder="Beds *"
             placeholderTextColor={colors.textMuted}
             value={form.bedrooms}
             onChangeText={(text) => updateField('bedrooms', text)}
@@ -395,7 +443,7 @@ const AddPropertyScreen = ({ navigation }) => {
           />
           <TextInput
             style={[styles.input, styles.third]}
-            placeholder="Baths"
+            placeholder="Baths *"
             placeholderTextColor={colors.textMuted}
             value={form.bathrooms}
             onChangeText={(text) => updateField('bathrooms', text)}
@@ -415,7 +463,7 @@ const AddPropertyScreen = ({ navigation }) => {
         <View style={styles.row}>
           <TextInput
             style={[styles.input, styles.half]}
-            placeholder="House / Unit Number"
+            placeholder="House / Unit Number *"
             placeholderTextColor={colors.textMuted}
             value={form.houseNumber}
             onChangeText={(text) => updateField('houseNumber', text)}
@@ -443,7 +491,7 @@ const AddPropertyScreen = ({ navigation }) => {
         <View style={styles.row}>
           <TextInput
             style={[styles.input, styles.half]}
-            placeholder="Deposit (KES)"
+            placeholder="Deposit (KES) — defaults to rent"
             placeholderTextColor={colors.textMuted}
             value={form.deposit}
             onChangeText={(text) => updateField('deposit', text)}
@@ -541,7 +589,7 @@ const AddPropertyScreen = ({ navigation }) => {
         </View>
 
         {/* Description */}
-        <Text style={styles.label}>Description</Text>
+        <Text style={styles.label}>Description * (min 50 characters)</Text>
         <TextInput
           style={[styles.input, styles.textArea]}
           placeholder="Describe the property..."

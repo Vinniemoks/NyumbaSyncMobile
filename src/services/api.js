@@ -82,7 +82,7 @@ export const propertyService = {
   }),
 
   // Public listings (unauthenticated / tenant browsing)
-  getPublic: () => apiClient.get('/v2/properties/public'),
+  getPublic: (params = {}) => apiClient.get('/v2/properties/public', { params }),
   getPublicById: (id) => apiClient.get(`/v2/properties/${id}/public`),
 
   // Express interest in a public listing
