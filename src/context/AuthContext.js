@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiClient } from '../services/api';
+import { setSecure, getSecure, removeSecure, setPlain, getPlain, removePlain } from '../utils/secureStorage';
 
 const AuthContext = createContext();
 
@@ -15,8 +15,8 @@ export const AuthProvider = ({ children }) => {
 
   const loadStoredAuth = async () => {
     try {
-      const storedToken = await AsyncStorage.getItem('nyumbasync_auth_token');
-      const storedUser = await AsyncStorage.getItem('nyumbasync_user_data');
+      const storedToken = await getSecure('nyumbasync_auth_token');
+      const storedUser = await getPlain('nyumbasync_user_data');
       
       if (storedToken && storedUser) {
         setToken(storedToken);
@@ -36,16 +36,16 @@ export const AuthProvider = ({ children }) => {
       const response = await apiClient.post('/auth/login', { identifier: email, password });
       const { token: authToken, refreshToken, user: userData } = response.data;
       
-      await AsyncStorage.setItem('nyumbasync_auth_token', authToken);
+      await setSecure('nyumbasync_auth_token', authToken);
       if (refreshToken) {
-        await AsyncStorage.setItem('nyumbasync_refresh_token', refreshToken);
+        await setSecure('nyumbasync_refresh_token', refreshToken);
       }
-      await AsyncStorage.setItem('nyumbasync_user_data', JSON.stringify(userData));
-      
+      await setPlain('nyumbasync_user_data', JSON.stringify(userData));
+
       setToken(authToken);
       setUser(userData);
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
-      
+
       return { success: true, user: userData };
     } catch (error) {
       return { success: false, error: error.response?.data?.message || 'Login failed' };
@@ -59,12 +59,12 @@ export const AuthProvider = ({ children }) => {
       const response = await apiClient.post('/auth/signup', userData);
       const { token: authToken, refreshToken, user: newUser } = response.data;
       
-      await AsyncStorage.setItem('nyumbasync_auth_token', authToken);
+      await setSecure('nyumbasync_auth_token', authToken);
       if (refreshToken) {
-        await AsyncStorage.setItem('nyumbasync_refresh_token', refreshToken);
+        await setSecure('nyumbasync_refresh_token', refreshToken);
       }
-      await AsyncStorage.setItem('nyumbasync_user_data', JSON.stringify(newUser));
-      
+      await setPlain('nyumbasync_user_data', JSON.stringify(newUser));
+
       setToken(authToken);
       setUser(newUser);
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
@@ -78,15 +78,15 @@ export const AuthProvider = ({ children }) => {
   const setAuthSession = async ({ token: authToken, refreshToken, user: userData }) => {
     try {
       if (authToken) {
-        await AsyncStorage.setItem('nyumbasync_auth_token', authToken);
+        await setSecure('nyumbasync_auth_token', authToken);
         apiClient.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
         setToken(authToken);
       }
       if (refreshToken) {
-        await AsyncStorage.setItem('nyumbasync_refresh_token', refreshToken);
+        await setSecure('nyumbasync_refresh_token', refreshToken);
       }
       if (userData) {
-        await AsyncStorage.setItem('nyumbasync_user_data', JSON.stringify(userData));
+        await setPlain('nyumbasync_user_data', JSON.stringify(userData));
         setUser(userData);
       }
       return { success: true, user: userData };
@@ -98,11 +98,9 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await AsyncStorage.multiRemove([
-        'nyumbasync_auth_token',
-        'nyumbasync_refresh_token',
-        'nyumbasync_user_data',
-      ]);
+      await removeSecure('nyumbasync_auth_token');
+      await removeSecure('nyumbasync_refresh_token');
+      await removePlain('nyumbasync_user_data');
       setToken(null);
       setUser(null);
       delete apiClient.defaults.headers.common['Authorization'];
