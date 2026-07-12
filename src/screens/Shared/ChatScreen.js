@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as DocumentPicker from 'expo-document-picker';
 import { messageService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import websocketService from '../../services/websocket';
@@ -237,6 +238,43 @@ const ChatScreen = ({ route, navigation }) => {
     }
   };
 
+  const handleAttach = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({ copyToCacheDirectory: true });
+      if (result.canceled || !result.assets?.length) return;
+
+      const file = result.assets[0];
+      const attachment = {
+        name: file.name,
+        uri: file.uri,
+        mimeType: file.mimeType,
+        size: file.size,
+      };
+      const text = `📎 ${file.name}`;
+      const timestamp = new Date().toISOString();
+
+      websocketService.sendMessage(conversation.id, { text, attachment, timestamp });
+      setMessages(prev => [
+        ...prev,
+        { id: Date.now(), text, attachment, senderId: user?.id, timestamp, read: false },
+      ]);
+      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+
+      try {
+        await messageService.sendMessage({
+          conversationId: conversation.id,
+          senderId: user?.id,
+          text,
+          attachment,
+        });
+      } catch (error) {
+        console.error('Failed to persist attachment message:', error);
+      }
+    } catch (error) {
+      console.error('Attachment picker failed:', error);
+    }
+  };
+
   const handleInputChange = (text) => {
     setInputText(text);
 
@@ -372,7 +410,7 @@ const ChatScreen = ({ route, navigation }) => {
 
       {/* Input Bar */}
       <View style={styles.inputContainer}>
-        <TouchableOpacity style={styles.attachButton}>
+        <TouchableOpacity style={styles.attachButton} onPress={handleAttach}>
           <Ionicons name="add-circle-outline" size={28} color={colors.info} />
         </TouchableOpacity>
 

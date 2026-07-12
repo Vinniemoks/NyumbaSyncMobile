@@ -3,12 +3,15 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
+import MorphingBackground from '../../components/MorphingBackground';
 
 const AgentHomeScreen = ({ navigation }) => {
   const { user } = useAuth();
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
+      <MorphingBackground />
+      <ScrollView style={{ flex: 1 }}>
       <View style={styles.header}>
         <Text style={styles.greeting}>Welcome back,</Text>
         <Text style={styles.userName}>{user?.firstName || 'Agent'}</Text>
@@ -51,11 +54,11 @@ const AgentHomeScreen = ({ navigation }) => {
             <Ionicons name="people-outline" size={32} color={colors.success} />
             <Text style={styles.actionCardText}>Clients</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionCard}>
+          <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('Listings')}>
             <Ionicons name="add-circle-outline" size={32} color={colors.warning} />
             <Text style={styles.actionCardText}>Add Listing</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionCard}>
+          <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('Clients')}>
             <Ionicons name="calendar-outline" size={32} color="#8B5CF6" />
             <Text style={styles.actionCardText}>Viewings</Text>
           </TouchableOpacity>
@@ -94,6 +97,7 @@ const AgentHomeScreen = ({ navigation }) => {
         ))}
       </View>
     </ScrollView>
+    </View>
   );
 };
 

@@ -9,6 +9,8 @@ import {
   Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
 import { analyticsService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
@@ -24,6 +26,79 @@ const AnalyticsScreen = () => {
   useEffect(() => {
     loadAnalytics();
   }, [period]);
+
+  // Builds a branded PDF for the requested report type from the loaded stats
+  // and opens the system share sheet (expo-print + expo-sharing).
+  const exportReport = async (type) => {
+    if (!stats) return;
+    const fmt = (n) => `KSh ${Number(n || 0).toLocaleString()}`;
+    const row = (label, value) =>
+      `<tr><td style="padding:6px 12px;border-bottom:1px solid #E2E8F0;">${label}</td>
+        <td style="padding:6px 12px;border-bottom:1px solid #E2E8F0;text-align:right;font-weight:600;">${value}</td></tr>`;
+
+    const sections = {
+      financial: {
+        title: 'Financial Report',
+        rows: [
+          row('Total Revenue', fmt(stats.totalRevenue)),
+          row('Total Expenses', fmt(stats.totalExpenses)),
+          row('Net Income', fmt(stats.netIncome)),
+          row('Pending Payments', stats.pendingPayments ?? 0),
+          ...(stats.revenueByMonth || []).map((m) => row(`Revenue — ${m.month}`, fmt(m.amount))),
+          ...(stats.expensesByCategory || []).map((c) =>
+            row(`Expenses — ${c.category}`, `${fmt(c.amount)} (${c.percentage}%)`)
+          ),
+        ],
+      },
+      occupancy: {
+        title: 'Occupancy Report',
+        rows: [
+          row('Occupancy Rate', `${stats.occupancyRate ?? 0}%`),
+          row('Total Properties', stats.totalProperties ?? 0),
+          row('Total Units', stats.totalUnits ?? 0),
+          row('Occupied Units', stats.occupiedUnits ?? 0),
+          row('Vacant Units', stats.vacantUnits ?? 0),
+        ],
+      },
+      tenant: {
+        title: 'Tenant Report',
+        rows: [
+          row('Total Tenants', stats.totalTenants ?? 0),
+          row('Active Tenants', stats.activeTenants ?? 0),
+          row('Pending Payments', stats.pendingPayments ?? 0),
+        ],
+      },
+      maintenance: {
+        title: 'Maintenance Report',
+        rows: [
+          row('Open Requests', stats.maintenanceRequests ?? 0),
+          row('Pending Assignment', stats.pendingMaintenance ?? 0),
+        ],
+      },
+    };
+
+    const report = sections[type];
+    if (!report) return;
+
+    try {
+      const html = `
+        <html><body style="font-family:-apple-system,Helvetica,Arial,sans-serif;color:#0F172A;padding:24px;">
+          <h1 style="color:#14532D;margin-bottom:4px;">NyumbaSync</h1>
+          <h2 style="margin-top:0;">${report.title}</h2>
+          <p style="color:#64748B;">Generated ${new Date().toLocaleString()} · Period: ${period}</p>
+          <table style="width:100%;border-collapse:collapse;margin-top:16px;">${report.rows.join('')}</table>
+        </body></html>`;
+      const { uri } = await Print.printToFileAsync({ html });
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(uri, {
+          mimeType: 'application/pdf',
+          dialogTitle: `${report.title} — NyumbaSync`,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to export report:', error);
+    }
+  };
 
   const loadAnalytics = async () => {
     setLoading(true);
@@ -260,19 +335,19 @@ const AnalyticsScreen = () => {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Export Reports</Text>
         <View style={styles.actionsGrid}>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => exportReport('financial')}>
             <Ionicons name="document-text" size={24} color={colors.info} />
             <Text style={styles.actionButtonText}>Financial Report</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => exportReport('occupancy')}>
             <Ionicons name="bar-chart" size={24} color={colors.success} />
             <Text style={styles.actionButtonText}>Occupancy Report</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => exportReport('tenant')}>
             <Ionicons name="people" size={24} color={colors.warning} />
             <Text style={styles.actionButtonText}>Tenant Report</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => exportReport('maintenance')}>
             <Ionicons name="construct" size={24} color={colors.danger} />
             <Text style={styles.actionButtonText}>Maintenance Report</Text>
           </TouchableOpacity>

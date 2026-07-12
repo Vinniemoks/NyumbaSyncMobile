@@ -3,12 +3,15 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
+import MorphingBackground from '../../components/MorphingBackground';
 
 const AdminHomeScreen = ({ navigation }) => {
   const { user } = useAuth();
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
+      <MorphingBackground />
+      <ScrollView style={{ flex: 1 }}>
       <View style={styles.header}>
         <Text style={styles.greeting}>System Administrator</Text>
         <Text style={styles.userName}>{user?.firstName || 'Admin'}</Text>
@@ -109,6 +112,7 @@ const AdminHomeScreen = ({ navigation }) => {
         ))}
       </View>
     </ScrollView>
+    </View>
   );
 };
 

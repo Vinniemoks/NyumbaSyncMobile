@@ -3,12 +3,15 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
+import MorphingBackground from '../../components/MorphingBackground';
 
 const VendorHomeScreen = ({ navigation }) => {
   const { user } = useAuth();
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
+      <MorphingBackground />
+      <ScrollView style={{ flex: 1 }}>
       <View style={styles.header}>
         <Text style={styles.greeting}>Welcome back,</Text>
         <Text style={styles.userName}>{user?.firstName || 'Vendor'}</Text>
@@ -81,7 +84,7 @@ const VendorHomeScreen = ({ navigation }) => {
           { id: 2, title: 'AC Maintenance', property: 'Westlands Tower', unit: 'B-205', status: 'pending', amount: 8000 },
           { id: 3, title: 'Electrical Work', property: 'Kilimani Plaza', unit: 'C-302', status: 'completed', amount: 12000 },
         ].map((job) => (
-          <TouchableOpacity key={job.id} style={styles.jobCard}>
+          <TouchableOpacity key={job.id} style={styles.jobCard} onPress={() => navigation.navigate('Jobs')}>
             <View style={styles.jobHeader}>
               <Text style={styles.jobTitle}>{job.title}</Text>
               <View style={[
@@ -114,6 +117,7 @@ const VendorHomeScreen = ({ navigation }) => {
         ))}
       </View>
     </ScrollView>
+    </View>
   );
 };
 

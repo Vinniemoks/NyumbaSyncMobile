@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { analyticsService } from '../../services/api';
 import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../../config/theme';
+import MorphingBackground from '../../components/MorphingBackground';
 
 const LandlordHomeScreen = ({ navigation }) => {
   const { user } = useAuth();
@@ -49,8 +50,10 @@ const LandlordHomeScreen = ({ navigation }) => {
   }
 
   return (
+    <View style={commonStyles.container}>
+      <MorphingBackground />
     <ScrollView
-      style={commonStyles.container}
+      style={{ flex: 1 }}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.textPrimary} />
       }
@@ -119,6 +122,7 @@ const LandlordHomeScreen = ({ navigation }) => {
         </View>
       </View>
     </ScrollView>
+    </View>
   );
 };
 

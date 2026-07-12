@@ -14,6 +14,7 @@ import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../services/api';
 import { normalizeKenyanPhone } from '../utils/phone';
 import { colors, spacing, typography, commonStyles } from '../config/theme';
+import MorphingBackground from '../components/MorphingBackground';
 
 const ROLE_ROUTES = {
   landlord: 'LandlordDashboard',
@@ -105,6 +106,7 @@ const LoginScreen = ({ navigation }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={commonStyles.container}
     >
+      <MorphingBackground />
       <View style={commonStyles.content}>
         <Logo size={80} showWordmark style={{ marginBottom: spacing[6] }} />
         <Text style={commonStyles.title}>Welcome Back</Text>

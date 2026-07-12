@@ -34,6 +34,35 @@ const AgentClientsScreen = () => {
     setShowClientModal(true);
   };
 
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newClient, setNewClient] = useState({ name: '', email: '', phone: '' });
+
+  const handleAddClient = () => {
+    const name = newClient.name.trim();
+    if (!name) {
+      Alert.alert('Missing name', 'Please enter the client’s name.');
+      return;
+    }
+    if (!newClient.email.trim() && !newClient.phone.trim()) {
+      Alert.alert('Missing contact', 'Add an email or phone number so you can reach this client.');
+      return;
+    }
+    setClients((prev) => [
+      {
+        id: Date.now(),
+        name,
+        email: newClient.email.trim(),
+        phone: newClient.phone.trim(),
+        status: 'lead',
+        properties: 0,
+        joined: new Date().toISOString().slice(0, 10),
+      },
+      ...prev,
+    ]);
+    setNewClient({ name: '', email: '', phone: '' });
+    setShowAddModal(false);
+  };
+
   const filteredClients = clients.filter(client => {
     const matchesSearch = client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          client.email.toLowerCase().includes(searchQuery.toLowerCase());
@@ -99,9 +128,58 @@ const AgentClientsScreen = () => {
         ))}
       </ScrollView>
 
-      <TouchableOpacity style={styles.fab}>
+      <TouchableOpacity style={styles.fab} onPress={() => setShowAddModal(true)}>
         <Ionicons name="add" size={32} color="#fff" />
       </TouchableOpacity>
+
+      <Modal
+        visible={showAddModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowAddModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Add Client</Text>
+            <Text style={styles.detailLabel}>Name *</Text>
+            <TextInput
+              style={styles.addInput}
+              placeholder="Full name"
+              placeholderTextColor="#64748B"
+              value={newClient.name}
+              onChangeText={(name) => setNewClient((c) => ({ ...c, name }))}
+            />
+            <Text style={styles.detailLabel}>Email</Text>
+            <TextInput
+              style={styles.addInput}
+              placeholder="client@example.com"
+              placeholderTextColor="#64748B"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={newClient.email}
+              onChangeText={(email) => setNewClient((c) => ({ ...c, email }))}
+            />
+            <Text style={styles.detailLabel}>Phone</Text>
+            <TextInput
+              style={styles.addInput}
+              placeholder="+2547..."
+              placeholderTextColor="#64748B"
+              keyboardType="phone-pad"
+              value={newClient.phone}
+              onChangeText={(phone) => setNewClient((c) => ({ ...c, phone }))}
+            />
+            <TouchableOpacity style={styles.closeButton} onPress={handleAddClient}>
+              <Text style={styles.closeButtonText}>Save Client</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.closeButton, { backgroundColor: 'transparent' }]}
+              onPress={() => setShowAddModal(false)}
+            >
+              <Text style={styles.closeButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       <Modal
         visible={showClientModal}
@@ -182,6 +260,7 @@ const styles = StyleSheet.create({
   detailRow: { paddingVertical: spacing[3], borderBottomWidth: 1, borderBottomColor: '#1E293B' },
   detailLabel: { fontSize: typography.xs, color: colors.textSecondary, marginBottom: spacing[1] },
   detailValue: { fontSize: typography.sm, color: colors.textPrimary, fontWeight: typography.fontWeight.medium },
+  addInput: { backgroundColor: colors.bg, borderRadius: borderRadius.lg, padding: spacing[3], color: colors.textPrimary, fontSize: typography.base, marginBottom: spacing[3], borderWidth: 1, borderColor: '#1E293B' },
   closeButton: { backgroundColor: colors.darkBlue,
     borderRadius: borderRadius.lg, padding: spacing[4], alignItems: 'center', marginTop: spacing[5] },
   closeButtonText: { color: colors.gold,

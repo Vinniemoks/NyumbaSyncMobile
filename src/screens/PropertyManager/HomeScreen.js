@@ -3,12 +3,15 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
+import MorphingBackground from '../../components/MorphingBackground';
 
 const PropertyManagerHomeScreen = ({ navigation }) => {
   const { user } = useAuth();
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
+      <MorphingBackground />
+      <ScrollView style={{ flex: 1 }}>
       <View style={styles.header}>
         <Text style={styles.greeting}>Welcome back,</Text>
         <Text style={styles.userName}>{user?.firstName || 'Property Manager'}</Text>
@@ -94,6 +97,7 @@ const PropertyManagerHomeScreen = ({ navigation }) => {
         ))}
       </View>
     </ScrollView>
+    </View>
   );
 };
 

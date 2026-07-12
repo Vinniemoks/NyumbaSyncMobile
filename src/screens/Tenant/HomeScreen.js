@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { paymentService, maintenanceService, tenantService } from '../../services/api';
 import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../../config/theme';
+import MorphingBackground from '../../components/MorphingBackground';
 
 const StatCard = ({ title, value, subtitle, icon, color }) => (
   <View style={[commonStyles.statCardFull, { borderLeftColor: color }]}>
@@ -147,8 +148,10 @@ const TenantHomeScreen = ({ navigation }) => {
   };
 
   return (
+    <View style={commonStyles.container}>
+      <MorphingBackground />
     <ScrollView
-      style={commonStyles.container}
+      style={{ flex: 1 }}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
@@ -273,6 +276,7 @@ const TenantHomeScreen = ({ navigation }) => {
         )}
       </View>
     </ScrollView>
+    </View>
   );
 };
 

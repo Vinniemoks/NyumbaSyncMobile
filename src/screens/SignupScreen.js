@@ -16,6 +16,7 @@ import Button from '../components/Button';
 import { apiClient } from '../services/api';
 import { API_CONFIG } from '../config/apiConfig';
 import { colors, spacing, typography, shadows, borderRadius } from '../config/theme';
+import MorphingBackground from '../components/MorphingBackground';
 
 const SignupScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -105,6 +106,7 @@ const SignupScreen = ({ navigation }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
+      <MorphingBackground />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.content}>
           <Logo size={76} showWordmark style={{ marginBottom: spacing[6] }} />

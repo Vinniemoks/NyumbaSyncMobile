@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../config/theme';
 import Logo from '../components/Logo';
 import Button from '../components/Button';
+import MorphingBackground from '../components/MorphingBackground';
 
 const { width } = Dimensions.get('window');
 
@@ -59,6 +60,7 @@ const LandingScreen = ({ navigation }) => {
 
   return (
     <View style={commonStyles.container}>
+      <MorphingBackground />
       {/* Floating Header */}
       <Animated.View style={[styles.floatingHeader, { opacity: headerOpacity }]}>
         <Text style={styles.floatingHeaderText}>NyumbaSync</Text>
