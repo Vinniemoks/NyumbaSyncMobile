@@ -1,6 +1,9 @@
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_CONFIG } from '../config/apiConfig';
+// Tokens live in the OS keystore (SecureStore), not AsyncStorage — the request
+// interceptor must read from the same place AuthContext writes them, or every
+// request would go out unauthenticated (assessment H13).
+import { getSecure, setSecure, removeSecure, removePlain } from '../utils/secureStorage';
 
 export const apiClient = axios.create({
   baseURL: API_CONFIG.BASE_URL,
@@ -13,7 +16,7 @@ export const apiClient = axios.create({
 // Request interceptor — attach auth token from AsyncStorage on every request
 apiClient.interceptors.request.use(
   async (config) => {
-    const token = await AsyncStorage.getItem('nyumbasync_auth_token');
+    const token = await getSecure('nyumbasync_auth_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -30,24 +33,22 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        const refreshToken = await AsyncStorage.getItem('nyumbasync_refresh_token');
+        const refreshToken = await getSecure('nyumbasync_refresh_token');
         if (!refreshToken) {
           throw new Error('No refresh token available');
         }
         const { data } = await axios.post(`${API_CONFIG.BASE_URL}/auth/refresh`, { refreshToken });
         if (data.token) {
-          await AsyncStorage.setItem('nyumbasync_auth_token', data.token);
+          await setSecure('nyumbasync_auth_token', data.token);
           apiClient.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
           originalRequest.headers.Authorization = `Bearer ${data.token}`;
         }
         return apiClient(originalRequest);
       } catch (refreshError) {
-        // Clear auth and let the caller handle redirect to login
-        await AsyncStorage.multiRemove([
-          'nyumbasync_auth_token',
-          'nyumbasync_refresh_token',
-          'nyumbasync_user_data',
-        ]);
+        // Clear auth from both stores and let the caller redirect to login.
+        await removeSecure('nyumbasync_auth_token');
+        await removeSecure('nyumbasync_refresh_token');
+        await removePlain('nyumbasync_user_data');
         delete apiClient.defaults.headers.common['Authorization'];
         return Promise.reject(refreshError);
       }
