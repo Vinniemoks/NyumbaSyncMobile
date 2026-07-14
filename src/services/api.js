@@ -68,11 +68,11 @@ export const propertyService = {
   // Get properties by landlord
   getByLandlord: () => apiClient.get('/properties/landlord'),
 
-  // Property units management
-  getUnits: (propertyId) => apiClient.get(`/properties/${propertyId}/units`),
-  addUnit: (propertyId, data) => apiClient.post(`/properties/${propertyId}/units`, data),
-  updateUnit: (propertyId, unitId, data) => apiClient.put(`/properties/${propertyId}/units/${unitId}`, data),
-  deleteUnit: (propertyId, unitId) => apiClient.delete(`/properties/${propertyId}/units/${unitId}`),
+  // Property units live on the property document as houses[] (v2 API).
+  // Read the property and PUT the full houses array back to mutate units —
+  // there are no per-unit REST endpoints on the backend.
+  getV2ById: (id) => apiClient.get(`/v2/properties/${id}`),
+  updateV2: (id, data) => apiClient.put(`/v2/properties/${id}`, data),
 
   // Property statistics
   getStats: (propertyId) => apiClient.get(`/properties/${propertyId}/stats`),

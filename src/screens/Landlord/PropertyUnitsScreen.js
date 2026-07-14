@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,211 +12,217 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { propertyService } from '../../services/api';
-import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
+import { colors, spacing, typography, borderRadius } from '../../config/theme';
+
+// Units are the `houses[]` array embedded on the property document — the same
+// contract the web app uses. Every mutation round-trips the full array through
+// PUT /v2/properties/:id (the backend derives property availability from it).
+
+const UNIT_TYPES = [
+  { value: 'studio', label: 'Studio' },
+  { value: 'bedsitter', label: 'Bedsitter' },
+  { value: '1br', label: '1BR' },
+  { value: '2br', label: '2BR' },
+  { value: '3br', label: '3BR' },
+  { value: '4br', label: '4BR+' },
+  { value: 'other', label: 'Other' },
+];
+
+const UNIT_TYPE_LABELS = UNIT_TYPES.reduce((acc, t) => ({ ...acc, [t.value]: t.label }), {});
+
+const STATUSES = [
+  { value: 'available', label: 'Vacant' },
+  { value: 'occupied', label: 'Occupied' },
+  { value: 'maintenance', label: 'Maintenance' },
+];
+
+const STATUS_COLORS = {
+  available: colors.success,
+  occupied: colors.info || '#3B82F6',
+  maintenance: colors.warning,
+};
+
+const STATUS_ICONS = {
+  available: 'home-outline',
+  occupied: 'people',
+  maintenance: 'construct',
+};
+
+const floorLabel = (floor) => {
+  if (floor === null || floor === undefined || floor === '') return 'Floor not set';
+  if (Number(floor) === 0) return 'Ground Floor';
+  return `Floor ${floor}`;
+};
+
+// Strip a house down to the fields the API accepts before a full-array PUT.
+const toPayloadHouse = (h) => ({
+  houseNumber: h.houseNumber || h.number,
+  floor: h.floor === '' || h.floor == null ? undefined : parseInt(h.floor),
+  unitType: h.unitType || undefined,
+  rent: h.rent === '' || h.rent == null ? undefined : parseFloat(h.rent),
+  status: h.status || 'available',
+  tenant: h.tenant,
+  lastPayment: h.lastPayment,
+});
+
+const EMPTY_FORM = { houseNumber: '', floor: '', unitType: '', rent: '', status: 'available' };
+const EMPTY_BULK = { count: '5', prefix: '', startNumber: '1', floor: '', unitType: '', rent: '' };
 
 const PropertyUnitsScreen = ({ route, navigation }) => {
   const { propertyId, propertyName } = route.params;
-  const [units, setUnits] = useState([]);
+  const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedUnit, setSelectedUnit] = useState(null);
-  const [filterStatus, setFilterStatus] = useState('all'); // all, vacant, occupied, maintenance
-  const [formData, setFormData] = useState({
-    unitNumber: '',
-    floor: '',
-    bedrooms: '',
-    bathrooms: '',
-    squareFeet: '',
-    rent: '',
-    status: 'vacant',
-    description: '',
-    features: [],
-  });
+  const [saving, setSaving] = useState(false);
+  const [modal, setModal] = useState(null); // null | 'add' | 'edit' | 'bulk'
+  const [editIndex, setEditIndex] = useState(null);
+  const [formData, setFormData] = useState(EMPTY_FORM);
+  const [bulkData, setBulkData] = useState(EMPTY_BULK);
 
-  const unitStatuses = ['vacant', 'occupied', 'maintenance', 'reserved'];
-  const featuresList = [
-    'Balcony',
-    'Parking',
-    'Storage',
-    'Garden',
-    'Furnished',
-    'Pet Friendly',
-    'AC',
-    'Heating',
-  ];
+  const houses = property?.houses || [];
 
-  useEffect(() => {
-    loadUnits();
-  }, []);
-
-  const loadUnits = async () => {
-    setLoading(true);
+  const loadProperty = useCallback(async () => {
     try {
-      const response = await propertyService.getUnits(propertyId);
-      if (response.data.success) {
-        setUnits(response.data.units);
-      }
+      const response = await propertyService.getV2ById(propertyId);
+      setProperty(response.data.data);
     } catch (error) {
-      console.error('Error loading units:', error);
+      console.error('Error loading property units:', error);
       Alert.alert('Error', 'Failed to load units');
     } finally {
       setLoading(false);
     }
+  }, [propertyId]);
+
+  useEffect(() => {
+    loadProperty();
+  }, [loadProperty]);
+
+  const saveHouses = async (nextHouses, successMessage) => {
+    if (nextHouses.length === 0) {
+      Alert.alert('Error', 'A property must have at least one unit');
+      return false;
+    }
+    try {
+      setSaving(true);
+      const response = await propertyService.updateV2(propertyId, {
+        houses: nextHouses.map(toPayloadHouse),
+      });
+      setProperty(response.data.data);
+      if (successMessage) Alert.alert('Success', successMessage);
+      return true;
+    } catch (error) {
+      Alert.alert('Error', error.response?.data?.error || 'Failed to save units');
+      return false;
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleAddUnit = async () => {
-    if (!formData.unitNumber || !formData.rent) {
-      Alert.alert('Error', 'Please fill in required fields');
+  const closeModal = () => {
+    setModal(null);
+    setEditIndex(null);
+    setFormData(EMPTY_FORM);
+  };
+
+  const openAdd = () => {
+    setFormData(EMPTY_FORM);
+    setModal('add');
+  };
+
+  const openEdit = (index) => {
+    const h = houses[index];
+    setEditIndex(index);
+    setFormData({
+      houseNumber: h.houseNumber || h.number || '',
+      floor: h.floor === null || h.floor === undefined ? '' : String(h.floor),
+      unitType: h.unitType || '',
+      rent: h.rent === null || h.rent === undefined ? '' : String(h.rent),
+      status: h.status || 'available',
+    });
+    setModal('edit');
+  };
+
+  const handleSubmitUnit = async () => {
+    if (!formData.houseNumber.trim()) {
+      Alert.alert('Error', 'Unit number is required');
       return;
     }
-
-    try {
-      const response = await propertyService.addUnit(propertyId, {
-        ...formData,
-        rent: parseFloat(formData.rent),
-        bedrooms: parseInt(formData.bedrooms) || 0,
-        bathrooms: parseInt(formData.bathrooms) || 0,
-        floor: parseInt(formData.floor) || 0,
-        squareFeet: parseInt(formData.squareFeet) || 0,
-      });
-
-      if (response.data.success) {
-        Alert.alert('Success', 'Unit added successfully!');
-        setShowAddModal(false);
-        resetForm();
-        loadUnits();
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Failed to add unit. Please try again.');
+    let nextHouses;
+    if (modal === 'edit') {
+      nextHouses = houses.map((h, i) =>
+        i === editIndex
+          ? {
+              ...h,
+              ...formData,
+              // Vacating a unit detaches its tenant; the backend enforces the
+              // same rule, mirror it here so the UI updates match.
+              tenant: formData.status === 'available' ? undefined : h.tenant,
+            }
+          : h
+      );
+    } else {
+      nextHouses = [...houses, { ...formData }];
     }
+    const ok = await saveHouses(nextHouses, modal === 'edit' ? 'Unit updated' : 'Unit added');
+    if (ok) closeModal();
   };
 
-  const handleUpdateUnit = async () => {
-    if (!formData.unitNumber || !formData.rent) {
-      Alert.alert('Error', 'Please fill in required fields');
-      return;
-    }
-
-    try {
-      const response = await propertyService.updateUnit(propertyId, selectedUnit.id, {
-        ...formData,
-        rent: parseFloat(formData.rent),
-        bedrooms: parseInt(formData.bedrooms) || 0,
-        bathrooms: parseInt(formData.bathrooms) || 0,
-        floor: parseInt(formData.floor) || 0,
-        squareFeet: parseInt(formData.squareFeet) || 0,
-      });
-
-      if (response.data.success) {
-        Alert.alert('Success', 'Unit updated successfully!');
-        setShowEditModal(false);
-        resetForm();
-        loadUnits();
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Failed to update unit. Please try again.');
-    }
-  };
-
-  const handleDeleteUnit = (unit) => {
+  const handleDeleteUnit = () => {
+    const unit = houses[editIndex];
     Alert.alert(
       'Delete Unit',
-      `Are you sure you want to delete unit ${unit.unitNumber}?`,
+      `Are you sure you want to delete unit ${unit.houseNumber || unit.number}?`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            try {
-              await propertyService.deleteUnit(propertyId, unit.id);
-              Alert.alert('Success', 'Unit deleted successfully');
-              loadUnits();
-            } catch (error) {
-              Alert.alert('Error', 'Failed to delete unit');
-            }
+            const ok = await saveHouses(
+              houses.filter((_, i) => i !== editIndex),
+              'Unit deleted'
+            );
+            if (ok) closeModal();
           },
         },
       ]
     );
   };
 
-  const handleEditUnit = (unit) => {
-    setSelectedUnit(unit);
-    setFormData({
-      unitNumber: unit.unitNumber,
-      floor: unit.floor?.toString() || '',
-      bedrooms: unit.bedrooms?.toString() || '',
-      bathrooms: unit.bathrooms?.toString() || '',
-      squareFeet: unit.squareFeet?.toString() || '',
-      rent: unit.rent?.toString() || '',
-      status: unit.status,
-      description: unit.description || '',
-      features: unit.features || [],
-    });
-    setShowEditModal(true);
-  };
-
-  const resetForm = () => {
-    setFormData({
-      unitNumber: '',
-      floor: '',
-      bedrooms: '',
-      bathrooms: '',
-      squareFeet: '',
-      rent: '',
-      status: 'vacant',
-      description: '',
-      features: [],
-    });
-    setSelectedUnit(null);
-  };
-
-  const toggleFeature = (feature) => {
-    setFormData((prev) => ({
-      ...prev,
-      features: prev.features.includes(feature)
-        ? prev.features.filter((f) => f !== feature)
-        : [...prev.features, feature],
+  const handleBulkGenerate = async () => {
+    const count = Math.min(Math.max(parseInt(bulkData.count) || 0, 1), 200);
+    const start = parseInt(bulkData.startNumber) || 1;
+    const generated = Array.from({ length: count }, (_, i) => ({
+      houseNumber: `${bulkData.prefix.trim()}${start + i}`,
+      floor: bulkData.floor,
+      unitType: bulkData.unitType,
+      rent: bulkData.rent,
+      status: 'available',
     }));
+    const ok = await saveHouses([...houses, ...generated], `${count} units added`);
+    if (ok) {
+      setBulkData((prev) => ({ ...prev, startNumber: String(start + count) }));
+      setModal(null);
+    }
   };
 
-  const getStatusColor = (status) => {
-    const colors = {
-      vacant: '#10B981',
-      occupied: '#3B82F6',
-      maintenance: '#F59E0B',
-      reserved: '#8B5CF6',
-    };
-    return colors[status] || '#6B7280';
+  // Group by floor, top floor first, ground floor near the bottom,
+  // units without a floor last — reads like looking at the building.
+  const floors = [...new Set(houses.map((h) => (h.floor === undefined || h.floor === null ? null : h.floor)))].sort(
+    (a, b) => {
+      if (a === null) return 1;
+      if (b === null) return -1;
+      return b - a;
+    }
+  );
+
+  const stats = {
+    total: houses.length,
+    available: houses.filter((h) => h.status === 'available').length,
+    occupied: houses.filter((h) => h.status === 'occupied').length,
+    maintenance: houses.filter((h) => h.status === 'maintenance').length,
   };
-
-  const getStatusIcon = (status) => {
-    const icons = {
-      vacant: 'home-outline',
-      occupied: 'people',
-      maintenance: 'construct',
-      reserved: 'time',
-    };
-    return icons[status] || 'help-circle';
-  };
-
-  const filteredUnits = units.filter((unit) => {
-    return filterStatus === 'all' || unit.status === filterStatus;
-  });
-
-  const getStatsCounts = () => {
-    return {
-      total: units.length,
-      vacant: units.filter((u) => u.status === 'vacant').length,
-      occupied: units.filter((u) => u.status === 'occupied').length,
-      maintenance: units.filter((u) => u.status === 'maintenance').length,
-    };
-  };
-
-  const stats = getStatsCounts();
   const occupancyRate = stats.total > 0 ? Math.round((stats.occupied / stats.total) * 100) : 0;
+  const defaultRent = property?.rent?.amount;
 
   if (loading) {
     return (
@@ -235,10 +241,10 @@ const PropertyUnitsScreen = ({ route, navigation }) => {
             <Ionicons name="arrow-back" size={24} color="#F8FAFC" />
           </TouchableOpacity>
           <View style={styles.headerInfo}>
-            <Text style={styles.headerTitle}>{propertyName}</Text>
-            <Text style={styles.headerSubtitle}>{stats.total} units</Text>
+            <Text style={styles.headerTitle}>{property?.title || propertyName || 'Units'}</Text>
+            <Text style={styles.headerSubtitle}>{stats.total} units · {occupancyRate}% occupied</Text>
           </View>
-          <TouchableOpacity style={styles.addButton} onPress={() => setShowAddModal(true)}>
+          <TouchableOpacity style={styles.addButton} onPress={openAdd} disabled={saving}>
             <Ionicons name="add" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
@@ -250,162 +256,90 @@ const PropertyUnitsScreen = ({ route, navigation }) => {
             <Text style={styles.statLabel}>Occupancy</Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>{stats.vacant}</Text>
+            <Text style={[styles.statValue, { color: STATUS_COLORS.available }]}>{stats.available}</Text>
             <Text style={styles.statLabel}>Vacant</Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>{stats.occupied}</Text>
+            <Text style={[styles.statValue, { color: STATUS_COLORS.occupied }]}>{stats.occupied}</Text>
             <Text style={styles.statLabel}>Occupied</Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>{stats.maintenance}</Text>
+            <Text style={[styles.statValue, { color: STATUS_COLORS.maintenance }]}>{stats.maintenance}</Text>
             <Text style={styles.statLabel}>Maintenance</Text>
           </View>
         </View>
 
-        {/* Filter Tabs */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterContainer}>
-          {['all', 'vacant', 'occupied', 'maintenance', 'reserved'].map((status) => (
-            <TouchableOpacity
-              key={status}
-              style={[
-                styles.filterTab,
-                filterStatus === status && styles.filterTabActive,
-              ]}
-              onPress={() => setFilterStatus(status)}
-            >
-              <Text
-                style={[
-                  styles.filterTabText,
-                  filterStatus === status && styles.filterTabTextActive,
-                ]}
-              >
-                {status.charAt(0).toUpperCase() + status.slice(1)}
-              </Text>
-            </TouchableOpacity>
+        {/* Legend + bulk add */}
+        <View style={styles.legendRow}>
+          {STATUSES.map((s) => (
+            <View key={s.value} style={styles.legendItem}>
+              <View style={[styles.legendSwatch, { backgroundColor: STATUS_COLORS[s.value] }]} />
+              <Text style={styles.legendText}>{s.label}</Text>
+            </View>
           ))}
-        </ScrollView>
+          <TouchableOpacity style={styles.bulkButton} onPress={() => setModal('bulk')} disabled={saving}>
+            <Ionicons name="flash" size={14} color={colors.gold} />
+            <Text style={styles.bulkButtonText}>Bulk add</Text>
+          </TouchableOpacity>
+        </View>
 
-        {/* Units List */}
-        <View style={styles.unitsList}>
-          {filteredUnits.map((unit) => (
-            <TouchableOpacity
-              key={unit.id}
-              style={styles.unitCard}
-              onPress={() => handleEditUnit(unit)}
-            >
-              <View style={styles.unitHeader}>
-                <View style={styles.unitNumberContainer}>
-                  <Text style={styles.unitNumber}>{unit.unitNumber}</Text>
-                  <Text style={styles.floorText}>Floor {unit.floor}</Text>
-                </View>
-                <View
-                  style={[
-                    styles.statusBadge,
-                    { backgroundColor: getStatusColor(unit.status) + '20' },
-                  ]}
-                >
-                  <Ionicons
-                    name={getStatusIcon(unit.status)}
-                    size={14}
-                    color={getStatusColor(unit.status)}
-                  />
-                  <Text
-                    style={[
-                      styles.statusText,
-                      { color: getStatusColor(unit.status) },
-                    ]}
-                  >
-                    {unit.status}
-                  </Text>
-                </View>
+        {/* Floor-by-floor unit map */}
+        <View style={styles.unitMap}>
+          {floors.map((floor) => (
+            <View key={floor === null ? 'none' : String(floor)} style={styles.floorSection}>
+              <Text style={styles.floorLabel}>{floorLabel(floor)}</Text>
+              <View style={styles.floorUnits}>
+                {houses.map((house, index) => {
+                  const houseFloor = house.floor === undefined || house.floor === null ? null : house.floor;
+                  if (houseFloor !== floor) return null;
+                  const statusColor = STATUS_COLORS[house.status] || colors.textMuted;
+                  return (
+                    <TouchableOpacity
+                      key={house._id || `${house.houseNumber}-${index}`}
+                      style={[
+                        styles.unitTile,
+                        { borderColor: statusColor, backgroundColor: statusColor + '22' },
+                      ]}
+                      onPress={() => openEdit(index)}
+                      disabled={saving}
+                    >
+                      <Ionicons name={STATUS_ICONS[house.status] || 'home-outline'} size={14} color={statusColor} />
+                      <Text style={styles.unitNumber}>{house.houseNumber || house.number}</Text>
+                      {house.unitType ? (
+                        <Text style={[styles.unitType, { color: statusColor }]}>
+                          {UNIT_TYPE_LABELS[house.unitType]}
+                        </Text>
+                      ) : null}
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
-
-              <View style={styles.unitDetails}>
-                <View style={styles.detailItem}>
-                  <Ionicons name="bed-outline" size={16} color={colors.textSecondary} />
-                  <Text style={styles.detailText}>{unit.bedrooms} Beds</Text>
-                </View>
-                <View style={styles.detailItem}>
-                  <Ionicons name="water-outline" size={16} color={colors.textSecondary} />
-                  <Text style={styles.detailText}>{unit.bathrooms} Baths</Text>
-                </View>
-                <View style={styles.detailItem}>
-                  <Ionicons name="resize-outline" size={16} color={colors.textSecondary} />
-                  <Text style={styles.detailText}>{unit.squareFeet} sqft</Text>
-                </View>
-              </View>
-
-              {unit.tenant && (
-                <View style={styles.tenantInfo}>
-                  <Ionicons name="person" size={16} color={colors.info} />
-                  <Text style={styles.tenantName}>{unit.tenant}</Text>
-                </View>
-              )}
-
-              {unit.features && unit.features.length > 0 && (
-                <View style={styles.featuresContainer}>
-                  {unit.features.slice(0, 3).map((feature, index) => (
-                    <View key={index} style={styles.featureTag}>
-                      <Text style={styles.featureTagText}>{feature}</Text>
-                    </View>
-                  ))}
-                  {unit.features.length > 3 && (
-                    <Text style={styles.moreFeatures}>+{unit.features.length - 3}</Text>
-                  )}
-                </View>
-              )}
-
-              <View style={styles.unitFooter}>
-                <Text style={styles.rentAmount}>KSh {unit.rent?.toLocaleString()}/mo</Text>
-                <TouchableOpacity
-                  onPress={() => handleDeleteUnit(unit)}
-                  style={styles.deleteIconButton}
-                >
-                  <Ionicons name="trash-outline" size={18} color={colors.danger} />
-                </TouchableOpacity>
-              </View>
-            </TouchableOpacity>
+            </View>
           ))}
         </View>
 
-        {filteredUnits.length === 0 && (
+        {houses.length === 0 && (
           <View style={styles.emptyState}>
             <Ionicons name="home-outline" size={64} color={colors.textMuted} />
-            <Text style={styles.emptyStateText}>No units found</Text>
-            <Text style={styles.emptyStateSubtext}>
-              {filterStatus === 'all'
-                ? 'Add your first unit to get started'
-                : `No ${filterStatus} units`}
-            </Text>
+            <Text style={styles.emptyStateText}>No units yet</Text>
+            <Text style={styles.emptyStateSubtext}>Add units one by one or generate them in bulk</Text>
           </View>
         )}
       </ScrollView>
 
-      {/* Add/Edit Unit Modal */}
+      {/* Add / Edit unit modal */}
       <Modal
-        visible={showAddModal || showEditModal}
+        visible={modal === 'add' || modal === 'edit'}
         animationType="slide"
         transparent={true}
-        onRequestClose={() => {
-          setShowAddModal(false);
-          setShowEditModal(false);
-        }}
+        onRequestClose={closeModal}
       >
         <View style={styles.modalOverlay}>
           <ScrollView contentContainerStyle={styles.modalScrollContent}>
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>
-                  {showEditModal ? 'Edit Unit' : 'Add New Unit'}
-                </Text>
-                <TouchableOpacity
-                  onPress={() => {
-                    setShowAddModal(false);
-                    setShowEditModal(false);
-                    resetForm();
-                  }}
-                >
+                <Text style={styles.modalTitle}>{modal === 'edit' ? 'Edit Unit' : 'Add Unit'}</Text>
+                <TouchableOpacity onPress={closeModal}>
                   <Ionicons name="close" size={24} color={colors.textSecondary} />
                 </TouchableOpacity>
               </View>
@@ -413,10 +347,10 @@ const PropertyUnitsScreen = ({ route, navigation }) => {
               <Text style={styles.inputLabel}>Unit Number *</Text>
               <TextInput
                 style={styles.input}
-                placeholder="e.g., A-101"
+                placeholder="e.g., A1"
                 placeholderTextColor="#64748B"
-                value={formData.unitNumber}
-                onChangeText={(text) => setFormData({ ...formData, unitNumber: text })}
+                value={formData.houseNumber}
+                onChangeText={(text) => setFormData({ ...formData, houseNumber: text })}
               />
 
               <View style={styles.row}>
@@ -424,7 +358,7 @@ const PropertyUnitsScreen = ({ route, navigation }) => {
                   <Text style={styles.inputLabel}>Floor</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="1"
+                    placeholder="0 = ground"
                     placeholderTextColor="#64748B"
                     keyboardType="numeric"
                     value={formData.floor}
@@ -432,128 +366,193 @@ const PropertyUnitsScreen = ({ route, navigation }) => {
                   />
                 </View>
                 <View style={styles.halfWidth}>
-                  <Text style={styles.inputLabel}>Square Feet</Text>
+                  <Text style={styles.inputLabel}>Rent (KSh)</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="850"
+                    placeholder={defaultRent ? String(defaultRent) : 'Property rent'}
                     placeholderTextColor="#64748B"
                     keyboardType="numeric"
-                    value={formData.squareFeet}
-                    onChangeText={(text) => setFormData({ ...formData, squareFeet: text })}
+                    value={formData.rent}
+                    onChangeText={(text) => setFormData({ ...formData, rent: text })}
+                  />
+                </View>
+              </View>
+
+              <Text style={styles.inputLabel}>Unit Type</Text>
+              <View style={styles.chipRow}>
+                {UNIT_TYPES.map((t) => (
+                  <TouchableOpacity
+                    key={t.value}
+                    style={[styles.chip, formData.unitType === t.value && styles.chipSelected]}
+                    onPress={() =>
+                      setFormData({ ...formData, unitType: formData.unitType === t.value ? '' : t.value })
+                    }
+                  >
+                    <Text style={[styles.chipText, formData.unitType === t.value && styles.chipTextSelected]}>
+                      {t.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.inputLabel}>Status</Text>
+              <View style={styles.chipRow}>
+                {STATUSES.map((s) => (
+                  <TouchableOpacity
+                    key={s.value}
+                    style={[
+                      styles.chip,
+                      formData.status === s.value && { backgroundColor: STATUS_COLORS[s.value] + '33' },
+                    ]}
+                    onPress={() => setFormData({ ...formData, status: s.value })}
+                  >
+                    <Text
+                      style={[
+                        styles.chipText,
+                        formData.status === s.value && { color: STATUS_COLORS[s.value], fontWeight: '600' },
+                      ]}
+                    >
+                      {s.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {modal === 'edit' && houses.length > 1 && (
+                <TouchableOpacity style={styles.deleteRow} onPress={handleDeleteUnit} disabled={saving}>
+                  <Ionicons name="trash-outline" size={16} color={colors.danger} />
+                  <Text style={styles.deleteRowText}>Delete this unit</Text>
+                </TouchableOpacity>
+              )}
+
+              <View style={styles.modalButtons}>
+                <TouchableOpacity style={[styles.modalButton, styles.cancelButton]} onPress={closeModal}>
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.saveButton]}
+                  onPress={handleSubmitUnit}
+                  disabled={saving}
+                >
+                  {saving ? (
+                    <ActivityIndicator size="small" color={colors.gold} />
+                  ) : (
+                    <Text style={styles.saveButtonText}>{modal === 'edit' ? 'Save Changes' : 'Add Unit'}</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
+        </View>
+      </Modal>
+
+      {/* Bulk add modal */}
+      <Modal visible={modal === 'bulk'} animationType="slide" transparent={true} onRequestClose={closeModal}>
+        <View style={styles.modalOverlay}>
+          <ScrollView contentContainerStyle={styles.modalScrollContent}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Bulk Add Units</Text>
+                <TouchableOpacity onPress={closeModal}>
+                  <Ionicons name="close" size={24} color={colors.textSecondary} />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.row}>
+                <View style={styles.halfWidth}>
+                  <Text style={styles.inputLabel}>How many?</Text>
+                  <TextInput
+                    style={styles.input}
+                    keyboardType="numeric"
+                    placeholderTextColor="#64748B"
+                    value={bulkData.count}
+                    onChangeText={(text) => setBulkData({ ...bulkData, count: text })}
+                  />
+                </View>
+                <View style={styles.halfWidth}>
+                  <Text style={styles.inputLabel}>Floor</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="0 = ground"
+                    placeholderTextColor="#64748B"
+                    keyboardType="numeric"
+                    value={bulkData.floor}
+                    onChangeText={(text) => setBulkData({ ...bulkData, floor: text })}
                   />
                 </View>
               </View>
 
               <View style={styles.row}>
                 <View style={styles.halfWidth}>
-                  <Text style={styles.inputLabel}>Bedrooms</Text>
+                  <Text style={styles.inputLabel}>Prefix</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="2"
+                    placeholder="e.g., A"
                     placeholderTextColor="#64748B"
-                    keyboardType="numeric"
-                    value={formData.bedrooms}
-                    onChangeText={(text) => setFormData({ ...formData, bedrooms: text })}
+                    value={bulkData.prefix}
+                    onChangeText={(text) => setBulkData({ ...bulkData, prefix: text })}
                   />
                 </View>
                 <View style={styles.halfWidth}>
-                  <Text style={styles.inputLabel}>Bathrooms</Text>
+                  <Text style={styles.inputLabel}>Start at #</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="1"
-                    placeholderTextColor="#64748B"
                     keyboardType="numeric"
-                    value={formData.bathrooms}
-                    onChangeText={(text) => setFormData({ ...formData, bathrooms: text })}
+                    placeholderTextColor="#64748B"
+                    value={bulkData.startNumber}
+                    onChangeText={(text) => setBulkData({ ...bulkData, startNumber: text })}
                   />
                 </View>
               </View>
 
-              <Text style={styles.inputLabel}>Monthly Rent (KSh) *</Text>
+              <Text style={styles.inputLabel}>Unit Type</Text>
+              <View style={styles.chipRow}>
+                {UNIT_TYPES.map((t) => (
+                  <TouchableOpacity
+                    key={t.value}
+                    style={[styles.chip, bulkData.unitType === t.value && styles.chipSelected]}
+                    onPress={() =>
+                      setBulkData({ ...bulkData, unitType: bulkData.unitType === t.value ? '' : t.value })
+                    }
+                  >
+                    <Text style={[styles.chipText, bulkData.unitType === t.value && styles.chipTextSelected]}>
+                      {t.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.inputLabel}>Rent per unit (KSh)</Text>
               <TextInput
                 style={styles.input}
-                placeholder="35000"
+                placeholder={defaultRent ? String(defaultRent) : 'Property rent'}
                 placeholderTextColor="#64748B"
                 keyboardType="numeric"
-                value={formData.rent}
-                onChangeText={(text) => setFormData({ ...formData, rent: text })}
+                value={bulkData.rent}
+                onChangeText={(text) => setBulkData({ ...bulkData, rent: text })}
               />
 
-              <Text style={styles.inputLabel}>Status</Text>
-              <View style={styles.statusSelector}>
-                {unitStatuses.map((status) => (
-                  <TouchableOpacity
-                    key={status}
-                    style={[
-                      styles.statusOption,
-                      formData.status === status && styles.statusOptionSelected,
-                    ]}
-                    onPress={() => setFormData({ ...formData, status })}
-                  >
-                    <Text
-                      style={[
-                        styles.statusOptionText,
-                        formData.status === status && styles.statusOptionTextSelected,
-                      ]}
-                    >
-                      {status}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              <Text style={styles.inputLabel}>Features</Text>
-              <View style={styles.featuresGrid}>
-                {featuresList.map((feature) => (
-                  <TouchableOpacity
-                    key={feature}
-                    style={[
-                      styles.featureChip,
-                      formData.features.includes(feature) && styles.featureChipSelected,
-                    ]}
-                    onPress={() => toggleFeature(feature)}
-                  >
-                    <Text
-                      style={[
-                        styles.featureChipText,
-                        formData.features.includes(feature) && styles.featureChipTextSelected,
-                      ]}
-                    >
-                      {feature}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              <Text style={styles.inputLabel}>Description</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                placeholder="Unit description..."
-                placeholderTextColor="#64748B"
-                multiline
-                numberOfLines={3}
-                value={formData.description}
-                onChangeText={(text) => setFormData({ ...formData, description: text })}
-              />
+              <Text style={styles.bulkPreview}>
+                Will create {Math.min(Math.max(parseInt(bulkData.count) || 0, 1), 200)} vacant units:{' '}
+                {`${bulkData.prefix.trim()}${parseInt(bulkData.startNumber) || 1}`} …{' '}
+                {`${bulkData.prefix.trim()}${(parseInt(bulkData.startNumber) || 1) + Math.min(Math.max(parseInt(bulkData.count) || 0, 1), 200) - 1}`}
+                . Run once per floor or unit type.
+              </Text>
 
               <View style={styles.modalButtons}>
-                <TouchableOpacity
-                  style={[styles.modalButton, styles.cancelButton]}
-                  onPress={() => {
-                    setShowAddModal(false);
-                    setShowEditModal(false);
-                    resetForm();
-                  }}
-                >
+                <TouchableOpacity style={[styles.modalButton, styles.cancelButton]} onPress={closeModal}>
                   <Text style={styles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.modalButton, styles.saveButton]}
-                  onPress={showEditModal ? handleUpdateUnit : handleAddUnit}
+                  onPress={handleBulkGenerate}
+                  disabled={saving}
                 >
-                  <Text style={styles.saveButtonText}>
-                    {showEditModal ? 'Update Unit' : 'Add Unit'}
-                  </Text>
+                  {saving ? (
+                    <ActivityIndicator size="small" color={colors.gold} />
+                  ) : (
+                    <Text style={styles.saveButtonText}>Generate Units</Text>
+                  )}
                 </TouchableOpacity>
               </View>
             </View>
@@ -628,138 +627,81 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textSecondary,
   },
-  filterContainer: {
+  legendRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: spacing[5],
-    marginBottom: spacing[4],
+    marginBottom: spacing[3],
   },
-  filterTab: {
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[2],
-    borderRadius: 20,
-    backgroundColor: colors.surface,
-    marginRight: spacing[2],
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: spacing[4],
   },
-  filterTabActive: {
-    backgroundColor: colors.darkBlue,
+  legendSwatch: {
+    width: 10,
+    height: 10,
+    borderRadius: 3,
+    marginRight: spacing[1],
   },
-  filterTabText: {
-    fontSize: 13,
+  legendText: {
+    fontSize: 11,
     color: colors.textSecondary,
-    fontWeight: typography.fontWeight.medium,
-    textTransform: 'capitalize',
   },
-  filterTabTextActive: {
-    color: '#fff',
+  bulkButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 'auto',
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[2],
+  },
+  bulkButtonText: {
+    fontSize: 12,
+    color: colors.gold,
     fontWeight: typography.fontWeight.semibold,
+    marginLeft: spacing[1],
   },
-  unitsList: {
-    padding: spacing[5],
-    paddingTop: 0,
+  unitMap: {
+    paddingHorizontal: spacing[5],
+    paddingBottom: spacing[6],
   },
-  unitCard: {
+  floorSection: {
     backgroundColor: colors.surface,
     borderRadius: borderRadius.xl,
     padding: spacing[4],
     marginBottom: spacing[3],
   },
-  unitHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing[3],
-  },
-  unitNumberContainer: {
-    flex: 1,
-  },
-  unitNumber: {
-    fontSize: typography.lg,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary,
-    marginBottom: 2,
-  },
-  floorText: {
-    fontSize: typography.xs,
-    color: colors.textMuted,
-  },
-  statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: spacing[1] + 2,
-    borderRadius: borderRadius.xl,
-  },
-  statusText: {
-    fontSize: 11,
+  floorLabel: {
+    fontSize: typography.sm,
     fontWeight: typography.fontWeight.semibold,
-    marginLeft: spacing[1],
-    textTransform: 'capitalize',
-  },
-  unitDetails: {
-    flexDirection: 'row',
-    marginBottom: spacing[3],
-  },
-  detailItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: spacing[4],
-  },
-  detailText: {
-    fontSize: 13,
     color: colors.textSecondary,
-    marginLeft: spacing[1],
-  },
-  tenantInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.slate[800],
-    borderRadius: borderRadius.lg,
-    padding: 10,
     marginBottom: spacing[3],
   },
-  tenantName: {
-    fontSize: 13,
-    color: colors.slate[200],
-    marginLeft: spacing[2],
-    fontWeight: typography.fontWeight.medium,
-  },
-  featuresContainer: {
+  floorUnits: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: spacing[3],
   },
-  featureTag: {
-    backgroundColor: '#1E3A8A',
-    borderRadius: 10,
-    paddingHorizontal: spacing[2],
-    paddingVertical: spacing[1],
-    marginRight: spacing[1] + 2,
-    marginBottom: spacing[1] + 2,
-  },
-  featureTagText: {
-    fontSize: 10,
-    color: colors.blue[300],
-    fontWeight: typography.fontWeight.medium,
-  },
-  moreFeatures: {
-    fontSize: 11,
-    color: colors.textMuted,
-    alignSelf: 'center',
-  },
-  unitFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  unitTile: {
+    minWidth: 74,
     alignItems: 'center',
-    paddingTop: spacing[3],
-    borderTopWidth: 1,
-    borderTopColor: '#1E293B',
+    borderWidth: 1.5,
+    borderRadius: borderRadius.lg,
+    paddingVertical: spacing[2],
+    paddingHorizontal: spacing[3],
+    marginRight: spacing[2],
+    marginBottom: spacing[2],
   },
-  rentAmount: {
-    fontSize: typography.base,
+  unitNumber: {
+    fontSize: typography.sm,
     fontWeight: typography.fontWeight.bold,
-    color: colors.success,
+    color: colors.textPrimary,
+    marginTop: 2,
   },
-  deleteIconButton: {
-    padding: spacing[2],
+  unitType: {
+    fontSize: 10,
+    marginTop: 1,
   },
   emptyState: {
     alignItems: 'center',
@@ -820,10 +762,6 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     marginBottom: spacing[4],
   },
-  textArea: {
-    height: 80,
-    textAlignVertical: 'top',
-  },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -831,37 +769,12 @@ const styles = StyleSheet.create({
   halfWidth: {
     width: '48%',
   },
-  statusSelector: {
+  chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginBottom: spacing[4],
   },
-  statusOption: {
-    backgroundColor: colors.slate[800],
-    borderRadius: borderRadius.lg,
-    paddingHorizontal: 14,
-    paddingVertical: spacing[2],
-    marginRight: spacing[2],
-    marginBottom: spacing[2],
-  },
-  statusOptionSelected: {
-    backgroundColor: colors.darkBlue,
-  },
-  statusOptionText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    textTransform: 'capitalize',
-  },
-  statusOptionTextSelected: {
-    color: '#fff',
-    fontWeight: typography.fontWeight.semibold,
-  },
-  featuresGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: spacing[4],
-  },
-  featureChip: {
+  chip: {
     backgroundColor: colors.slate[800],
     borderRadius: borderRadius['2xl'],
     paddingHorizontal: spacing[3],
@@ -869,20 +782,32 @@ const styles = StyleSheet.create({
     marginRight: spacing[2],
     marginBottom: spacing[2],
   },
-  featureChipSelected: {
+  chipSelected: {
     backgroundColor: '#1E3A8A',
   },
-  featureChipText: {
+  chipText: {
     fontSize: typography.xs,
     color: colors.textSecondary,
   },
-  featureChipTextSelected: {
+  chipTextSelected: {
     color: colors.blue[300],
     fontWeight: typography.fontWeight.semibold,
   },
+  deleteRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing[3],
+  },
+  deleteRowText: {
+    color: colors.danger,
+    fontSize: typography.sm,
+    fontWeight: typography.fontWeight.semibold,
+    marginLeft: spacing[1],
+  },
   modalButtons: {
     flexDirection: 'row',
-    marginTop: spacing[6],
+    marginTop: spacing[4],
   },
   modalButton: {
     flex: 1,
