@@ -27,6 +27,7 @@ const AdminProfileScreen = ({ navigation }) => {
     { icon: 'settings-outline', title: 'System Settings', action: null },
     { icon: 'document-text-outline', title: 'Audit Logs', action: null },
     { icon: 'help-circle-outline', title: 'Help & Support', action: null },
+    { icon: 'shield-checkmark-outline', title: 'Authenticator app (2FA)', action: () => navigation.navigate('MFASetup') },
     { icon: 'cloud-download-outline', title: 'Check for updates', action: () => checkAndOffer({ manual: true }) },
   ];
 

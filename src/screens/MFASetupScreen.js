@@ -43,12 +43,12 @@ const MFASetupScreen = ({ navigation, route }) => {
     setInitializing(true);
     setError('');
     try {
-      const response = await apiClient.post('/auth/mfa/enable');
+      const response = await apiClient.post('/v1/auth/mfa/enable');
       const data = response.data?.data || response.data;
       setSecret(data?.secret || '');
       setBackupCodes(data?.backupCodes || []);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to start 2FA setup. Please try again.');
+      setError(err.response?.data?.error || err.response?.data?.message || 'Failed to start 2FA setup. Please try again.');
     } finally {
       setInitializing(false);
     }
@@ -70,10 +70,10 @@ const MFASetupScreen = ({ navigation, route }) => {
     setLoading(true);
     setError('');
     try {
-      await apiClient.post('/auth/mfa/verify', { token: verificationCode });
+      await apiClient.post('/v1/auth/mfa/verify', { token: verificationCode });
       setStep(STEPS.BACKUP);
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid verification code. Please try again.');
+      setError(err.response?.data?.error || err.response?.data?.message || 'Invalid verification code. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -87,8 +87,8 @@ const MFASetupScreen = ({ navigation, route }) => {
   const handleComplete = () => {
     Alert.alert(
       '2FA Enabled',
-      'Your admin account is now protected with two-factor authentication.',
-      [{ text: 'Continue', onPress: () => navigation.replace('AdminDashboard') }]
+      'Your account now asks for a code from your authenticator app when you sign in.',
+      [{ text: 'Done', onPress: () => navigation.goBack() }]
     );
   };
 
@@ -102,9 +102,9 @@ const MFASetupScreen = ({ navigation, route }) => {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <Ionicons name="shield-checkmark-outline" size={40} color={colors.gold} />
-          <Text style={styles.headerTitle}>Enable Two-Factor Authentication</Text>
+          <Text style={styles.headerTitle}>Authenticator app</Text>
           <Text style={styles.headerSubtitle}>
-            Add an extra layer of security to {displayEmail}
+            For {displayEmail}
           </Text>
         </View>
 

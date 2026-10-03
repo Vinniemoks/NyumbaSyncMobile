@@ -9,7 +9,7 @@ const ROLE_ROUTES = { admin: 'AdminDashboard', super_admin: 'AdminDashboard' };
 
 // Admins signing in from a new network confirm with the code we emailed.
 const IpVerifyScreen = ({ navigation, route }) => {
-  const { ipSessionToken, emailSent } = route.params || {};
+  const { ipSessionToken, message } = route.params || {};
   const { setAuthSession } = useAuth();
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -37,9 +37,7 @@ const IpVerifyScreen = ({ navigation, route }) => {
       <View style={commonStyles.content}>
         <Text style={commonStyles.title}>New network detected</Text>
         <Text style={commonStyles.subtitle}>
-          {emailSent === false
-            ? 'We could not email a code. Try signing in again in a moment.'
-            : 'Enter the 6-digit code we emailed you to confirm this sign-in.'}
+          {(message || 'We sent you a code.') + ' Enter the 6-digit code to continue.'}
         </Text>
         <View style={commonStyles.form}>
           <TextInput

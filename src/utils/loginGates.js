@@ -7,7 +7,7 @@ export function routeLoginGate(data, navigation) {
     return true;
   }
   if (data?.requireIpVerification && data.ipSessionToken) {
-    navigation.navigate('IpVerify', { ipSessionToken: data.ipSessionToken, emailSent: data.emailSent });
+    navigation.navigate('IpVerify', { ipSessionToken: data.ipSessionToken, message: data.message });
     return true;
   }
   return false;

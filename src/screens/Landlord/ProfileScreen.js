@@ -25,6 +25,7 @@ const ProfileScreen = ({ navigation }) => {
     { icon: 'notifications-outline', title: 'Notifications', screen: 'Notifications', action: () => navigation.navigate('Notifications') },
     { icon: 'document-text-outline', title: 'Documents', screen: 'Documents', action: () => navigation.navigate('Documents') },
     { icon: 'help-circle-outline', title: 'Help & Support', screen: 'Support', action: null },
+    { icon: 'shield-checkmark-outline', title: 'Authenticator app (2FA)', action: () => navigation.navigate('MFASetup') },
     { icon: 'cloud-download-outline', title: 'Check for updates', action: () => checkAndOffer({ manual: true }) },
   ];
 

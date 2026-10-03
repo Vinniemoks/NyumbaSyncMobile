@@ -22,6 +22,7 @@ const AgentProfileScreen = ({ navigation }) => {
     { icon: 'wallet-outline', title: 'Commissions', action: null },
     { icon: 'notifications-outline', title: 'Notifications', action: () => navigation.navigate('Notifications') },
     { icon: 'help-circle-outline', title: 'Help & Support', action: null },
+    { icon: 'shield-checkmark-outline', title: 'Authenticator app (2FA)', action: () => navigation.navigate('MFASetup') },
     { icon: 'cloud-download-outline', title: 'Check for updates', action: () => checkAndOffer({ manual: true }) },
   ];
 

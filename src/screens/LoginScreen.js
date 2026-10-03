@@ -62,23 +62,6 @@ const LoginScreen = ({ navigation }) => {
 
       if (routeLoginGate(result, navigation)) return;
 
-      const adminRoles = ['admin', 'super_admin'];
-      const isAdmin = adminRoles.includes(result.user?.role) ||
-        (Array.isArray(result.user?.roles) && result.user.roles.some(r => adminRoles.includes(r)));
-
-      if (result.requireMfaSetup && isAdmin) {
-        // Admins must set up 2FA before accessing the dashboard.
-        if (result.token) {
-          await setAuthSession({
-            token: result.token,
-            refreshToken: result.refreshToken,
-            user: result.user,
-          });
-        }
-        navigation.navigate('MFASetup', { email: result.user?.email });
-        return;
-      }
-
       if (result.token && result.user) {
         await setAuthSession({
           token: result.token,
