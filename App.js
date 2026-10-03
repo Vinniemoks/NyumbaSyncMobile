@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AuthProvider } from './src/context/AuthContext';
@@ -14,6 +15,10 @@ import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
 import MFAVerifyScreen from './src/screens/MFAVerifyScreen';
 import ForcedPasswordChangeScreen from './src/screens/ForcedPasswordChangeScreen';
 import UpdatePrompt from './src/components/UpdatePrompt';
+import ErrorBoundary from './src/components/ErrorBoundary';
+import { installCrashHandler, takeLastCrash } from './src/utils/crashReporter';
+
+installCrashHandler();
 import IpVerifyScreen from './src/screens/IpVerifyScreen';
 import MFASetupScreen from './src/screens/MFASetupScreen';
 import PublicListingsScreen from './src/screens/PublicListingsScreen';
@@ -39,7 +44,14 @@ import AccessibilityScreen from './src/screens/Legal/AccessibilityScreen';
 const Stack = createStackNavigator();
 
 export default function App() {
+  useEffect(() => {
+    takeLastCrash().then((t) => {
+      if (t) Alert.alert('The app closed unexpectedly', t.slice(0, 700));
+    });
+  }, []);
+
   return (
+    <ErrorBoundary>
     <AuthProvider>
       <NotificationProvider>
         <NavigationContainer>
@@ -84,5 +96,6 @@ export default function App() {
       </NavigationContainer>
     </NotificationProvider>
   </AuthProvider>
+    </ErrorBoundary>
   );
 }
