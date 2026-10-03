@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
+import { checkAndOffer } from '../../components/UpdatePrompt';
 
 const PropertyManagerProfileScreen = ({ navigation }) => {
   const { user, logout } = useAuth();
@@ -26,7 +27,7 @@ const PropertyManagerProfileScreen = ({ navigation }) => {
     { icon: 'business-outline', title: 'Managed Properties', action: null },
     { icon: 'people-outline', title: 'Landlord Clients', action: null },
     { icon: 'help-circle-outline', title: 'Help & Support', action: null },
-    { icon: 'information-circle-outline', title: 'About', action: null },
+    { icon: 'cloud-download-outline', title: 'Check for updates', action: () => checkAndOffer({ manual: true }) },
   ];
 
   return (

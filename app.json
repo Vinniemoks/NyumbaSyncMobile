@@ -27,6 +27,7 @@
         "backgroundColor": "#020617"
       },
       "package": "com.nyumbasync",
+      "permissions": ["android.permission.REQUEST_INSTALL_PACKAGES"],
       "edgeToEdgeEnabled": true,
       "jsEngine": "hermes"
     },

@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { apiClient } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { colors, spacing, typography, borderRadius, commonStyles } from '../config/theme';
+import { routeLoginGate } from '../utils/loginGates';
 import Button from '../components/Button';
 
 const ROLE_ROUTES = {
@@ -79,6 +80,7 @@ const MFAVerifyScreen = ({ navigation, route }) => {
 
       const response = await apiClient.post('/auth/mfa/verify-login', payload);
       const data = response.data;
+      if (routeLoginGate(data, navigation)) return;
       const accessToken = data?.accessToken || data?.token;
       const refreshToken = data?.refreshToken;
       const user = data?.user;

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
+import { checkAndOffer } from '../../components/UpdatePrompt';
 
 const ProfileScreen = ({ navigation }) => {
   const { user, logout } = useAuth();
@@ -24,7 +25,7 @@ const ProfileScreen = ({ navigation }) => {
     { icon: 'notifications-outline', title: 'Notifications', screen: 'Notifications', action: () => navigation.navigate('Notifications') },
     { icon: 'document-text-outline', title: 'Documents', screen: 'Documents', action: () => navigation.navigate('Documents') },
     { icon: 'help-circle-outline', title: 'Help & Support', screen: 'Support', action: null },
-    { icon: 'information-circle-outline', title: 'About', screen: 'About', action: null },
+    { icon: 'cloud-download-outline', title: 'Check for updates', action: () => checkAndOffer({ manual: true }) },
   ];
 
   return (

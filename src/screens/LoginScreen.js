@@ -9,6 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import Logo from '../components/Logo';
+import { routeLoginGate } from '../utils/loginGates';
 import Button from '../components/Button';
 import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../services/api';
@@ -21,6 +22,7 @@ const ROLE_ROUTES = {
   manager: 'ManagerDashboard',
   tenant: 'TenantDashboard',
   admin: 'AdminDashboard',
+  super_admin: 'AdminDashboard',
 };
 
 const LoginScreen = ({ navigation }) => {
@@ -57,6 +59,8 @@ const LoginScreen = ({ navigation }) => {
         });
         return;
       }
+
+      if (routeLoginGate(result, navigation)) return;
 
       const adminRoles = ['admin', 'super_admin'];
       const isAdmin = adminRoles.includes(result.user?.role) ||

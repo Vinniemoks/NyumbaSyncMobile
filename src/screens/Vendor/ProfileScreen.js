@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
+import { checkAndOffer } from '../../components/UpdatePrompt';
 
 const VendorProfileScreen = ({ navigation }) => {
   const { user, logout } = useAuth();
@@ -21,6 +22,7 @@ const VendorProfileScreen = ({ navigation }) => {
     { icon: 'wallet-outline', title: 'Earnings & Payments', action: null },
     { icon: 'notifications-outline', title: 'Notifications', action: () => navigation.navigate('Notifications') },
     { icon: 'help-circle-outline', title: 'Help & Support', action: null },
+    { icon: 'cloud-download-outline', title: 'Check for updates', action: () => checkAndOffer({ manual: true }) },
   ];
 
   return (

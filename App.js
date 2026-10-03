@@ -12,6 +12,9 @@ import LoginScreen from './src/screens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
 import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
 import MFAVerifyScreen from './src/screens/MFAVerifyScreen';
+import ForcedPasswordChangeScreen from './src/screens/ForcedPasswordChangeScreen';
+import UpdatePrompt from './src/components/UpdatePrompt';
+import IpVerifyScreen from './src/screens/IpVerifyScreen';
 import MFASetupScreen from './src/screens/MFASetupScreen';
 import PublicListingsScreen from './src/screens/PublicListingsScreen';
 
@@ -40,6 +43,7 @@ export default function App() {
     <AuthProvider>
       <NotificationProvider>
         <NavigationContainer>
+          <UpdatePrompt />
           <StatusBar style="light" backgroundColor="#0A1628" />
           <Stack.Navigator
             initialRouteName="Splash"
@@ -54,6 +58,8 @@ export default function App() {
           <Stack.Screen name="Signup" component={SignupScreen} />
           <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
           <Stack.Screen name="MFAVerify" component={MFAVerifyScreen} />
+          <Stack.Screen name="ForcedPasswordChange" component={ForcedPasswordChangeScreen} />
+          <Stack.Screen name="IpVerify" component={IpVerifyScreen} />
           <Stack.Screen name="MFASetup" component={MFASetupScreen} />
           <Stack.Screen name="PublicListings" component={PublicListingsScreen} options={{ title: 'Browse Properties' }} />
 
