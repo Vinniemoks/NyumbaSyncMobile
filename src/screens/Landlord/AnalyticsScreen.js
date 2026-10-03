@@ -17,11 +17,51 @@ import { colors, spacing, typography, shadows, borderRadius } from '../../config
 
 const { width } = Dimensions.get('window');
 
+// Maps GET /analytics/dashboard onto what this screen shows. The API has no
+// expense, per-property or previous-period data, so those stay empty rather
+// than invented.
+const toStats = (d) => {
+  d = d || {};
+  const props = d.properties || {};
+  const tx = d.transactions || {};
+  const maint = d.maintenance || {};
+  const byStatus = (list, re) =>
+    (list || []).filter((x) => re.test(String(x._id))).reduce((n, x) => ({ count: n.count + (x.count || 0), amount: n.amount + (x.amount || 0) }), { count: 0, amount: 0 });
+  const paid = byStatus(tx.byStatus, /complete|success|paid/i);
+  const pending = byStatus(tx.byStatus, /pend/i);
+  const total = props.total || 0;
+  const occupied = props.occupied || 0;
+  const months = {};
+  (tx.daily || []).forEach((day) => {
+    const m = new Date(`${day._id}T00:00:00`).toLocaleString('en', { month: 'short' });
+    months[m] = (months[m] || 0) + (day.amount || 0);
+  });
+  return {
+    totalRevenue: paid.amount,
+    totalExpenses: 0,
+    netIncome: paid.amount,
+    occupancyRate: total ? Math.round((occupied / total) * 100) : 0,
+    totalProperties: total,
+    totalUnits: total,
+    occupiedUnits: occupied,
+    vacantUnits: Math.max(0, total - occupied),
+    totalTenants: d.users?.total || 0,
+    activeTenants: d.users?.total || 0,
+    pendingPayments: pending.count,
+    maintenanceRequests: maint.total || 0,
+    pendingMaintenance: byStatus(maint.byStatus, /pend|open|new/i).count,
+    revenueByMonth: Object.entries(months).map(([month, amount]) => ({ month, amount })),
+    expensesByCategory: [],
+    topProperties: [],
+  };
+};
+
 const AnalyticsScreen = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState('month'); // month, quarter, year
   const [stats, setStats] = useState(null);
+  const [loadError, setLoadError] = useState(null);
 
   useEffect(() => {
     loadAnalytics();
@@ -102,65 +142,26 @@ const AnalyticsScreen = () => {
 
   const loadAnalytics = async () => {
     setLoading(true);
+    setLoadError(null);
     try {
-      const response = await analyticsService.getDashboardStats(user?.id);
-      if (response.data.success) {
-        setStats(response.data.stats);
-      }
+      const { data } = await analyticsService.getDashboardStats(period);
+      setStats(toStats(data));
     } catch (error) {
       console.error('Error loading analytics:', error);
-      // Mock data
-      setStats({
-        totalRevenue: 1250000,
-        revenueChange: 12.5,
-        totalExpenses: 350000,
-        expensesChange: -5.2,
-        netIncome: 900000,
-        netIncomeChange: 18.3,
-        occupancyRate: 92,
-        occupancyChange: 3.5,
-        totalProperties: 12,
-        totalUnits: 45,
-        occupiedUnits: 41,
-        vacantUnits: 4,
-        totalTenants: 41,
-        activeTenants: 39,
-        pendingPayments: 2,
-        maintenanceRequests: 8,
-        pendingMaintenance: 3,
-        revenueByMonth: [
-          { month: 'Jan', amount: 980000 },
-          { month: 'Feb', amount: 1020000 },
-          { month: 'Mar', amount: 1050000 },
-          { month: 'Apr', amount: 1100000 },
-          { month: 'May', amount: 1150000 },
-          { month: 'Jun', amount: 1250000 },
-        ],
-        expensesByCategory: [
-          { category: 'Maintenance', amount: 150000, percentage: 43 },
-          { category: 'Utilities', amount: 100000, percentage: 29 },
-          { category: 'Insurance', amount: 60000, percentage: 17 },
-          { category: 'Other', amount: 40000, percentage: 11 },
-        ],
-        topProperties: [
-          { name: 'Riverside Apartments', revenue: 420000, occupancy: 95 },
-          { name: 'Westlands Villa', revenue: 380000, occupancy: 100 },
-          { name: 'Kilimani Heights', revenue: 450000, occupancy: 88 },
-        ],
-      });
+      setStats(null);
+      setLoadError(
+        error.response?.status === 403
+          ? 'Reports are not available for this account.'
+          : 'Could not load reports. Check your connection and try again.'
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const formatCurrency = (amount) => {
-    return `KSh ${(amount / 1000).toFixed(0)}K`;
-  };
+  const formatCurrency = (amount) => `KSh ${(Number(amount || 0) / 1000).toFixed(0)}K`;
 
-  const formatPercentage = (value) => {
-    const sign = value >= 0 ? '+' : '';
-    return `${sign}${value.toFixed(1)}%`;
-  };
+  const formatPercentage = (value) => `${value >= 0 ? '+' : ''}${Number(value).toFixed(1)}%`;
 
   const getChangeColor = (value) => {
     return value >= 0 ? '#10B981' : '#EF4444';
@@ -170,6 +171,19 @@ const AnalyticsScreen = () => {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.info} />
+      </View>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={{ color: colors.textPrimary, textAlign: 'center', marginHorizontal: spacing[5] }}>
+          {loadError || 'No report data yet.'}
+        </Text>
+        <TouchableOpacity onPress={loadAnalytics} style={{ marginTop: spacing[4], padding: spacing[3] }}>
+          <Text style={{ color: colors.leaf, fontWeight: '600' }}>Try again</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -204,11 +218,13 @@ const AnalyticsScreen = () => {
           <View style={styles.metricCard}>
             <View style={styles.metricHeader}>
               <Ionicons name="trending-up" size={24} color={colors.success} />
+              {typeof stats.revenueChange === 'number' && (
               <View style={[styles.changeIndicator, { backgroundColor: getChangeColor(stats.revenueChange) + '20' }]}>
                 <Text style={[styles.changeText, { color: getChangeColor(stats.revenueChange) }]}>
                   {formatPercentage(stats.revenueChange)}
                 </Text>
               </View>
+              )}
             </View>
             <Text style={styles.metricValue}>{formatCurrency(stats.totalRevenue)}</Text>
             <Text style={styles.metricLabel}>Total Revenue</Text>
@@ -217,11 +233,13 @@ const AnalyticsScreen = () => {
           <View style={styles.metricCard}>
             <View style={styles.metricHeader}>
               <Ionicons name="trending-down" size={24} color={colors.danger} />
+              {typeof stats.expensesChange === 'number' && (
               <View style={[styles.changeIndicator, { backgroundColor: getChangeColor(stats.expensesChange) + '20' }]}>
                 <Text style={[styles.changeText, { color: getChangeColor(stats.expensesChange) }]}>
                   {formatPercentage(stats.expensesChange)}
                 </Text>
               </View>
+              )}
             </View>
             <Text style={styles.metricValue}>{formatCurrency(stats.totalExpenses)}</Text>
             <Text style={styles.metricLabel}>Total Expenses</Text>
@@ -230,11 +248,13 @@ const AnalyticsScreen = () => {
           <View style={styles.metricCard}>
             <View style={styles.metricHeader}>
               <Ionicons name="cash" size={24} color={colors.info} />
+              {typeof stats.netIncomeChange === 'number' && (
               <View style={[styles.changeIndicator, { backgroundColor: getChangeColor(stats.netIncomeChange) + '20' }]}>
                 <Text style={[styles.changeText, { color: getChangeColor(stats.netIncomeChange) }]}>
                   {formatPercentage(stats.netIncomeChange)}
                 </Text>
               </View>
+              )}
             </View>
             <Text style={styles.metricValue}>{formatCurrency(stats.netIncome)}</Text>
             <Text style={styles.metricLabel}>Net Income</Text>
@@ -243,11 +263,13 @@ const AnalyticsScreen = () => {
           <View style={styles.metricCard}>
             <View style={styles.metricHeader}>
               <Ionicons name="home" size={24} color={colors.warning} />
+              {typeof stats.occupancyChange === 'number' && (
               <View style={[styles.changeIndicator, { backgroundColor: getChangeColor(stats.occupancyChange) + '20' }]}>
                 <Text style={[styles.changeText, { color: getChangeColor(stats.occupancyChange) }]}>
                   {formatPercentage(stats.occupancyChange)}
                 </Text>
               </View>
+              )}
             </View>
             <Text style={styles.metricValue}>{stats.occupancyRate}%</Text>
             <Text style={styles.metricLabel}>Occupancy Rate</Text>
@@ -281,9 +303,10 @@ const AnalyticsScreen = () => {
       {/* Revenue Trend */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Revenue Trend</Text>
+        {stats.revenueByMonth.length === 0 && <Text style={{ color: colors.textMuted }}>No revenue in this period.</Text>}
         <View style={styles.chartContainer}>
           {stats.revenueByMonth.map((item, index) => {
-            const maxRevenue = Math.max(...stats.revenueByMonth.map(r => r.amount));
+            const maxRevenue = Math.max(1, ...stats.revenueByMonth.map(r => r.amount));
             const height = (item.amount / maxRevenue) * 120;
             return (
               <View key={index} style={styles.barContainer}>
@@ -298,6 +321,7 @@ const AnalyticsScreen = () => {
       {/* Expenses Breakdown */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Expenses by Category</Text>
+        {stats.expensesByCategory.length === 0 && <Text style={{ color: colors.textMuted }}>No expense data yet.</Text>}
         {stats.expensesByCategory.map((item, index) => (
           <View key={index} style={styles.expenseItem}>
             <View style={styles.expenseInfo}>
@@ -315,6 +339,7 @@ const AnalyticsScreen = () => {
       {/* Top Properties */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Top Performing Properties</Text>
+        {stats.topProperties.length === 0 && <Text style={{ color: colors.textMuted }}>No property data yet.</Text>}
         {stats.topProperties.map((property, index) => (
           <View key={index} style={styles.propertyItem}>
             <View style={styles.propertyRank}>

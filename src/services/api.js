@@ -287,7 +287,7 @@ export const messageService = {
 
 export const analyticsService = {
   // Dashboard analytics
-  getDashboardStats: () => apiClient.get('/analytics/dashboard'),
+  getDashboardStats: (period) => apiClient.get('/analytics/dashboard', { params: period ? { period } : undefined }),
 
   // Financial reports
   getFinancialSummary: (landlordId, period) =>
