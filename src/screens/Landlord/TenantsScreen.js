@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { leaseService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
@@ -25,9 +26,12 @@ const TenantsScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [loadError, setLoadError] = useState(null);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+  );
 
   const STATUS = { active: 'active', draft: 'pending', pending: 'pending' };
 
@@ -68,6 +72,28 @@ const TenantsScreen = ({ navigation }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRenewLease = (tenant) => {
+    Alert.alert(
+      'Renew lease',
+      `Extend ${tenant.firstName} ${tenant.lastName}'s lease from its current end date.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        ...[6, 12].map((months) => ({
+          text: `${months} months`,
+          onPress: async () => {
+            try {
+              await leaseService.renew(tenant.leaseId, { durationMonths: months });
+              setShowDetailsModal(false);
+              loadData();
+            } catch (error) {
+              Alert.alert('Could not renew', error.response?.data?.error || 'Please try again.');
+            }
+          },
+        })),
+      ]
+    );
   };
 
   const handleTerminateLease = (tenant) => {
@@ -145,14 +171,6 @@ const TenantsScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <ScrollView>
-        {/* Header */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.headerTitle}>Tenants</Text>
-            <Text style={styles.headerSubtitle}>{stats.total} total tenants</Text>
-          </View>
-        </View>
-
         {/* Stats Cards */}
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
@@ -207,7 +225,7 @@ const TenantsScreen = ({ navigation }) => {
         {/* Tenants List */}
         {tenants.length === 0 && (
           <Text style={{ color: colors.textSecondary, textAlign: 'center', padding: spacing[6] }}>
-            {loadError || 'No tenants yet. Tenants appear here once they are on one of your leases.'}
+            {loadError || 'No tenants yet. Tap the person icon at the top to add your first tenant and open their lease.'}
           </Text>
         )}
         <View style={styles.tenantsList}>
@@ -283,7 +301,7 @@ const TenantsScreen = ({ navigation }) => {
         onRequestClose={() => setShowDetailsModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <ScrollView contentContainerStyle={styles.modalScrollContent}>
+          <ScrollView style={{ flexGrow: 0, maxHeight: '92%' }} contentContainerStyle={styles.modalScrollContent}>
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>
@@ -303,6 +321,24 @@ const TenantsScreen = ({ navigation }) => {
                 <Text style={[styles.statusBannerText, { color: getStatusColor(selectedTenant?.status) }]}>
                   {selectedTenant?.status?.toUpperCase()}
                 </Text>
+              </View>
+
+              <View style={[styles.actionButtonsGrid, { marginBottom: spacing[4] }]}>
+                <TouchableOpacity
+                  style={styles.actionButtonSmall}
+                  onPress={() => handleRenewLease(selectedTenant)}
+                >
+                  <Ionicons name="refresh-outline" size={20} color={colors.success} />
+                  <Text style={styles.actionButtonSmallText}>Renew</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.actionButtonSmall}
+                  onPress={() => handleTerminateLease(selectedTenant)}
+                >
+                  <Ionicons name="close-circle-outline" size={20} color={colors.danger} />
+                  <Text style={styles.actionButtonSmallText}>Terminate</Text>
+                </TouchableOpacity>
               </View>
 
               <View style={styles.detailsSection}>
@@ -370,15 +406,6 @@ const TenantsScreen = ({ navigation }) => {
 
               </View>
 
-              <View style={styles.actionButtonsGrid}>
-                <TouchableOpacity
-                  style={styles.actionButtonSmall}
-                  onPress={() => handleTerminateLease(selectedTenant)}
-                >
-                  <Ionicons name="close-circle-outline" size={20} color={colors.danger} />
-                  <Text style={styles.actionButtonSmallText}>Terminate</Text>
-                </TouchableOpacity>
-              </View>
             </View>
           </ScrollView>
         </View>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,6 +13,7 @@ import PropertyUnitsScreen from '../screens/Landlord/PropertyUnitsScreen';
 import LandlordTenantsScreen from '../screens/Landlord/TenantsScreen';
 import LandlordMaintenanceScreen from '../screens/Landlord/MaintenanceScreen';
 import LandlordAnalyticsScreen from '../screens/Landlord/AnalyticsScreen';
+import AddTenantScreen from '../screens/Landlord/AddTenantScreen';
 import LandlordDocumentsScreen from '../screens/Landlord/DocumentsScreen';
 import LandlordMessagesScreen from '../screens/Landlord/MessagesScreen';
 import LandlordProfileScreen from '../screens/Landlord/ProfileScreen';
@@ -111,6 +113,39 @@ const ProfileStack = () => {
   );
 };
 
+// Tenants Stack Navigator: the list, with "add a tenant" opening the lease form.
+const TenantsStack = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: colors.surface },
+        headerTintColor: colors.textPrimary,
+        headerTitleStyle: { fontWeight: typography.fontWeight.bold },
+      }}
+    >
+      <Stack.Screen
+        name="TenantsList"
+        component={LandlordTenantsScreen}
+        options={({ navigation }) => ({
+          title: 'Tenants',
+          headerLeft: () => null,
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('AddTenant')}
+              accessibilityRole="button"
+              accessibilityLabel="Add a tenant"
+              style={{ paddingHorizontal: spacing[4] }}
+            >
+              <Ionicons name="person-add" size={24} color={colors.primary} />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <Stack.Screen name="AddTenant" component={AddTenantScreen} options={{ title: 'Add Tenant' }} />
+    </Stack.Navigator>
+  );
+};
+
 const LandlordNavigator = () => {
   return (
     <Tab.Navigator
@@ -152,7 +187,7 @@ const LandlordNavigator = () => {
     >
       <Tab.Screen name="Home" component={LandlordHomeScreen} options={{ title: 'Dashboard' }} />
       <Tab.Screen name="Properties" component={PropertiesStack} options={{ headerShown: false }} />
-      <Tab.Screen name="Tenants" component={LandlordTenantsScreen} />
+      <Tab.Screen name="Tenants" component={TenantsStack} options={{ headerShown: false }} />
       <Tab.Screen name="Maintenance" component={LandlordMaintenanceScreen} />
       <Tab.Screen name="Analytics" component={LandlordAnalyticsScreen} />
       <Tab.Screen name="Profile" component={ProfileStack} options={{ headerShown: false }} />

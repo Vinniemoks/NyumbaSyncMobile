@@ -355,3 +355,8 @@ export const vendorPortal = {
   start: (id) => apiClient.post(`/v1/vendors/requests/${id}/start`),
   complete: (id, body) => apiClient.post(`/v1/vendors/requests/${id}/complete`, body),
 };
+
+// Landlord onboarding: add a tenant to one of my units and open their lease.
+export const landlordPortal = {
+  addTenant: (body) => apiClient.post('/v1/landlord/tenants', body),
+};
