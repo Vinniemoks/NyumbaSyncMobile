@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../../context/AuthContext';
 import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const AgentClientsScreen = () => {
@@ -17,12 +19,22 @@ const AgentClientsScreen = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [showClientModal, setShowClientModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
-  const [clients, setClients] = useState([
-    { id: 1, name: 'John Doe', email: 'john@example.com', phone: '+254700000000', status: 'active', properties: 2, joined: '2025-10-15' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', phone: '+254711111111', status: 'lead', properties: 0, joined: '2025-11-01' },
-    { id: 3, name: 'Mike Johnson', email: 'mike@example.com', phone: '+254722222222', status: 'active', properties: 1, joined: '2025-09-20' },
-    { id: 4, name: 'Sarah Williams', email: 'sarah@example.com', phone: '+254733333333', status: 'inactive', properties: 0, joined: '2025-08-10' },
-  ]);
+  const { user } = useAuth();
+  const [clients, setClients] = useState([]);
+  const storageKey = `nyumbasync_agent_clients_${user?.id || 'me'}`;
+  const [hydrated, setHydrated] = useState(false);
+
+  // Clients are the agent's own contacts, kept privately on this phone.
+  useEffect(() => {
+    AsyncStorage.getItem(storageKey)
+      .then((raw) => { if (raw) setClients(JSON.parse(raw)); })
+      .catch(() => {})
+      .finally(() => setHydrated(true));
+  }, [storageKey]);
+
+  useEffect(() => {
+    if (hydrated) AsyncStorage.setItem(storageKey, JSON.stringify(clients)).catch(() => {});
+  }, [clients, hydrated, storageKey]);
 
   const getStatusColor = (status) => {
     const colors = { active: '#10B981', lead: '#F59E0B', inactive: '#6B7280' };
@@ -152,7 +164,7 @@ const AgentClientsScreen = () => {
             <Text style={styles.detailLabel}>Email</Text>
             <TextInput
               style={styles.addInput}
-              placeholder="client@example.com"
+              placeholder="Email"
               placeholderTextColor="#64748B"
               keyboardType="email-address"
               autoCapitalize="none"
@@ -162,7 +174,7 @@ const AgentClientsScreen = () => {
             <Text style={styles.detailLabel}>Phone</Text>
             <TextInput
               style={styles.addInput}
-              placeholder="+2547..."
+              placeholder="Phone number"
               placeholderTextColor="#64748B"
               keyboardType="phone-pad"
               value={newClient.phone}
@@ -257,10 +269,10 @@ const styles = StyleSheet.create({
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'center', alignItems: 'center' },
   modalContent: { backgroundColor: colors.surface, borderRadius: 20, padding: spacing[6], width: '90%', maxWidth: 400 },
   modalTitle: { fontSize: typography['2xl'], fontWeight: typography.fontWeight.bold, color: colors.textPrimary, marginBottom: spacing[5] },
-  detailRow: { paddingVertical: spacing[3], borderBottomWidth: 1, borderBottomColor: '#1E293B' },
+  detailRow: { paddingVertical: spacing[3], borderBottomWidth: 1, borderBottomColor: colors.border },
   detailLabel: { fontSize: typography.xs, color: colors.textSecondary, marginBottom: spacing[1] },
   detailValue: { fontSize: typography.sm, color: colors.textPrimary, fontWeight: typography.fontWeight.medium },
-  addInput: { backgroundColor: colors.bg, borderRadius: borderRadius.lg, padding: spacing[3], color: colors.textPrimary, fontSize: typography.base, marginBottom: spacing[3], borderWidth: 1, borderColor: '#1E293B' },
+  addInput: { backgroundColor: colors.bg, borderRadius: borderRadius.lg, padding: spacing[3], color: colors.textPrimary, fontSize: typography.base, marginBottom: spacing[3], borderWidth: 1, borderColor: colors.border },
   closeButton: { backgroundColor: colors.darkBlue,
     borderRadius: borderRadius.lg, padding: spacing[4], alignItems: 'center', marginTop: spacing[5] },
   closeButtonText: { color: colors.gold,

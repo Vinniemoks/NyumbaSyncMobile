@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
-import { analyticsService } from '../../services/api';
+import { propertyService, leaseService, maintenanceService } from '../../services/api';
 import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../../config/theme';
 import MorphingBackground from '../../components/MorphingBackground';
 
@@ -20,10 +20,24 @@ const LandlordHomeScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  // Built from the landlord's own properties, leases and maintenance requests.
   const fetchStats = async () => {
     try {
-      const response = await analyticsService.getDashboardStats();
-      setStats(response.data);
+      const [props, leases, maint] = await Promise.allSettled([
+        propertyService.getByLandlord(),
+        leaseService.getByLandlord(),
+        maintenanceService.getAll(),
+      ]);
+      const propList = props.status === 'fulfilled' ? props.value.data?.properties || [] : [];
+      const leaseList = leases.status === 'fulfilled' && Array.isArray(leases.value.data) ? leases.value.data : [];
+      const maintList = maint.status === 'fulfilled' && Array.isArray(maint.value.data) ? maint.value.data : [];
+      const active = leaseList.filter((l) => l.status === 'active');
+      setStats({
+        monthlyRent: active.reduce((n, l) => n + (Number(l.terms?.rentAmount) || 0), 0),
+        properties: propList.length,
+        tenants: new Set(active.map((l) => String(l.tenant?._id || l.tenant))).size,
+        openMaintenance: maintList.filter((r) => ['reported', 'assigned', 'in_progress'].includes(r.status)).length,
+      });
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
     } finally {
@@ -67,24 +81,24 @@ const LandlordHomeScreen = ({ navigation }) => {
         <View style={commonStyles.statCard}>
           <Ionicons name="cash-outline" size={32} color={colors.success} />
           <Text style={commonStyles.statValue}>
-            KSh {stats?.properties?.potentialRevenue?.toLocaleString() || '0'}
+            KSh {(stats?.monthlyRent || 0).toLocaleString()}
           </Text>
-          <Text style={commonStyles.statLabel}>Monthly Income</Text>
+          <Text style={commonStyles.statLabel}>Monthly rent</Text>
         </View>
         <View style={commonStyles.statCard}>
           <Ionicons name="home-outline" size={32} color={colors.info} />
-          <Text style={commonStyles.statValue}>{stats?.properties?.total || 0}</Text>
+          <Text style={commonStyles.statValue}>{stats?.properties || 0}</Text>
           <Text style={commonStyles.statLabel}>Properties</Text>
         </View>
         <View style={commonStyles.statCard}>
           <Ionicons name="people-outline" size={32} color={colors.purple[500]} />
-          <Text style={commonStyles.statValue}>{stats?.users?.total || 0}</Text>
+          <Text style={commonStyles.statValue}>{stats?.tenants || 0}</Text>
           <Text style={commonStyles.statLabel}>Tenants</Text>
         </View>
         <View style={commonStyles.statCard}>
           <Ionicons name="construct-outline" size={32} color={colors.warning} />
-          <Text style={commonStyles.statValue}>{stats?.maintenance?.total || 0}</Text>
-          <Text style={commonStyles.statLabel}>Maintenance</Text>
+          <Text style={commonStyles.statValue}>{stats?.openMaintenance || 0}</Text>
+          <Text style={commonStyles.statLabel}>Open requests</Text>
         </View>
       </View>
 

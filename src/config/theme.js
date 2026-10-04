@@ -12,18 +12,20 @@
 // ── Colors ──────────────────────────────────────────────────────────
 // Aligned with web app's Tailwind config and index.css
 
+// Bright executive scale: the old dark-slate ramp, reversed, so direct uses of
+// slate[900] (surface) and slate[50] (text) flip with the theme.
 const slate = {
-  50: '#F8FAFC',
-  100: '#F1F5F9',
-  200: '#E2E8F0',
-  300: '#CBD5E1',
-  400: '#94A3B8',
-  500: '#64748B',
-  600: '#475569',
-  700: '#334155',
-  800: '#1E293B',
-  900: '#0F172A',
-  950: '#020617',
+  50: '#0A1A44',
+  100: '#13265A',
+  200: '#1F3068',
+  300: '#3A4A7F',
+  400: '#5D6B96',
+  500: '#7C88AC',
+  600: '#A9B3CE',
+  700: '#D3DAEA',
+  800: '#E6EBF5',
+  900: '#F2F5FB',
+  950: '#FFFFFF',
 };
 
 const blue = {
@@ -111,7 +113,7 @@ const indigo = {
 };
 
 const gold = {
-  DEFAULT: '#D4AF37',
+  DEFAULT: '#B8860B',
   100: '#F5E6C8',
   200: '#EAD08A',
   300: '#DFBA4C',
@@ -124,21 +126,19 @@ const gold = {
 };
 
 const colors = {
-  // Semantic aliases (green-first, aligned with the redesigned web app)
-  primary: green[900],       // '#14532D'
-  primaryDark: green[950],   // '#052E16'
-  primaryLight: green[600],  // '#16A34A'
-  secondary: green[500],     // '#22C55E'
-  success: green[500],       // '#22C55E'
-  warning: amber[500],       // '#F59E0B'
-  danger: red[500],          // '#EF4444'
-  info: blue[500],           // '#3B82F6'
-
-  // Leaf brand palette
-  leaf: green[500],          // '#22C55E'
-  leafDeep: green[900],      // '#14532D'
-  leafTint: green[100],      // '#DCFCE7'
-
+  // Semantic aliases: deep navy primary, royal-blue actions, gold trim, green only for "success"
+  primary: '#0B2A6F',        // deep royal navy (buttons, active chips)
+  primaryDark: '#071B4D',
+  primaryLight: '#2457D6',
+  secondary: '#2457D6',
+  success: green[600],       // '#16A34A'
+  warning: amber[600],       // '#D97706'
+  danger: red[600],          // '#DC2626'
+  info: '#2457D6',           // royal blue
+  // "leaf" is the interactive accent (links, secondary buttons): royal blue
+  leaf: '#2457D6',
+  leafDeep: '#0B2A6F',
+  leafTint: '#E3EBFD',
   // Rent-specific aliases
   'rent-paid': green[500],
   'rent-due': amber[500],
@@ -154,17 +154,17 @@ const colors = {
   indigo,
   gold,
 
-  // Shorthand access for the most common dark-theme colors
-  bg: '#0A1628',             // page background (deep slate)
-  surface: slate[900],       // card / section background
-  surfaceAlt: slate[800],    // alternate card background
-  surfaceHover: slate[800],  // hover state
-  border: slate[700],        // borders
-  textPrimary: slate[50],    // main text
-  textSecondary: slate[400], // subtitles, labels
-  textMuted: slate[500],     // hints, disabled
-  // Backwards-compatible alias used by legacy components
-  darkBlue: '#0A1628',
+  // Shorthand access for the most common theme colors
+  bg: '#F3F6FC',             // page background (cool white)
+  surface: '#FFFFFF',        // card / section background
+  surfaceAlt: '#E8EDF7',     // alternate card background
+  surfaceHover: '#DDE4F2',   // pressed state
+  border: '#D5DCEB',         // borders
+  textPrimary: '#0B1F4B',    // main text (navy ink)
+  textSecondary: '#44527F',  // subtitles, labels
+  textMuted: '#66729A',      // hints, disabled
+  // Legacy alias: the dark accent for selected chips, add buttons and own chat bubbles
+  darkBlue: '#0B2A6F',
 
   // Backward-compatible flat aliases
   gold: gold.DEFAULT,        // string alias for Ionicons etc.
@@ -221,16 +221,16 @@ const typography = {
 
 const shadows = {
   card: {
-    shadowColor: '#000',
+    shadowColor: '#0B1F4B',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.10,
     shadowRadius: 4,
     elevation: 3,
   },
   cardHover: {
-    shadowColor: '#000',
+    shadowColor: '#0B1F4B',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.10,
     shadowRadius: 6,
     elevation: 5,
   },

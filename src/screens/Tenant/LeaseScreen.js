@@ -1,9 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { leaseService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
+
+const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '—');
+
+// Maps a populated lease from GET /leases/tenant/:id to what this screen shows.
+const toLease = (l) => {
+  if (!l) return null;
+  const prop = l.property || {};
+  const ll = l.landlord || {};
+  const end = l.endDate ? new Date(l.endDate) : null;
+  return {
+    property: prop.title || prop.name || 'Your home',
+    address: [prop.address?.street, prop.address?.city].filter(Boolean).join(', '),
+    landlord: {
+      name: [ll.firstName, ll.lastName].filter(Boolean).join(' ') || '—',
+      email: ll.email || '',
+      phone: ll.phone || '',
+    },
+    startDate: fmtDate(l.startDate),
+    endDate: fmtDate(l.endDate),
+    currency: l.terms?.currency === 'KES' || !l.terms?.currency ? 'KSh' : l.terms.currency,
+    monthlyRent: Number(l.terms?.rentAmount) || 0,
+    securityDeposit: Number(l.terms?.depositAmount) || 0,
+    status: l.status,
+    daysUntilExpiry: end ? Math.ceil((end - new Date()) / 86400000) : null,
+  };
+};
 
 const LeaseScreen = () => {
   const { user } = useAuth();
@@ -17,37 +43,14 @@ const LeaseScreen = () => {
   const loadLease = async () => {
     setLoading(true);
     try {
-      const response = await leaseService.getByTenant(user?.id);
-      if (response.data.success && response.data.leases.length > 0) {
-        setLease(response.data.leases[0]); // Get active lease
-      }
+      const { data } = await leaseService.getByTenant(user?.id);
+      const list = Array.isArray(data) ? data : [];
+      setLease(toLease(list.find((l) => l.status === 'active') || list[0] || null));
     } catch (error) {
-      // Mock data
-      setLease({
-        id: 1,
-        property: 'Riverside Apartments',
-        unitNumber: 'A-101',
-        landlord: { name: 'Property Owner', email: 'owner@example.com', phone: '+254700000000' },
-        startDate: '2024-01-01',
-        endDate: '2025-12-31',
-        monthlyRent: 35000,
-        securityDeposit: 35000,
-        status: 'active',
-        signedDate: '2023-12-15',
-        daysUntilExpiry: 410,
-        terms: 'Standard residential lease agreement...',
-      });
+      setLease(null);
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleDownloadLease = () => {
-    Alert.alert('Download', 'Lease document will be downloaded');
-  };
-
-  const handleRequestRenewal = () => {
-    Alert.alert('Renewal Request', 'Your renewal request has been sent to the landlord');
   };
 
   if (loading) {
@@ -69,7 +72,7 @@ const LeaseScreen = () => {
   }
 
   const daysRemaining = lease.daysUntilExpiry;
-  const isExpiringSoon = daysRemaining <= 60;
+  const isExpiringSoon = daysRemaining !== null && daysRemaining >= 0 && daysRemaining <= 60;
 
   return (
     <ScrollView style={styles.container}>
@@ -91,7 +94,7 @@ const LeaseScreen = () => {
           <View style={styles.infoContent}>
             <Text style={styles.infoLabel}>Property</Text>
             <Text style={styles.infoValue}>{lease.property}</Text>
-            <Text style={styles.infoSubtext}>Unit {lease.unitNumber}</Text>
+            {!!lease.address && <Text style={styles.infoSubtext}>{lease.address}</Text>}
           </View>
         </View>
 
@@ -100,7 +103,7 @@ const LeaseScreen = () => {
           <View style={styles.infoContent}>
             <Text style={styles.infoLabel}>Landlord</Text>
             <Text style={styles.infoValue}>{lease.landlord.name}</Text>
-            <Text style={styles.infoSubtext}>{lease.landlord.email}</Text>
+            <Text style={styles.infoSubtext}>{[lease.landlord.email, lease.landlord.phone].filter(Boolean).join(' · ')}</Text>
           </View>
         </View>
 
@@ -116,7 +119,7 @@ const LeaseScreen = () => {
           <Ionicons name="cash-outline" size={20} color={colors.info} />
           <View style={styles.infoContent}>
             <Text style={styles.infoLabel}>Monthly Rent</Text>
-            <Text style={styles.infoValue}>KSh {lease.monthlyRent.toLocaleString()}</Text>
+            <Text style={styles.infoValue}>{lease.currency} {lease.monthlyRent.toLocaleString()}</Text>
           </View>
         </View>
 
@@ -124,24 +127,11 @@ const LeaseScreen = () => {
           <Ionicons name="shield-checkmark-outline" size={20} color={colors.info} />
           <View style={styles.infoContent}>
             <Text style={styles.infoLabel}>Security Deposit</Text>
-            <Text style={styles.infoValue}>KSh {lease.securityDeposit.toLocaleString()}</Text>
+            <Text style={styles.infoValue}>{lease.currency} {lease.securityDeposit.toLocaleString()}</Text>
           </View>
         </View>
       </View>
 
-      <View style={styles.actionsCard}>
-        <TouchableOpacity style={styles.actionButton} onPress={handleDownloadLease}>
-          <Ionicons name="download-outline" size={24} color={colors.info} />
-          <Text style={styles.actionButtonText}>Download Lease</Text>
-        </TouchableOpacity>
-
-        {isExpiringSoon && (
-          <TouchableOpacity style={styles.actionButton} onPress={handleRequestRenewal}>
-            <Ionicons name="refresh-outline" size={24} color={colors.success} />
-            <Text style={styles.actionButtonText}>Request Renewal</Text>
-          </TouchableOpacity>
-        )}
-      </View>
     </ScrollView>
   );
 };
@@ -158,7 +148,7 @@ const styles = StyleSheet.create({
   warningText: { fontSize: typography.sm, color: '#FCA5A5' },
   card: { backgroundColor: colors.surface, margin: spacing[5], marginTop: 0, borderRadius: borderRadius.xl, padding: spacing[5] },
   cardTitle: { fontSize: typography.xl, fontWeight: typography.fontWeight.bold, color: colors.textPrimary, marginBottom: spacing[5] },
-  infoRow: { flexDirection: 'row', paddingVertical: spacing[4], borderBottomWidth: 1, borderBottomColor: '#1E293B' },
+  infoRow: { flexDirection: 'row', paddingVertical: spacing[4], borderBottomWidth: 1, borderBottomColor: colors.border },
   infoContent: { flex: 1, marginLeft: spacing[3] },
   infoLabel: { fontSize: typography.xs, color: colors.textSecondary, marginBottom: spacing[1] },
   infoValue: { fontSize: typography.base, color: colors.textPrimary, fontWeight: typography.fontWeight.medium, marginBottom: 2 },

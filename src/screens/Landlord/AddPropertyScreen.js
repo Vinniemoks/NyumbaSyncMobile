@@ -303,7 +303,7 @@ const AddPropertyScreen = ({ navigation }) => {
         <Text style={styles.label}>Property Name *</Text>
         <TextInput
           style={styles.input}
-          placeholder="e.g. Riverside Apartments"
+          placeholder="Property name"
           placeholderTextColor={colors.textMuted}
           value={form.title}
           onChangeText={(text) => updateField('title', text)}
@@ -481,7 +481,7 @@ const AddPropertyScreen = ({ navigation }) => {
         <Text style={styles.label}>Base Rent (KES) *</Text>
         <TextInput
           style={styles.input}
-          placeholder="e.g. 25000"
+          placeholder="Monthly rent (KES)"
           placeholderTextColor={colors.textMuted}
           value={form.rentAmount}
           onChangeText={(text) => updateField('rentAmount', text)}

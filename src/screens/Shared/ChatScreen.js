@@ -121,63 +121,20 @@ const ChatScreen = ({ route, navigation }) => {
     setLoading(true);
     try {
       const response = await messageService.getMessages(conversation.id);
-      if (response.data.success) {
-        setMessages(response.data.messages.reverse());
-      }
+      const raw = Array.isArray(response.data) ? response.data : response.data?.messages || [];
+      const list = raw.map((m) => ({
+        id: String(m._id || m.id),
+        text: m.text || m.content || m.body || '',
+        senderId: String(m.senderId || m.sender?._id || m.sender || ''),
+        timestamp: m.timestamp || m.createdAt,
+        read: !!(m.read ?? m.isRead),
+      }));
+      // The API returns newest first; the list renders oldest first.
+      const asc = raw.length > 1 && new Date(list[0].timestamp) > new Date(list[list.length - 1].timestamp) ? list.reverse() : list;
+      setMessages(asc);
     } catch (error) {
       console.error('Error loading messages:', error);
-      // Mock data
-      setMessages([
-        {
-          id: 1,
-          text: 'Hi, I have a maintenance issue in my unit',
-          senderId: 1,
-          timestamp: '2024-11-18T10:00:00',
-          read: true,
-        },
-        {
-          id: 2,
-          text: 'Hello! What seems to be the problem?',
-          senderId: 2,
-          timestamp: '2024-11-18T10:05:00',
-          read: true,
-        },
-        {
-          id: 3,
-          text: 'The kitchen faucet is leaking',
-          senderId: 1,
-          timestamp: '2024-11-18T10:07:00',
-          read: true,
-        },
-        {
-          id: 4,
-          text: 'I\'ll send a plumber to check it out. Are you available tomorrow morning?',
-          senderId: 2,
-          timestamp: '2024-11-18T10:10:00',
-          read: true,
-        },
-        {
-          id: 5,
-          text: 'Yes, I\'ll be home after 9 AM',
-          senderId: 1,
-          timestamp: '2024-11-18T10:12:00',
-          read: true,
-        },
-        {
-          id: 6,
-          text: 'Perfect! The plumber will arrive around 10 AM',
-          senderId: 2,
-          timestamp: '2024-11-18T14:25:00',
-          read: true,
-        },
-        {
-          id: 7,
-          text: 'The maintenance issue will be resolved by tomorrow',
-          senderId: 2,
-          timestamp: '2024-11-18T14:30:00',
-          read: false,
-        },
-      ]);
+      setMessages([]);
     } finally {
       setLoading(false);
     }
@@ -338,7 +295,7 @@ const ChatScreen = ({ route, navigation }) => {
   };
 
   const renderMessage = ({ item, index }) => {
-    const isOwnMessage = item.senderId === user?.id;
+    const isOwnMessage = String(item.senderId) === String(user?.id);
     const showDateSeparator = shouldShowDateSeparator(item, messages[index - 1]);
 
     return (
@@ -528,7 +485,7 @@ const styles = StyleSheet.create({
     padding: spacing[3],
     backgroundColor: colors.surface,
     borderTopWidth: 1,
-    borderTopColor: '#1E293B',
+    borderTopColor: colors.border,
   },
   attachButton: {
     padding: spacing[2],
@@ -555,7 +512,7 @@ const styles = StyleSheet.create({
     marginLeft: spacing[2],
   },
   sendButtonDisabled: {
-    backgroundColor: '#334155',
+    backgroundColor: colors.border,
   },
   typingIndicator: {
     padding: spacing[3],

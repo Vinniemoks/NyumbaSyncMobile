@@ -14,10 +14,12 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { messageService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const MessagesScreen = ({ navigation }) => {
   const { user } = useAuth();
+  const insets = useSafeAreaInsets();
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,13 +31,23 @@ const MessagesScreen = ({ navigation }) => {
   const loadConversations = async () => {
     setLoading(true);
     try {
-      const response = await messageService.getConversations();
-      if (response.data.success) {
-        setConversations(response.data.conversations);
-      }
+      const { data } = await messageService.getConversations(user?.id);
+      const list = (Array.isArray(data) ? data : []).map((c) => {
+        const other = (c.participants || []).find((x) => String(x._id || x.id || x) !== String(user?.id)) || {};
+        return {
+          id: String(c.id || c._id),
+          participant: {
+            id: String(other._id || other.id || ''),
+            name: [other.firstName, other.lastName].filter(Boolean).join(' ') || other.email || 'Conversation',
+            role: other.role || '',
+          },
+          lastMessage: { text: c.lastMessage || '', timestamp: c.lastMessageAt, senderId: '' },
+          unreadCount: Number(c.unreadCount) || 0,
+        };
+      });
+      setConversations(list);
     } catch (error) {
-      console.error('Error loading conversations:', error);
-      Alert.alert('Error', 'Failed to load conversations');
+      setConversations([]);
     } finally {
       setLoading(false);
     }
@@ -127,7 +139,7 @@ const MessagesScreen = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Ionicons name="search" size={20} color={colors.textSecondary} style={styles.searchIcon} />

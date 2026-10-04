@@ -10,20 +10,13 @@ import {
 } from 'react-native';
 import Logo from '../components/Logo';
 import { routeLoginGate } from '../utils/loginGates';
+import { dashboardFor } from '../utils/roleRoutes';
 import Button from '../components/Button';
 import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../services/api';
 import { normalizeKenyanPhone } from '../utils/phone';
 import { colors, spacing, typography, commonStyles } from '../config/theme';
 import MorphingBackground from '../components/MorphingBackground';
-
-const ROLE_ROUTES = {
-  landlord: 'LandlordDashboard',
-  manager: 'ManagerDashboard',
-  tenant: 'TenantDashboard',
-  admin: 'AdminDashboard',
-  super_admin: 'AdminDashboard',
-};
 
 const LoginScreen = ({ navigation }) => {
   const [identifier, setIdentifier] = useState('');
@@ -68,8 +61,7 @@ const LoginScreen = ({ navigation }) => {
           refreshToken: result.refreshToken,
           user: result.user,
         });
-        const route = ROLE_ROUTES[result.user?.role] || 'TenantDashboard';
-        navigation.replace(route);
+        navigation.replace(dashboardFor(result.user) || 'Landing');
       } else {
         Alert.alert('Error', result.message || result.error || 'Login failed');
       }
@@ -103,7 +95,7 @@ const LoginScreen = ({ navigation }) => {
           <Text style={commonStyles.label}>Email or Phone Number</Text>
           <TextInput
             style={commonStyles.input}
-            placeholder="email@example.com or +254712345678"
+            placeholder="Email or phone"
             placeholderTextColor={colors.textMuted}
             value={identifier}
             onChangeText={setIdentifier}
@@ -115,7 +107,7 @@ const LoginScreen = ({ navigation }) => {
           <Text style={commonStyles.label}>Password</Text>
           <TextInput
             style={commonStyles.input}
-            placeholder="Enter your password"
+            placeholder="Password"
             placeholderTextColor={colors.textMuted}
             value={password}
             onChangeText={setPassword}

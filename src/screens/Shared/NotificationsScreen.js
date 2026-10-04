@@ -28,18 +28,24 @@ const NotificationsScreen = () => {
   const loadNotifications = async () => {
     setLoading(true);
     try {
-      const response = await notificationService.getByUser();
-      if (response.data.success) {
-        setNotifications(response.data.notifications);
-      }
+      const { data } = await notificationService.getByUser();
+      const raw = Array.isArray(data) ? data : data?.data || data?.notifications || [];
+      setNotifications(
+        raw.map((n) => ({
+          ...n,
+          id: String(n._id || n.id),
+          title: n.title || '',
+          message: n.message || n.body || '',
+          read: !!(n.read ?? n.isRead),
+          timestamp: n.timestamp || n.createdAt,
+        }))
+      );
     } catch (error) {
-      console.error('Error loading notifications:', error);
-      Alert.alert('Error', 'Failed to load notifications');
+      setNotifications([]);
     } finally {
       setLoading(false);
     }
   };
-
 
   const onRefresh = async () => {
     setRefreshing(true);

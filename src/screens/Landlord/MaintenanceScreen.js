@@ -16,14 +16,8 @@ import { maintenanceService } from '../../services/api';
 import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const LandlordMaintenanceScreen = () => {
-  const [selectedRequest, setSelectedRequest] = useState(null);
-  const [showAssignModal, setShowAssignModal] = useState(false);
-  const [assignData, setAssignData] = useState({
-    contractor: '',
-    estimatedCost: '',
-    notes: '',
-  });
   const [requests, setRequests] = useState([]);
+  const [loadError, setLoadError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -31,15 +25,23 @@ const LandlordMaintenanceScreen = () => {
     loadRequests();
   }, []);
 
+  // GET /maintenance is role-aware: a landlord gets the requests for their properties.
   const loadRequests = async () => {
     try {
-      const response = await maintenanceService.getByLandlord();
-      if (response.data.success) {
-        setRequests(response.data.requests);
-      }
+      const { data } = await maintenanceService.getAll();
+      setRequests(
+        (Array.isArray(data) ? data : []).map((r) => ({
+          ...r,
+          id: String(r.id || r._id),
+          // the API's first status is "reported"; this screen calls it "pending"
+          status: r.status === 'reported' ? 'pending' : r.status,
+          tenantName: r.tenantName || '',
+        }))
+      );
+      setLoadError(false);
     } catch (error) {
-      console.error('Error loading maintenance requests:', error);
-      Alert.alert('Error', 'Failed to load maintenance requests');
+      setRequests([]);
+      setLoadError(true);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -51,47 +53,12 @@ const LandlordMaintenanceScreen = () => {
     loadRequests();
   };
 
-  const handleAssign = (request) => {
-    setSelectedRequest(request);
-    setShowAssignModal(true);
-  };
-
-  const handleSubmitAssignment = async () => {
-    if (!assignData.contractor) {
-      Alert.alert('Error', 'Please enter contractor name');
-      return;
-    }
-
-    try {
-      const response = await maintenanceService.update(selectedRequest.id, {
-        status: 'assigned',
-        contractor: assignData.contractor,
-        estimatedCost: parseFloat(assignData.estimatedCost) || 0,
-        notes: assignData.notes,
-      });
-
-      if (response.data.success) {
-        Alert.alert('Success', 'Maintenance request assigned successfully!');
-        setAssignData({ contractor: '', estimatedCost: '', notes: '' });
-        setShowAssignModal(false);
-        loadRequests();
-      }
-    } catch (error) {
-      console.error('Error assigning request:', error);
-      Alert.alert('Error', 'Failed to assign request');
-    }
-  };
-
   const handleUpdateStatus = async (requestId, newStatus) => {
     try {
-      const response = await maintenanceService.update(requestId, { status: newStatus });
-      if (response.data.success) {
-        Alert.alert('Success', `Status updated to ${newStatus.replace('_', ' ')}`);
-        loadRequests();
-      }
+      await maintenanceService.update(requestId, { status: newStatus });
+      loadRequests();
     } catch (error) {
-      console.error('Error updating status:', error);
-      Alert.alert('Error', 'Failed to update status');
+      Alert.alert('Could not update', error.response?.data?.error || 'Please try again.');
     }
   };
 
@@ -189,11 +156,11 @@ const LandlordMaintenanceScreen = () => {
               <View style={styles.requestDetails}>
                 <View style={styles.detailRow}>
                   <Ionicons name="person-outline" size={16} color={colors.textSecondary} />
-                  <Text style={styles.detailText}>{request.tenant?.firstName} {request.tenant?.lastName}</Text>
+                  <Text style={styles.detailText}>{request.tenantName || 'Tenant'}</Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Ionicons name="home-outline" size={16} color={colors.textSecondary} />
-                  <Text style={styles.detailText}>{request.property?.name} - {request.unitNumber}</Text>
+                  <Text style={styles.detailText}>{request.property || 'Property'}</Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Ionicons name="pricetag-outline" size={16} color={colors.textSecondary} />
@@ -205,20 +172,6 @@ const LandlordMaintenanceScreen = () => {
                 </View>
               </View>
 
-              {request.contractor && (
-                <View style={styles.assignmentInfo}>
-                  <View style={styles.detailRow}>
-                    <Ionicons name="construct-outline" size={16} color={colors.info} />
-                    <Text style={styles.contractorText}>{request.contractor}</Text>
-                  </View>
-                  {request.estimatedCost > 0 && (
-                    <View style={styles.detailRow}>
-                      <Ionicons name="cash-outline" size={16} color={colors.success} />
-                      <Text style={styles.costText}>KSh {request.estimatedCost.toLocaleString()}</Text>
-                    </View>
-                  )}
-                </View>
-              )}
 
               <View style={styles.requestFooter}>
                 <View
@@ -235,16 +188,7 @@ const LandlordMaintenanceScreen = () => {
                 </View>
 
                 <View style={styles.actionButtons}>
-                  {request.status === 'pending' && (
-                    <TouchableOpacity
-                      style={styles.actionButton}
-                      onPress={() => handleAssign(request)}
-                    >
-                      <Ionicons name="person-add-outline" size={18} color={colors.info} />
-                      <Text style={styles.actionButtonText}>Assign</Text>
-                    </TouchableOpacity>
-                  )}
-                  {request.status === 'assigned' && (
+                  {['pending', 'assigned'].includes(request.status) && (
                     <TouchableOpacity
                       style={styles.actionButton}
                       onPress={() => handleUpdateStatus(request.id, 'in_progress')}
@@ -270,77 +214,13 @@ const LandlordMaintenanceScreen = () => {
           {requests.length === 0 && (
             <View style={styles.emptyState}>
               <Ionicons name="construct-outline" size={64} color={colors.textMuted} />
-              <Text style={styles.emptyStateText}>No maintenance requests</Text>
-              <Text style={styles.emptyStateSubtext}>Requests from your tenants will appear here</Text>
+              <Text style={styles.emptyStateText}>{loadError ? 'Could not load requests' : 'No maintenance requests'}</Text>
+              <Text style={styles.emptyStateSubtext}>{loadError ? 'Pull down to try again' : 'Requests from your tenants will appear here'}</Text>
             </View>
           )}
         </View>
       </ScrollView>
 
-      <Modal
-        visible={showAssignModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowAssignModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Assign Maintenance Request</Text>
-
-            {selectedRequest && (
-              <View style={styles.requestSummary}>
-                <Text style={styles.summaryTitle}>{selectedRequest.title}</Text>
-                <Text style={styles.summaryText}>{selectedRequest.property?.name} - {selectedRequest.unitNumber}</Text>
-              </View>
-            )}
-
-            <Text style={styles.inputLabel}>Contractor Name *</Text>
-            <TextInput
-              style={styles.input}
-              value={assignData.contractor}
-              onChangeText={(text) => setAssignData({ ...assignData, contractor: text })}
-              placeholder="e.g., ABC Plumbing Services"
-              placeholderTextColor="#64748B"
-            />
-
-            <Text style={styles.inputLabel}>Estimated Cost (KSh)</Text>
-            <TextInput
-              style={styles.input}
-              value={assignData.estimatedCost}
-              onChangeText={(text) => setAssignData({ ...assignData, estimatedCost: text })}
-              placeholder="e.g., 5000"
-              placeholderTextColor="#64748B"
-              keyboardType="numeric"
-            />
-
-            <Text style={styles.inputLabel}>Notes</Text>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              value={assignData.notes}
-              onChangeText={(text) => setAssignData({ ...assignData, notes: text })}
-              placeholder="Additional notes for the contractor..."
-              placeholderTextColor="#64748B"
-              multiline
-              numberOfLines={3}
-            />
-
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setShowAssignModal(false)}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.submitButton]}
-                onPress={handleSubmitAssignment}
-              >
-                <Text style={styles.submitButtonText}>Assign</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 };
@@ -536,7 +416,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: colors.slate[800],
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: colors.border,
     borderRadius: borderRadius.lg,
     padding: spacing[4],
     fontSize: typography.base,

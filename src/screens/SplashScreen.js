@@ -2,36 +2,21 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import Logo from '../components/Logo';
 import { useAuth } from '../context/AuthContext';
+import { dashboardFor } from '../utils/roleRoutes';
 import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../config/theme';
 
 const SplashScreen = ({ navigation }) => {
   const { user, loading } = useAuth();
 
   useEffect(() => {
-    if (!loading) {
-      setTimeout(() => {
-        if (user) {
-          // Navigate based on user role
-          const roleRoutes = {
-            landlord: 'LandlordDashboard',
-            property_manager: 'PropertyManagerDashboard',
-            tenant: 'TenantDashboard',
-            admin: 'AdminDashboard',
-            vendor: 'VendorDashboard',
-            agent: 'AgentDashboard',
-          };
-          navigation.replace(roleRoutes[user.role] || 'Landing');
-        } else {
-          navigation.replace('Landing');
-        }
-      }, 2000);
-    }
+    if (loading) return undefined;
+    const t = setTimeout(() => navigation.replace(dashboardFor(user) || 'Landing'), 500);
+    return () => clearTimeout(t);
   }, [loading, user, navigation]);
 
   return (
     <View style={commonStyles.container}>
       <Logo size={96} showWordmark style={{ marginBottom: spacing[6] }} />
-      <Text style={styles.subtitle}>Property Management Made Simple</Text>
       <ActivityIndicator size="large" color={colors.gold} style={styles.loader} />
     </View>
   );

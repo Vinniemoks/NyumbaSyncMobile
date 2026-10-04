@@ -70,6 +70,7 @@ const ProfileStack = () => {
         component={TenantProfileScreen}
         options={{ headerShown: false }}
       />
+      <Stack.Screen name="Documents" component={TenantDocumentsScreen} options={{ title: 'Documents' }} />
       <Stack.Screen 
         name="Notifications" 
         component={TenantNotificationsScreen}

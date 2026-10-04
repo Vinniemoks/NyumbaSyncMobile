@@ -347,7 +347,7 @@ const PropertyUnitsScreen = ({ route, navigation }) => {
               <Text style={styles.inputLabel}>Unit Number *</Text>
               <TextInput
                 style={styles.input}
-                placeholder="e.g., A1"
+                placeholder="Unit label"
                 placeholderTextColor="#64748B"
                 value={formData.houseNumber}
                 onChangeText={(text) => setFormData({ ...formData, houseNumber: text })}
@@ -487,7 +487,7 @@ const PropertyUnitsScreen = ({ route, navigation }) => {
                   <Text style={styles.inputLabel}>Prefix</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="e.g., A"
+                    placeholder="Block / wing"
                     placeholderTextColor="#64748B"
                     value={bulkData.prefix}
                     onChangeText={(text) => setBulkData({ ...bulkData, prefix: text })}
@@ -755,7 +755,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: colors.slate[800],
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: colors.border,
     borderRadius: borderRadius.lg,
     padding: spacing[4],
     fontSize: typography.base,

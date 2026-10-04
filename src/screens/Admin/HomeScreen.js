@@ -1,255 +1,122 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { adminService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
-import MorphingBackground from '../../components/MorphingBackground';
+import { colors, spacing, typography, borderRadius } from '../../config/theme';
+import { roleLabel } from '../../utils/roles';
+
+const nf = (n) => Number(n || 0).toLocaleString();
+const money = (n, cur = 'KES') => `${cur === 'KES' ? 'KSh' : cur} ${nf(n)}`;
+const growth = (g) => (typeof g === 'number' && g !== 0 ? `${g > 0 ? '+' : ''}${g}% vs last month` : null);
 
 const AdminHomeScreen = ({ navigation }) => {
   const { user } = useAuth();
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(null);
+
+  const load = useCallback(async () => {
+    try {
+      const { data } = await adminService.stats();
+      setStats(data.stats);
+      setError(null);
+    } catch (e) {
+      setError('Could not load the dashboard. Pull down to try again.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const cards = stats && [
+    { icon: 'people', color: colors.info, label: 'Users', value: nf(stats.totalUsers), note: `${nf(stats.activeUsers)} active`, to: 'Users' },
+    { icon: 'business', color: colors.primaryLight, label: 'Properties', value: nf(stats.totalProperties), note: `${stats.occupancyRate}% occupied`, to: 'Properties' },
+    { icon: 'cash', color: colors.success, label: 'Revenue this month', value: money(stats.monthlyRevenue, stats.currency), note: growth(stats.revenueGrowth) || `${nf(stats.monthlyTransactions)} payments` },
+    { icon: 'document-text', color: colors.gold, label: 'Active leases', value: nf(stats.activeLeases), note: `${nf(stats.activeTenants)} tenants` },
+    { icon: 'construct', color: colors.warning, label: 'Open maintenance', value: nf(stats.pendingMaintenance), note: `${stats.maintenanceResolutionRate}% resolved` },
+    { icon: 'trending-up', color: colors.primary, label: 'New users', value: growth(stats.userGrowth) ? `${stats.userGrowth > 0 ? '+' : ''}${stats.userGrowth}%` : '—', note: 'vs last month' },
+  ];
+
+  const roles = stats && [
+    ['Landlords', stats.activeLandlords], ['Managers', stats.activeManagers],
+    ['Agents', stats.activeAgents], ['Vendors', stats.activeVendors], ['Tenants', stats.activeTenants],
+  ];
 
   return (
-    <View style={styles.container}>
-      <MorphingBackground />
-      <ScrollView style={{ flex: 1 }}>
-      <View style={styles.header}>
-        <Text style={styles.greeting}>System Administrator</Text>
-        <Text style={styles.userName}>{user?.firstName || 'Admin'}</Text>
-        <View style={styles.roleBadge}>
-          <Text style={styles.roleText}>Administrator</Text>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ padding: spacing[3], paddingBottom: spacing[8] }}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} />}
+    >
+      <View style={styles.hello}>
+        <View>
+          <Text style={styles.helloSub}>Welcome back</Text>
+          <Text style={styles.helloName}>{user?.firstName || 'Admin'}</Text>
         </View>
+        <View style={styles.pill}><Text style={styles.pillText}>{roleLabel(user?.role)}</Text></View>
       </View>
 
-      <View style={styles.statsGrid}>
-        <View style={styles.statCard}>
-          <Ionicons name="people-outline" size={32} color={colors.info} />
-          <Text style={styles.statValue}>1,245</Text>
-          <Text style={styles.statLabel}>Total Users</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Ionicons name="business-outline" size={32} color={colors.purple[500]} />
-          <Text style={styles.statValue}>342</Text>
-          <Text style={styles.statLabel}>Properties</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Ionicons name="cash-outline" size={32} color={colors.success} />
-          <Text style={styles.statValue}>KSh 12.5M</Text>
-          <Text style={styles.statLabel}>Total Revenue</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Ionicons name="trending-up-outline" size={32} color={colors.warning} />
-          <Text style={styles.statValue}>+24%</Text>
-          <Text style={styles.statLabel}>Growth</Text>
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>System Management</Text>
-        <View style={styles.actionsGrid}>
-          <TouchableOpacity 
-            style={styles.actionCard}
-            onPress={() => navigation.navigate('Users')}
-          >
-            <Ionicons name="people-outline" size={32} color={colors.info} />
-            <Text style={styles.actionCardText}>Users</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.actionCard}
-            onPress={() => navigation.navigate('Properties')}
-          >
-            <Ionicons name="business-outline" size={32} color={colors.success} />
-            <Text style={styles.actionCardText}>Properties</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.actionCard}
-            onPress={() => navigation.navigate('Payments')}
-          >
-            <Ionicons name="cash-outline" size={32} color={colors.warning} />
-            <Text style={styles.actionCardText}>Payments</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.actionCard}
-            onPress={() => navigation.navigate('Reports')}
-          >
-            <Ionicons name="stats-chart-outline" size={32} color="#8B5CF6" />
-            <Text style={styles.actionCardText}>Reports</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.actionCard}
-            onPress={() => navigation.navigate('Settings')}
-          >
-            <Ionicons name="settings-outline" size={32} color={colors.info} />
-            <Text style={styles.actionCardText}>Settings</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.actionCard}
-            onPress={() => navigation.navigate('Logs')}
-          >
-            <Ionicons name="document-text-outline" size={32} color={colors.danger} />
-            <Text style={styles.actionCardText}>System Logs</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Recent Activity</Text>
-        {[
-          { icon: 'person-add', color: colors.success, title: 'New User Registered', subtitle: 'John Doe - Landlord', time: '10m ago' },
-          { icon: 'cash', color: colors.info, title: 'Payment Processed', subtitle: 'KSh 45,000 - Transaction #12345', time: '1h ago' },
-          { icon: 'business', color: '#8B5CF6', title: 'Property Added', subtitle: 'Westlands Tower - 24 units', time: '3h ago' },
-          { icon: 'alert-circle', color: colors.danger, title: 'System Alert', subtitle: 'High server load detected', time: '5h ago' },
-        ].map((item, index) => (
-          <View key={index} style={styles.activityItem}>
-            <View style={[styles.activityIcon, { backgroundColor: item.color + '20' }]}>
-              <Ionicons name={item.icon} size={20} color={item.color} />
-            </View>
-            <View style={styles.activityContent}>
-              <Text style={styles.activityTitle}>{item.title}</Text>
-              <Text style={styles.activitySubtitle}>{item.subtitle}</Text>
-            </View>
-            <Text style={styles.activityTime}>{item.time}</Text>
+      {loading ? (
+        <ActivityIndicator size="large" color={colors.info} style={{ marginTop: spacing[10] }} />
+      ) : error ? (
+        <Text style={styles.error}>{error}</Text>
+      ) : (
+        <>
+          <View style={styles.grid}>
+            {cards.map((c) => (
+              <TouchableOpacity key={c.label} style={styles.card} disabled={!c.to} onPress={() => navigation.navigate(c.to)} activeOpacity={0.8}>
+                <View style={[styles.cardIcon, { backgroundColor: `${c.color}1A` }]}><Ionicons name={c.icon} size={18} color={c.color} /></View>
+                <Text style={styles.value} numberOfLines={1} adjustsFontSizeToFit>{c.value}</Text>
+                <Text style={styles.label} numberOfLines={1}>{c.label}</Text>
+                <Text style={styles.note} numberOfLines={1}>{c.note}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
-        ))}
-      </View>
+
+          <Text style={styles.section}>Accounts by role</Text>
+          <View style={styles.rolesCard}>
+            {roles.map(([name, n]) => (
+              <View key={name} style={styles.roleCell}>
+                <Text style={styles.roleNum}>{nf(n)}</Text>
+                <Text style={styles.roleName}>{name}</Text>
+              </View>
+            ))}
+          </View>
+        </>
+      )}
     </ScrollView>
-    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg,
+  container: { flex: 1, backgroundColor: colors.bg },
+  hello: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing[3] },
+  helloSub: { color: colors.textSecondary, fontSize: typography.sm },
+  helloName: { color: colors.textPrimary, fontSize: typography['2xl'], fontWeight: '800' },
+  pill: { backgroundColor: colors.leafTint, borderRadius: 999, paddingHorizontal: spacing[3], paddingVertical: 6 },
+  pillText: { color: colors.primary, fontWeight: '800', fontSize: typography.xs },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3] },
+  card: {
+    width: '47.5%', padding: spacing[3], backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl, borderWidth: 1, borderColor: colors.border,
   },
-  header: {
-    backgroundColor: colors.surface,
-    padding: spacing[5],
-    alignItems: 'center',
+  cardIcon: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginBottom: spacing[2] },
+  value: { color: colors.textPrimary, fontSize: typography['2xl'], fontWeight: '800' },
+  label: { color: colors.textSecondary, fontSize: typography.xs, marginTop: 2, fontWeight: '600' },
+  note: { color: colors.textMuted, fontSize: 11, marginTop: 2 },
+  section: { color: colors.textPrimary, fontSize: typography.base, fontWeight: '800', marginTop: spacing[4], marginBottom: spacing[2] },
+  rolesCard: {
+    flexDirection: 'row', justifyContent: 'space-between', padding: spacing[3], backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl, borderWidth: 1, borderColor: colors.border,
   },
-  greeting: {
-    fontSize: typography.sm,
-    color: colors.textSecondary,
-  },
-  userName: {
-    fontSize: typography['2xl'],
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary,
-    marginTop: spacing[1],
-  },
-  roleBadge: {
-    backgroundColor: colors.primaryDark,
-    paddingHorizontal: spacing[3],
-    paddingVertical: spacing[1] + 2,
-    borderRadius: borderRadius.xl,
-    marginTop: spacing[2],
-  },
-  roleText: {
-    fontSize: typography.xs,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.gold,
-    textTransform: 'uppercase',
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: spacing[5],
-  },
-  statCard: {
-    width: '48%',
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing[5],
-    margin: '1%',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  statValue: {
-    fontSize: typography['2xl'],
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary,
-    marginTop: spacing[2],
-  },
-  statLabel: {
-    fontSize: typography.xs,
-    color: colors.textSecondary,
-    marginTop: spacing[1],
-    textAlign: 'center',
-  },
-  section: {
-    padding: spacing[5],
-  },
-  sectionTitle: {
-    fontSize: typography.lg,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary,
-    marginBottom: spacing[4],
-  },
-  actionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  actionCard: {
-    width: '48%',
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing[5],
-    alignItems: 'center',
-    marginBottom: spacing[3],
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  actionCardText: {
-    fontSize: typography.sm,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.slate[200],
-    marginTop: spacing[2],
-  },
-  activityItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing[4],
-    marginBottom: spacing[3],
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  activityIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: spacing[3],
-  },
-  activityContent: {
-    flex: 1,
-  },
-  activityTitle: {
-    fontSize: typography.sm,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.textPrimary,
-    marginBottom: 2,
-  },
-  activitySubtitle: {
-    fontSize: typography.xs,
-    color: colors.textSecondary,
-  },
-  activityTime: {
-    fontSize: typography.xs,
-    color: colors.textMuted,
-  },
+  roleCell: { alignItems: 'center', flex: 1 },
+  roleNum: { color: colors.textPrimary, fontSize: typography.lg, fontWeight: '800' },
+  roleName: { color: colors.textSecondary, fontSize: 10, marginTop: 2 },
+  error: { color: colors.textSecondary, textAlign: 'center', marginTop: spacing[10] },
 });
 
 export default AdminHomeScreen;

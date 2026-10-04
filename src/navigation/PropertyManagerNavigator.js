@@ -25,7 +25,7 @@ const PropertiesStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#0F172A',
+          backgroundColor: colors.surface,
         },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: {
@@ -53,7 +53,7 @@ const MessagesStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#0F172A',
+          backgroundColor: colors.surface,
         },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: {
@@ -81,7 +81,7 @@ const ProfileStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#0F172A',
+          backgroundColor: colors.surface,
         },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: {
@@ -129,12 +129,12 @@ const PropertyManagerNavigator = () => {
         tabBarActiveTintColor: colors.gold,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
-          backgroundColor: '#0F172A',
-          borderTopColor: '#1E293B',
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
         },
         headerShown: true,
         headerStyle: {
-          backgroundColor: '#0F172A',
+          backgroundColor: colors.surface,
         },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: {

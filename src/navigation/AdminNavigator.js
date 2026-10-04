@@ -10,6 +10,7 @@ import AdminUsersScreen from '../screens/Admin/UsersScreen';
 import LandlordPropertiesScreen from '../screens/Landlord/PropertiesScreen';
 import LandlordAnalyticsScreen from '../screens/Landlord/AnalyticsScreen';
 import AdminProfileScreen from '../screens/Admin/ProfileScreen';
+import AdminActivityScreen from '../screens/Admin/ActivityScreen';
 import LandlordNotificationsScreen from '../screens/Landlord/NotificationsScreen';
 
 const Tab = createBottomTabNavigator();
@@ -21,7 +22,7 @@ const ProfileStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#0F172A',
+          backgroundColor: colors.surface,
         },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: {
@@ -34,6 +35,7 @@ const ProfileStack = () => {
         component={AdminProfileScreen}
         options={{ headerShown: false }}
       />
+      <Stack.Screen name="Activity" component={AdminActivityScreen} options={{ title: 'Sign-in activity' }} />
       <Stack.Screen 
         name="Notifications" 
         component={LandlordNotificationsScreen}
@@ -69,12 +71,12 @@ const AdminNavigator = () => {
         tabBarActiveTintColor: colors.gold,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
-          backgroundColor: '#0F172A',
-          borderTopColor: '#1E293B',
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
         },
         headerShown: true,
         headerStyle: {
-          backgroundColor: '#0F172A',
+          backgroundColor: colors.surface,
         },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: {

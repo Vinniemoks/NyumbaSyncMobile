@@ -12,7 +12,6 @@ import PropertyUnitsScreen from '../screens/Landlord/PropertyUnitsScreen';
 import LandlordTenantsScreen from '../screens/Landlord/TenantsScreen';
 import LandlordMaintenanceScreen from '../screens/Landlord/MaintenanceScreen';
 import LandlordAnalyticsScreen from '../screens/Landlord/AnalyticsScreen';
-import LandlordLeasesScreen from '../screens/Landlord/LeasesScreen';
 import LandlordDocumentsScreen from '../screens/Landlord/DocumentsScreen';
 import LandlordMessagesScreen from '../screens/Landlord/MessagesScreen';
 import LandlordProfileScreen from '../screens/Landlord/ProfileScreen';
@@ -102,6 +101,7 @@ const ProfileStack = () => {
         component={LandlordProfileScreen}
         options={{ headerShown: false }}
       />
+      <Stack.Screen name="Documents" component={LandlordDocumentsScreen} options={{ title: 'Documents' }} />
       <Stack.Screen
         name="Notifications"
         component={LandlordNotificationsScreen}

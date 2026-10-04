@@ -154,7 +154,7 @@ const MFASetupScreen = ({ navigation, route }) => {
                 style={[commonStyles.input, styles.codeInput]}
                 value={verificationCode}
                 onChangeText={(value) => setVerificationCode(value.replace(/\D/g, '').slice(0, 6))}
-                placeholder="000000"
+                placeholder="6-digit code"
                 placeholderTextColor={colors.textMuted}
                 keyboardType="number-pad"
                 maxLength={6}

@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
-import { paymentService } from '../../services/api';
+import { paymentService, leaseService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { normalizeKenyanPhone } from '../../utils/phone';
 import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
@@ -21,16 +21,14 @@ const PaymentsScreen = () => {
   const { user } = useAuth();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showInstructionsModal, setShowInstructionsModal] = useState(false);
-  const [amount, setAmount] = useState('35000');
+  const [amount, setAmount] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('mpesa');
   const [loading, setLoading] = useState(false);
   const [paymentInstructions, setPaymentInstructions] = useState(null);
-  const [payments, setPayments] = useState([
-    { id: 1, date: '2025-11-01', amount: 35000, status: 'completed', method: 'M-Pesa' },
-    { id: 2, date: '2025-10-01', amount: 35000, status: 'completed', method: 'M-Pesa' },
-    { id: 3, date: '2025-09-01', amount: 35000, status: 'completed', method: 'Card' },
-  ]);
+  const [payments, setPayments] = useState([]);
+  const [lease, setLease] = useState(null);
+  const [historyError, setHistoryError] = useState(false);
 
   useEffect(() => {
     // Set default phone number from user profile, normalized to 254XXXXXXXXX.
@@ -42,7 +40,7 @@ const PaymentsScreen = () => {
   const handleMpesaSTKPush = async () => {
     const normalizedPhone = normalizeKenyanPhone(phoneNumber);
     if (!normalizedPhone) {
-      Alert.alert('Error', 'Please enter a valid Kenyan phone number (e.g. 0712345678)');
+      Alert.alert('Error', 'Please enter a valid Kenyan phone number.');
       return;
     }
 
@@ -232,14 +230,44 @@ const PaymentsScreen = () => {
 
   const loadPaymentHistory = async () => {
     try {
-      const response = await paymentService.getHistory(user?.id);
-      if (response.data.success) {
-        setPayments(response.data.payments);
-      }
+      const { data } = await paymentService.getHistory();
+      setPayments(
+        (Array.isArray(data) ? data : []).map((p) => ({
+          id: String(p._id || p.id),
+          date: new Date(p.mpesaTransactionDate || p.createdAt).toLocaleDateString(),
+          amount: Number(p.amount) || 0,
+          status: p.status,
+          method: p.paymentMethod || (p.mpesaReceipt ? 'M-Pesa' : ''),
+        }))
+      );
+      setHistoryError(false);
     } catch (error) {
-      console.error('Error loading payment history:', error);
+      setHistoryError(true);
     }
   };
+
+  const loadLease = async () => {
+    try {
+      const { data } = await leaseService.getByTenant(user?.id);
+      const list = Array.isArray(data) ? data : [];
+      const l = list.find((x) => x.status === 'active');
+      if (!l) { setLease(null); return; }
+      const rent = Number(l.terms?.rentAmount) || 0;
+      const dueDay = Number(l.terms?.rentDueDate) || 1;
+      const now = new Date();
+      let due = new Date(now.getFullYear(), now.getMonth(), dueDay);
+      if (due < new Date(now.getFullYear(), now.getMonth(), now.getDate())) due = new Date(now.getFullYear(), now.getMonth() + 1, dueDay);
+      setLease({ rent, due, days: Math.ceil((due - now) / 86400000) });
+    } catch (e) {
+      setLease(null);
+    }
+  };
+
+  useEffect(() => {
+    if (!user?.id) return;
+    loadPaymentHistory();
+    loadLease();
+  }, [user?.id]);
 
   const copyToClipboard = async (text, label) => {
     await Clipboard.setStringAsync(text);
@@ -249,44 +277,56 @@ const PaymentsScreen = () => {
   return (
     <View style={styles.container}>
       <ScrollView>
-        <View style={styles.balanceCard}>
-          <Text style={styles.balanceLabel}>Current Balance</Text>
-          <Text style={styles.balanceAmount}>KSh 0</Text>
-          <Text style={styles.balanceStatus}>✓ All paid up</Text>
-        </View>
-
-        <View style={styles.nextPaymentCard}>
-          <View style={styles.nextPaymentHeader}>
-            <Text style={styles.nextPaymentTitle}>Next Payment</Text>
-            <Text style={styles.nextPaymentDue}>Due in 15 days</Text>
+        {lease ? (
+          <View style={styles.nextPaymentCard}>
+            <View style={styles.nextPaymentHeader}>
+              <Text style={styles.nextPaymentTitle}>Next Payment</Text>
+              <Text style={styles.nextPaymentDue}>
+                {lease.days === 0 ? 'Due today' : `Due ${lease.due.toLocaleDateString()} (${lease.days} day${lease.days === 1 ? '' : 's'})`}
+              </Text>
+            </View>
+            <Text style={styles.nextPaymentAmount}>KSh {lease.rent.toLocaleString()}</Text>
+            <TouchableOpacity
+              style={styles.payButton}
+              onPress={() => { setAmount(String(lease.rent)); setShowPaymentModal(true); }}
+            >
+              <Text style={styles.payButtonText}>Pay Now</Text>
+            </TouchableOpacity>
           </View>
-          <Text style={styles.nextPaymentAmount}>KSh 35,000</Text>
-          <TouchableOpacity
-            style={styles.payButton}
-            onPress={() => setShowPaymentModal(true)}
-          >
-            <Text style={styles.payButtonText}>Pay Now</Text>
-          </TouchableOpacity>
-        </View>
+        ) : (
+          <View style={styles.nextPaymentCard}>
+            <Text style={styles.nextPaymentTitle}>No active lease</Text>
+            <Text style={styles.nextPaymentDue}>Rent appears here once your landlord activates your lease.</Text>
+          </View>
+        )}
 
         <View style={styles.historySection}>
           <Text style={styles.sectionTitle}>Payment History</Text>
+          {payments.length === 0 && (
+            <Text style={{ color: colors.textSecondary, paddingVertical: spacing[4] }}>
+              {historyError ? 'Could not load your payments.' : 'No payments yet.'}
+            </Text>
+          )}
           {payments.map((payment) => (
             <View key={payment.id} style={styles.paymentItem}>
               <View style={styles.paymentIcon}>
-                <Ionicons name="checkmark-circle" size={24} color={colors.success} />
+                <Ionicons
+                  name={['completed', 'verified'].includes(payment.status) ? 'checkmark-circle' : 'time'}
+                  size={24}
+                  color={['completed', 'verified'].includes(payment.status) ? colors.success : colors.warning}
+                />
               </View>
               <View style={styles.paymentDetails}>
                 <Text style={styles.paymentTitle}>Rent Payment</Text>
                 <Text style={styles.paymentDate}>{payment.date}</Text>
-                <Text style={styles.paymentMethod}>{payment.method}</Text>
+                {!!payment.method && <Text style={styles.paymentMethod}>{payment.method}</Text>}
               </View>
               <View style={styles.paymentAmount}>
                 <Text style={styles.paymentAmountText}>
                   KSh {payment.amount.toLocaleString()}
                 </Text>
                 <View style={styles.statusBadge}>
-                  <Text style={styles.statusText}>{payment.status}</Text>
+                  <Text style={styles.statusText}>{String(payment.status).replace(/_/g, ' ')}</Text>
                 </View>
               </View>
             </View>
@@ -310,7 +350,7 @@ const PaymentsScreen = () => {
               value={amount}
               onChangeText={setAmount}
               keyboardType="numeric"
-              placeholder="35000"
+              placeholder="Amount (KES)"
               placeholderTextColor="#64748B"
             />
 
@@ -322,7 +362,7 @@ const PaymentsScreen = () => {
                   value={phoneNumber}
                   onChangeText={setPhoneNumber}
                   keyboardType="phone-pad"
-                  placeholder="0712345678"
+                  placeholder="Phone number"
                   placeholderTextColor="#64748B"
                 />
                 <Text style={styles.helperText}>
@@ -731,7 +771,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: colors.slate[800], // slate-800
     borderWidth: 1,
-    borderColor: '#334155', // slate-700
+    borderColor: colors.border, // slate-700
     borderRadius: borderRadius.lg,
     padding: spacing[4],
     fontSize: typography.base,
@@ -743,7 +783,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.slate[800], // slate-800
     borderWidth: 2,
-    borderColor: '#334155', // slate-700
+    borderColor: colors.border, // slate-700
     borderRadius: borderRadius.lg,
     padding: spacing[4],
     marginBottom: spacing[3],
@@ -863,7 +903,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: colors.slate[800], // slate-800
     borderWidth: 1,
-    borderColor: '#334155', // slate-700
+    borderColor: colors.border, // slate-700
     borderRadius: borderRadius.lg,
     padding: spacing[3],
     marginTop: spacing[2],
@@ -882,7 +922,7 @@ const styles = StyleSheet.create({
   amountField: {
     backgroundColor: colors.slate[800], // slate-800
     borderWidth: 1,
-    borderColor: '#334155', // slate-700
+    borderColor: colors.border, // slate-700
     borderRadius: borderRadius.lg,
     padding: spacing[3],
     marginTop: spacing[2],
@@ -926,7 +966,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: spacing[3],
     borderBottomWidth: 1,
-    borderBottomColor: '#334155', // slate-700
+    borderBottomColor: colors.border, // slate-700
   },
   bankDetailLabel: {
     fontSize: typography.sm,

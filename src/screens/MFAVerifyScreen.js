@@ -14,14 +14,8 @@ import { apiClient } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { colors, spacing, typography, borderRadius, commonStyles } from '../config/theme';
 import { routeLoginGate } from '../utils/loginGates';
+import { dashboardFor } from '../utils/roleRoutes';
 import Button from '../components/Button';
-
-const ROLE_ROUTES = {
-  landlord: 'LandlordDashboard',
-  manager: 'ManagerDashboard',
-  tenant: 'TenantDashboard',
-  admin: 'AdminDashboard',
-};
 
 const MFAVerifyScreen = ({ navigation, route }) => {
   const { mfaSessionToken, mfaMethod = 'totp' } = route.params || {};
@@ -50,8 +44,7 @@ const MFAVerifyScreen = ({ navigation, route }) => {
   };
 
   const goToDashboard = (user) => {
-    const role = user?.role || 'tenant';
-    navigation.replace(ROLE_ROUTES[role] || 'TenantDashboard');
+    navigation.replace(dashboardFor(user) || 'Landing');
   };
 
   const handleVerify = async () => {
@@ -149,7 +142,7 @@ const MFAVerifyScreen = ({ navigation, route }) => {
             style={[commonStyles.input, styles.codeInput]}
             value={code}
             onChangeText={handleChange}
-            placeholder={useBackupCode ? 'XXXX-XXXX' : isEmailOtp ? '00000000' : '000000'}
+            placeholder={useBackupCode ? 'Backup code' : isEmailOtp ? '8-digit code' : '6-digit code'}
             placeholderTextColor={colors.textMuted}
             keyboardType={useBackupCode ? 'default' : 'number-pad'}
             autoCapitalize="none"

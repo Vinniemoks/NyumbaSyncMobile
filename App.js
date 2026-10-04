@@ -56,7 +56,7 @@ export default function App() {
       <NotificationProvider>
         <NavigationContainer>
           <UpdatePrompt />
-          <StatusBar style="light" backgroundColor="#0A1628" />
+          <StatusBar style="dark" backgroundColor="#F3F6FC" />
           <Stack.Navigator
             initialRouteName="Splash"
             screenOptions={{

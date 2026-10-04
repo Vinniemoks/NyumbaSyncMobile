@@ -117,7 +117,7 @@ const SignupScreen = ({ navigation }) => {
             <Text style={styles.label}>First Name *</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter your first name"
+              placeholder="First name"
               placeholderTextColor={colors.textMuted}
               value={formData.firstName}
               onChangeText={(text) => setFormData({ ...formData, firstName: text })}
@@ -127,7 +127,7 @@ const SignupScreen = ({ navigation }) => {
             <Text style={styles.label}>Last Name</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter your last name"
+              placeholder="Last name"
               placeholderTextColor={colors.textMuted}
               value={formData.lastName}
               onChangeText={(text) => setFormData({ ...formData, lastName: text })}
@@ -137,7 +137,7 @@ const SignupScreen = ({ navigation }) => {
             <Text style={styles.label}>Email Address *</Text>
             <TextInput
               style={styles.input}
-              placeholder="email@example.com"
+              placeholder="Email"
               placeholderTextColor={colors.textMuted}
               value={formData.email}
               onChangeText={(text) => setFormData({ ...formData, email: text })}
@@ -149,7 +149,7 @@ const SignupScreen = ({ navigation }) => {
             <Text style={styles.label}>Phone Number (Optional)</Text>
             <TextInput
               style={styles.input}
-              placeholder="+254712345678"
+              placeholder="Phone number"
               placeholderTextColor={colors.textMuted}
               value={formData.phone}
               onChangeText={(text) => setFormData({ ...formData, phone: text })}
@@ -205,7 +205,7 @@ const SignupScreen = ({ navigation }) => {
             <Text style={styles.label}>Confirm Password *</Text>
             <TextInput
               style={styles.input}
-              placeholder="Re-enter your password"
+              placeholder="Confirm password"
               placeholderTextColor={colors.textMuted}
               value={formData.confirmPassword}
               onChangeText={(text) => setFormData({ ...formData, confirmPassword: text })}

@@ -159,7 +159,12 @@ const AnalyticsScreen = () => {
     }
   };
 
-  const formatCurrency = (amount) => `KSh ${(Number(amount || 0) / 1000).toFixed(0)}K`;
+  const formatCurrency = (amount) => {
+    const n = Number(amount || 0);
+    if (n >= 1000000) return `KSh ${(n / 1000000).toFixed(1)}M`;
+    if (n >= 1000) return `KSh ${Math.round(n / 1000).toLocaleString()}K`;
+    return `KSh ${n.toLocaleString()}`;
+  };
 
   const formatPercentage = (value) => `${value >= 0 ? '+' : ''}${Number(value).toFixed(1)}%`;
 

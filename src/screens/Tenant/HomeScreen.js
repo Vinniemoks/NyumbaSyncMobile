@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
-import { paymentService, maintenanceService, tenantService } from '../../services/api';
+import { paymentService, maintenanceService, leaseService } from '../../services/api';
 import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../../config/theme';
 import MorphingBackground from '../../components/MorphingBackground';
 
@@ -27,14 +27,22 @@ const StatCard = ({ title, value, subtitle, icon, color }) => (
   </View>
 );
 
+// The API sends the address as an object ({ street, area, city, county }).
+const addressText = (p) => {
+  const a = p?.address;
+  if (!a) return '';
+  return typeof a === 'string' ? a : [a.street, a.area, a.city].filter(Boolean).join(', ');
+};
+
 const TenantHomeScreen = ({ navigation }) => {
   const { user, logout } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [stats, setStats] = useState({
+    hasLease: false,
     rentDue: 0,
-    daysUntilRent: 0,
+    daysUntilRent: null,
     maintenanceActive: 0,
-    leaseEndDays: 0,
+    leaseEndDays: null,
   });
   const [loading, setLoading] = useState(true);
   const [property, setProperty] = useState(null);
@@ -43,58 +51,56 @@ const TenantHomeScreen = ({ navigation }) => {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      const [profileRes, paymentsRes, maintenanceRes] = await Promise.allSettled([
-        tenantService.getById(user?.id),
-        paymentService.getAll(),
+      const [leaseRes, paymentsRes, maintenanceRes] = await Promise.allSettled([
+        leaseService.getByTenant(user?.id),
+        paymentService.getHistory(),
         maintenanceService.getAll(),
       ]);
 
-      const profile = profileRes.status === 'fulfilled' ? profileRes.value.data : null;
-      const payments = paymentsRes.status === 'fulfilled' ? paymentsRes.value.data : [];
-      const maintenance = maintenanceRes.status === 'fulfilled' ? maintenanceRes.value.data : [];
+      const leases = leaseRes.status === 'fulfilled' && Array.isArray(leaseRes.value.data) ? leaseRes.value.data : [];
+      const lease = leases.find((l) => l.status === 'active') || null;
+      const payments = paymentsRes.status === 'fulfilled' && Array.isArray(paymentsRes.value.data) ? paymentsRes.value.data : [];
+      const maintenance = maintenanceRes.status === 'fulfilled' && Array.isArray(maintenanceRes.value.data) ? maintenanceRes.value.data : [];
 
-      const pendingPayments = Array.isArray(payments) ? payments.filter(p => p.status === 'pending') : [];
-      const rentDue = pendingPayments.length > 0 ? pendingPayments[0].amount : 0;
-
-      const activeRequests = Array.isArray(maintenance)
-        ? maintenance.filter(r => ['reported', 'assigned', 'in_progress'].includes(r.status))
-        : [];
-
-      const leaseEndDate = profile?.leaseEndDate ? new Date(profile.leaseEndDate) : null;
-      const leaseEndDays = leaseEndDate
-        ? Math.max(0, Math.ceil((leaseEndDate - new Date()) / (1000 * 60 * 60 * 24)))
-        : 0;
+      const today = new Date();
+      const rent = Number(lease?.terms?.rentAmount) || 0;
+      let daysUntilRent = null;
+      if (lease) {
+        const dueDay = Number(lease.terms?.rentDueDate) || 1;
+        let due = new Date(today.getFullYear(), today.getMonth(), dueDay);
+        if (due < new Date(today.getFullYear(), today.getMonth(), today.getDate())) due = new Date(today.getFullYear(), today.getMonth() + 1, dueDay);
+        daysUntilRent = Math.ceil((due - today) / 86400000);
+      }
+      const leaseEndDays = lease?.endDate ? Math.max(0, Math.ceil((new Date(lease.endDate) - today) / 86400000)) : null;
 
       setStats({
-        rentDue,
-        daysUntilRent: profile?.daysUntilRent || 0,
-        maintenanceActive: activeRequests.length,
+        hasLease: !!lease,
+        rentDue: rent,
+        daysUntilRent,
+        maintenanceActive: maintenance.filter((r) => ['reported', 'assigned', 'in_progress'].includes(r.status)).length,
         leaseEndDays,
       });
+      setProperty(lease?.property || null);
 
-      setProperty(profile?.property || null);
-
-      const recentPayments = (Array.isArray(payments) ? payments : [])
-        .filter(p => p.status === 'completed')
+      const recentPayments = payments
+        .filter((p) => ['completed', 'verified'].includes(p.status))
         .slice(0, 3)
-        .map(p => ({
-          id: p._id,
-          title: 'Payment Received',
-          subtitle: `Rent payment — KSh ${p.amount?.toLocaleString() || '0'}`,
-          time: p.createdAt ? new Date(p.createdAt).toLocaleDateString() : 'Recently',
+        .map((p) => ({
+          id: `pay-${p._id || p.id}`,
+          title: 'Payment received',
+          subtitle: `Rent payment — KSh ${Number(p.amount || 0).toLocaleString()}`,
+          time: p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '',
           icon: 'checkmark-circle',
           color: colors.success,
         }));
-      const recentMaintenance = (Array.isArray(maintenance) ? maintenance : [])
-        .slice(0, 3)
-        .map(r => ({
-          id: r._id,
-          title: 'Maintenance Request',
-          subtitle: `${r.title || r.category || 'Issue'} — ${r.status}`,
-          time: r.createdAt ? new Date(r.createdAt).toLocaleDateString() : 'Recently',
-          icon: r.status === 'completed' ? 'checkmark-circle' : 'construct',
-          color: r.status === 'completed' ? colors.success : colors.warning,
-        }));
+      const recentMaintenance = maintenance.slice(0, 3).map((r) => ({
+        id: `mnt-${r.id || r._id}`,
+        title: 'Maintenance request',
+        subtitle: `${r.title || r.category || 'Issue'} — ${String(r.status).replace(/_/g, ' ')}`,
+        time: r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '',
+        icon: r.status === 'completed' ? 'checkmark-circle' : 'construct',
+        color: r.status === 'completed' ? colors.success : colors.warning,
+      }));
       setActivities([...recentPayments, ...recentMaintenance].slice(0, 5));
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -167,27 +173,39 @@ const TenantHomeScreen = ({ navigation }) => {
       </View>
 
       <View style={commonStyles.section}>
-        <StatCard
-          title="Rent Due"
-          value={`KSh ${stats.rentDue.toLocaleString()}`}
-          subtitle={`Due in ${stats.daysUntilRent} days`}
-          icon="cash-outline"
-          color={colors.info}
-        />
+        {stats.hasLease ? (
+          <StatCard
+            title="Rent Due"
+            value={`KSh ${stats.rentDue.toLocaleString()}`}
+            subtitle={stats.daysUntilRent === 0 ? 'Due today' : `Due in ${stats.daysUntilRent} day${stats.daysUntilRent === 1 ? '' : 's'}`}
+            icon="cash-outline"
+            color={colors.info}
+          />
+        ) : (
+          <StatCard
+            title="Lease"
+            value="No active lease"
+            subtitle="Your rent and lease details appear here once your landlord activates your lease"
+            icon="document-text-outline"
+            color={colors.textMuted}
+          />
+        )}
         <StatCard
           title="Maintenance"
-          value={`${stats.maintenanceActive} Active`}
-          subtitle="Requests pending"
+          value={`${stats.maintenanceActive} open`}
+          subtitle={stats.maintenanceActive === 1 ? 'request in progress' : 'requests in progress'}
           icon="construct-outline"
           color={colors.warning}
         />
-        <StatCard
-          title="Lease End"
-          value={`${stats.leaseEndDays} Days`}
-          subtitle="Renewal available"
-          icon="calendar-outline"
-          color={colors.success}
-        />
+        {stats.hasLease && stats.leaseEndDays !== null && (
+          <StatCard
+            title="Lease Ends"
+            value={`${stats.leaseEndDays} days`}
+            subtitle={stats.leaseEndDays <= 60 ? 'Contact your landlord about renewal' : 'Lease in good standing'}
+            icon="calendar-outline"
+            color={colors.success}
+          />
+        )}
       </View>
 
       <View style={commonStyles.section}>
@@ -210,7 +228,7 @@ const TenantHomeScreen = ({ navigation }) => {
           </TouchableOpacity>
           <TouchableOpacity 
             style={commonStyles.actionCard}
-            onPress={() => navigation.navigate('Profile', { screen: 'ProfileMain', params: { navigateTo: 'Documents' } })}
+            onPress={() => navigation.navigate('Profile', { screen: 'Documents' })}
           >
             <Ionicons name="document-text-outline" size={32} color={colors.blue[400]} />
             <Text style={commonStyles.actionCardText}>Documents</Text>
@@ -229,25 +247,25 @@ const TenantHomeScreen = ({ navigation }) => {
         <Text style={commonStyles.sectionTitle}>Your Property</Text>
         <View style={commonStyles.propertyInfo}>
           <Text style={commonStyles.propertyAddress}>
-            {property?.address || property?.name || 'No property assigned'}
+            {addressText(property) || property?.title || property?.name || 'No property assigned'}
           </Text>
           <View style={commonStyles.propertyDetails}>
-            {property?.bedrooms && (
+            {!!property?.bedrooms && (
               <View style={commonStyles.tag}>
                 <Text style={commonStyles.tagText}>{property.bedrooms} Bedrooms</Text>
               </View>
             )}
-            {property?.bathrooms && (
+            {!!property?.bathrooms && (
               <View style={commonStyles.tag}>
                 <Text style={commonStyles.tagText}>{property.bathrooms} Bathrooms</Text>
               </View>
             )}
-            {property?.type && (
+            {!!property?.type && (
               <View style={commonStyles.tag}>
                 <Text style={commonStyles.tagText}>{property.type}</Text>
               </View>
             )}
-            {property?.size && (
+            {!!property?.size && (
               <View style={commonStyles.tag}>
                 <Text style={commonStyles.tagText}>{property.size} sq ft</Text>
               </View>

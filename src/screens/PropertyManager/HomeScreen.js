@@ -1,240 +1,93 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
-import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
-import MorphingBackground from '../../components/MorphingBackground';
+import { maintenanceService } from '../../services/api';
+import { colors, spacing, typography, borderRadius } from '../../config/theme';
+
+const OPEN = ['reported', 'submitted', 'assigned', 'acknowledged', 'scheduled', 'in_progress'];
 
 const PropertyManagerHomeScreen = ({ navigation }) => {
   const { user } = useAuth();
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      let live = true;
+      maintenanceService.getAll()
+        .then(({ data }) => { if (live) { setRequests(Array.isArray(data) ? data : []); setError(false); } })
+        .catch(() => { if (live) { setRequests([]); setError(true); } })
+        .finally(() => live && setLoading(false));
+      return () => { live = false; };
+    }, [])
+  );
+
+  const open = requests.filter((r) => OPEN.includes(r.status));
+  const done = requests.filter((r) => ['completed', 'closed'].includes(r.status));
+  const cards = [
+    { icon: 'construct', color: colors.warning, label: 'Open requests', value: open.length },
+    { icon: 'checkmark-circle', color: colors.success, label: 'Completed', value: done.length },
+  ];
 
   return (
-    <View style={styles.container}>
-      <MorphingBackground />
-      <ScrollView style={{ flex: 1 }}>
-      <View style={styles.header}>
-        <Text style={styles.greeting}>Welcome back,</Text>
-        <Text style={styles.userName}>{user?.firstName || 'Property Manager'}</Text>
-        <View style={styles.roleBadge}>
-          <Text style={styles.roleText}>Property Manager</Text>
-        </View>
-      </View>
+    <ScrollView style={styles.container} contentContainerStyle={{ padding: spacing[3], paddingBottom: spacing[8] }}>
+      <Text style={styles.sub}>Welcome back</Text>
+      <Text style={styles.name}>{user?.firstName || 'Manager'}</Text>
 
-      <View style={styles.statsGrid}>
-        <View style={styles.statCard}>
-          <Ionicons name="business-outline" size={32} color={colors.info} />
-          <Text style={styles.statValue}>28</Text>
-          <Text style={styles.statLabel}>Properties Managed</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Ionicons name="people-outline" size={32} color="#8B5CF6" />
-          <Text style={styles.statValue}>156</Text>
-          <Text style={styles.statLabel}>Total Tenants</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Ionicons name="cash-outline" size={32} color={colors.success} />
-          <Text style={styles.statValue}>KSh 2.4M</Text>
-          <Text style={styles.statLabel}>Monthly Collections</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Ionicons name="construct-outline" size={32} color={colors.warning} />
-          <Text style={styles.statValue}>12</Text>
-          <Text style={styles.statLabel}>Active Requests</Text>
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <View style={styles.actionsGrid}>
-          <TouchableOpacity 
-            style={styles.actionCard}
-            onPress={() => navigation.navigate('Properties')}
-          >
-            <Ionicons name="business-outline" size={32} color={colors.info} />
-            <Text style={styles.actionCardText}>Properties</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.actionCard}
-            onPress={() => navigation.navigate('Tenants')}
-          >
-            <Ionicons name="people-outline" size={32} color={colors.success} />
-            <Text style={styles.actionCardText}>Tenants</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.actionCard}
-            onPress={() => navigation.navigate('Maintenance')}
-          >
-            <Ionicons name="construct-outline" size={32} color={colors.warning} />
-            <Text style={styles.actionCardText}>Maintenance</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.actionCard}
-            onPress={() => navigation.navigate('Reports')}
-          >
-            <Ionicons name="document-text-outline" size={32} color="#8B5CF6" />
-            <Text style={styles.actionCardText}>Reports</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Recent Activity</Text>
-        {[
-          { icon: 'cash', color: colors.success, title: 'Payment Received', subtitle: 'Unit A-101 - KSh 35,000', time: '2h ago' },
-          { icon: 'construct', color: colors.warning, title: 'Maintenance Completed', subtitle: 'Plumbing repair - Unit B-205', time: '5h ago' },
-          { icon: 'person-add', color: colors.info, title: 'New Tenant Added', subtitle: 'John Doe - Unit C-302', time: '1d ago' },
-        ].map((item, index) => (
-          <View key={index} style={styles.activityItem}>
-            <View style={[styles.activityIcon, { backgroundColor: item.color + '20' }]}>
-              <Ionicons name={item.icon} size={20} color={item.color} />
-            </View>
-            <View style={styles.activityContent}>
-              <Text style={styles.activityTitle}>{item.title}</Text>
-              <Text style={styles.activitySubtitle}>{item.subtitle}</Text>
-            </View>
-            <Text style={styles.activityTime}>{item.time}</Text>
+      {loading ? (
+        <ActivityIndicator style={{ marginTop: spacing[10] }} size="large" color={colors.info} />
+      ) : (
+        <>
+          <View style={styles.grid}>
+            {cards.map((c) => (
+              <TouchableOpacity key={c.label} style={styles.card} onPress={() => navigation.navigate('Maintenance')} activeOpacity={0.8}>
+                <View style={[styles.icon, { backgroundColor: `${c.color}1A` }]}><Ionicons name={c.icon} size={18} color={c.color} /></View>
+                <Text style={styles.value}>{c.value}</Text>
+                <Text style={styles.label}>{c.label}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
-        ))}
-      </View>
+
+          <Text style={styles.section}>Latest maintenance</Text>
+          {requests.length === 0 ? (
+            <Text style={styles.empty}>{error ? 'Could not load requests. Try again shortly.' : 'No maintenance requests yet.'}</Text>
+          ) : (
+            requests.slice(0, 5).map((r) => (
+              <TouchableOpacity key={String(r.id || r._id)} style={styles.row} onPress={() => navigation.navigate('Maintenance')}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.rowTitle} numberOfLines={1}>{r.title || r.category || 'Request'}</Text>
+                  <Text style={styles.rowSub} numberOfLines={1}>
+                    {[r.property?.title, r.createdAt ? new Date(r.createdAt).toLocaleDateString() : ''].filter(Boolean).join(' · ')}
+                  </Text>
+                </View>
+                <Text style={styles.status}>{String(r.status).replace(/_/g, ' ')}</Text>
+              </TouchableOpacity>
+            ))
+          )}
+        </>
+      )}
     </ScrollView>
-    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg,
-  },
-  header: {
-    backgroundColor: colors.surface,
-    padding: spacing[5],
-    alignItems: 'center',
-  },
-  greeting: {
-    fontSize: typography.sm,
-    color: colors.textSecondary,
-  },
-  userName: {
-    fontSize: typography['2xl'],
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary,
-    marginTop: spacing[1],
-  },
-  roleBadge: {
-    backgroundColor: '#1E3A8A',
-    paddingHorizontal: spacing[3],
-    paddingVertical: spacing[1] + 2,
-    borderRadius: borderRadius.xl,
-    marginTop: spacing[2],
-  },
-  roleText: {
-    fontSize: typography.xs,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.blue[300],
-    textTransform: 'uppercase',
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: spacing[5],
-  },
-  statCard: {
-    width: '48%',
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing[5],
-    margin: '1%',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  statValue: {
-    fontSize: typography['2xl'],
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary,
-    marginTop: spacing[2],
-  },
-  statLabel: {
-    fontSize: typography.xs,
-    color: colors.textSecondary,
-    marginTop: spacing[1],
-    textAlign: 'center',
-  },
-  section: {
-    padding: spacing[5],
-  },
-  sectionTitle: {
-    fontSize: typography.lg,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary,
-    marginBottom: spacing[4],
-  },
-  actionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  actionCard: {
-    width: '48%',
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing[5],
-    alignItems: 'center',
-    marginBottom: spacing[3],
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  actionCardText: {
-    fontSize: typography.sm,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.slate[200],
-    marginTop: spacing[2],
-  },
-  activityItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing[4],
-    marginBottom: spacing[3],
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  activityIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: spacing[3],
-  },
-  activityContent: {
-    flex: 1,
-  },
-  activityTitle: {
-    fontSize: typography.sm,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.textPrimary,
-    marginBottom: 2,
-  },
-  activitySubtitle: {
-    fontSize: typography.xs,
-    color: colors.textSecondary,
-  },
-  activityTime: {
-    fontSize: typography.xs,
-    color: colors.textMuted,
-  },
+  container: { flex: 1, backgroundColor: colors.bg },
+  sub: { color: colors.textSecondary, fontSize: typography.sm },
+  name: { color: colors.textPrimary, fontSize: typography['2xl'], fontWeight: '800', marginBottom: spacing[3] },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3] },
+  card: { width: '47.5%', padding: spacing[3], backgroundColor: colors.surface, borderRadius: borderRadius.xl, borderWidth: 1, borderColor: colors.border },
+  icon: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginBottom: spacing[2] },
+  value: { color: colors.textPrimary, fontSize: typography['2xl'], fontWeight: '800' },
+  label: { color: colors.textSecondary, fontSize: typography.xs, marginTop: 2, fontWeight: '600' },
+  section: { color: colors.textPrimary, fontSize: typography.base, fontWeight: '800', marginTop: spacing[4], marginBottom: spacing[2] },
+  row: { flexDirection: 'row', alignItems: 'center', padding: spacing[3], marginBottom: spacing[2], backgroundColor: colors.surface, borderRadius: borderRadius.xl, borderWidth: 1, borderColor: colors.border },
+  rowTitle: { color: colors.textPrimary, fontWeight: '700' },
+  rowSub: { color: colors.textSecondary, fontSize: typography.xs, marginTop: 2 },
+  status: { color: colors.primary, fontSize: 11, fontWeight: '800', textTransform: 'capitalize' },
+  empty: { color: colors.textSecondary, textAlign: 'center', marginTop: spacing[6] },
 });
 
 export default PropertyManagerHomeScreen;

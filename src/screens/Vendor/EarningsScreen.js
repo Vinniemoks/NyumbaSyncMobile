@@ -1,127 +1,73 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
+import React from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { useVendorJobs } from '../../utils/vendorJobs';
+import { colors, spacing, typography, borderRadius } from '../../config/theme';
 
+// Work you have completed, with the cost you recorded for it. (Payment status
+// is not tracked by the platform, so nothing here claims "paid" or "pending".)
 const VendorEarningsScreen = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('month');
-  
-  const earnings = {
-    total: 125000,
-    pending: 35000,
-    paid: 90000,
-    thisMonth: 45000,
-  };
+  const { jobs, loading, error } = useVendorJobs();
+  const done = jobs
+    .filter((j) => j.group === 'completed')
+    .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
 
-  const transactions = [
-    { id: 1, date: '2025-11-15', description: 'Plumbing Repair - Riverside A-101', amount: 5000, status: 'paid' },
-    { id: 2, date: '2025-11-14', description: 'AC Maintenance - Westlands B-205', amount: 8000, status: 'pending' },
-    { id: 3, date: '2025-11-10', description: 'Electrical Work - Kilimani C-302', amount: 12000, status: 'paid' },
-    { id: 4, date: '2025-11-08', description: 'Painting - Riverside D-405', amount: 15000, status: 'paid' },
-    { id: 5, date: '2025-11-05', description: 'Plumbing - Karen E-101', amount: 7000, status: 'paid' },
-  ];
+  const now = new Date();
+  const total = done.reduce((n, j) => n + j.amount, 0);
+  const month = done
+    .filter((j) => j.completedAt && j.completedAt.getMonth() === now.getMonth() && j.completedAt.getFullYear() === now.getFullYear())
+    .reduce((n, j) => n + j.amount, 0);
+
+  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={colors.info} /></View>;
 
   return (
     <View style={styles.container}>
-      <ScrollView>
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryTitle}>Total Earnings</Text>
-          <Text style={styles.summaryAmount}>KSh {earnings.total.toLocaleString()}</Text>
-          <View style={styles.summaryRow}>
-            <View style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>Pending</Text>
-              <Text style={[styles.summaryValue, { color: colors.warning }]}>
-                KSh {earnings.pending.toLocaleString()}
+      <View style={styles.summary}>
+        <Text style={styles.summaryLabel}>Completed work</Text>
+        <Text style={styles.summaryAmount}>KSh {total.toLocaleString()}</Text>
+        <View style={styles.summaryRow}>
+          <View style={styles.cell}><Text style={styles.cellV}>KSh {month.toLocaleString()}</Text><Text style={styles.cellK}>This month</Text></View>
+          <View style={styles.cell}><Text style={styles.cellV}>{done.length}</Text><Text style={styles.cellK}>Jobs done</Text></View>
+        </View>
+      </View>
+
+      <FlatList
+        data={done}
+        keyExtractor={(j) => j.id}
+        contentContainerStyle={{ padding: spacing[3], paddingBottom: spacing[8] }}
+        ListEmptyComponent={
+          <Text style={styles.empty}>{error ? 'Could not load your jobs.' : 'Completed jobs appear here with their cost.'}</Text>
+        }
+        renderItem={({ item }) => (
+          <View style={styles.row}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
+              <Text style={styles.sub} numberOfLines={1}>
+                {[item.property, item.completedAt ? item.completedAt.toLocaleDateString() : item.date].filter(Boolean).join(' · ')}
               </Text>
             </View>
-            <View style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>Paid</Text>
-              <Text style={[styles.summaryValue, { color: colors.success }]}>
-                KSh {earnings.paid.toLocaleString()}
-              </Text>
-            </View>
+            <Text style={styles.amount}>KSh {item.amount.toLocaleString()}</Text>
           </View>
-        </View>
-
-        <View style={styles.periodSelector}>
-          {['week', 'month', 'year'].map((period) => (
-            <TouchableOpacity
-              key={period}
-              style={[styles.periodButton, selectedPeriod === period && styles.periodButtonActive]}
-              onPress={() => setSelectedPeriod(period)}
-            >
-              <Text style={[styles.periodText, selectedPeriod === period && styles.periodTextActive]}>
-                {period.charAt(0).toUpperCase() + period.slice(1)}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Transaction History</Text>
-          {transactions.map((transaction) => (
-            <View key={transaction.id} style={styles.transactionCard}>
-              <View style={styles.transactionHeader}>
-                <View style={styles.transactionInfo}>
-                  <Text style={styles.transactionDescription}>{transaction.description}</Text>
-                  <Text style={styles.transactionDate}>{transaction.date}</Text>
-                </View>
-                <View style={styles.transactionRight}>
-                  <Text style={styles.transactionAmount}>
-                    KSh {transaction.amount.toLocaleString()}
-                  </Text>
-                  <View style={[
-                    styles.statusBadge,
-                    { backgroundColor: transaction.status === 'paid' ? '#10B98120' : '#F59E0B20' }
-                  ]}>
-                    <Text style={[
-                      styles.statusText,
-                      { color: transaction.status === 'paid' ? '#10B981' : '#F59E0B' }
-                    ]}>
-                      {transaction.status}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-          ))}
-        </View>
-      </ScrollView>
+        )}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  summaryCard: { backgroundColor: colors.surface, margin: spacing[5], borderRadius: borderRadius.xl, padding: spacing[5], shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
-  summaryTitle: { fontSize: typography.sm, color: colors.textSecondary, marginBottom: spacing[2] },
-  summaryAmount: { fontSize: 32, fontWeight: typography.fontWeight.bold, color: colors.textPrimary, marginBottom: spacing[4] },
-  summaryRow: { flexDirection: 'row', justifyContent: 'space-around' },
-  summaryItem: { alignItems: 'center' },
-  summaryLabel: { fontSize: typography.xs, color: colors.textSecondary, marginBottom: spacing[1] },
-  summaryValue: { fontSize: typography.lg, fontWeight: typography.fontWeight.semibold },
-  periodSelector: { flexDirection: 'row', paddingHorizontal: spacing[5], marginBottom: spacing[5] },
-  periodButton: { flex: 1, backgroundColor: colors.surface, borderRadius: borderRadius.lg, padding: spacing[3], marginHorizontal: 4, alignItems: 'center' },
-  periodButtonActive: { backgroundColor: '#F59E0B' },
-  periodText: { fontSize: typography.sm, color: colors.textSecondary, fontWeight: typography.fontWeight.medium },
-  periodTextActive: { color: '#fff', fontWeight: typography.fontWeight.semibold },
-  section: { paddingHorizontal: spacing[5] },
-  sectionTitle: { fontSize: typography.lg, fontWeight: typography.fontWeight.bold, color: colors.textPrimary, marginBottom: spacing[4] },
-  transactionCard: { backgroundColor: colors.surface, borderRadius: borderRadius.xl, padding: spacing[4], marginBottom: spacing[3], shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
-  transactionHeader: { flexDirection: 'row', justifyContent: 'space-between' },
-  transactionInfo: { flex: 1 },
-  transactionDescription: { fontSize: typography.sm, fontWeight: typography.fontWeight.semibold, color: colors.textPrimary, marginBottom: spacing[1] },
-  transactionDate: { fontSize: typography.xs, color: colors.textSecondary },
-  transactionRight: { alignItems: 'flex-end' },
-  transactionAmount: { fontSize: typography.base, fontWeight: typography.fontWeight.semibold, color: colors.success, marginBottom: spacing[1] },
-  statusBadge: { borderRadius: borderRadius.xl, paddingHorizontal: spacing[2], paddingVertical: spacing[1] },
-  statusText: { fontSize: 10, fontWeight: typography.fontWeight.semibold, textTransform: 'capitalize' },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg },
+  summary: { margin: spacing[3], padding: spacing[4], backgroundColor: colors.primary, borderRadius: borderRadius['2xl'] },
+  summaryLabel: { color: '#C9D6F5', fontSize: typography.sm },
+  summaryAmount: { color: colors.white, fontSize: typography['3xl'], fontWeight: '800', marginTop: 2 },
+  summaryRow: { flexDirection: 'row', marginTop: spacing[3], gap: spacing[3] },
+  cell: { flex: 1, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: borderRadius.xl, padding: spacing[3] },
+  cellV: { color: colors.white, fontWeight: '800', fontSize: typography.base },
+  cellK: { color: '#C9D6F5', fontSize: typography.xs, marginTop: 2 },
+  row: { flexDirection: 'row', alignItems: 'center', padding: spacing[3], marginBottom: spacing[2], backgroundColor: colors.surface, borderRadius: borderRadius.xl, borderWidth: 1, borderColor: colors.border },
+  title: { color: colors.textPrimary, fontWeight: '700' },
+  sub: { color: colors.textSecondary, fontSize: typography.xs, marginTop: 2 },
+  amount: { color: colors.success, fontWeight: '800' },
+  empty: { color: colors.textSecondary, textAlign: 'center', marginTop: spacing[8], paddingHorizontal: spacing[5] },
 });
 
 export default VendorEarningsScreen;

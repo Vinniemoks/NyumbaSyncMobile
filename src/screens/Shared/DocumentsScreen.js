@@ -13,13 +13,14 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
-import { documentService } from '../../services/api';
+import { documentService, tenantPortal } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const DocumentsScreen = ({ userType = 'tenant' }) => {
   const { user } = useAuth();
   const [documents, setDocuments] = useState([]);
+  const [loadError, setLoadError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -47,51 +48,28 @@ const DocumentsScreen = ({ userType = 'tenant' }) => {
     loadDocuments();
   }, []);
 
+  const toDoc = (d) => ({
+    id: String(d._id || d.id),
+    title: d.name || d.title || d.fileName || 'Document',
+    category: d.category || 'other',
+    fileName: d.fileName || d.originalName || d.name || '',
+    fileSize: Number(d.fileSize) || 0,
+    uploadedAt: d.createdAt ? new Date(d.createdAt).toLocaleDateString() : '',
+    description: d.description || '',
+  });
+
   const loadDocuments = async () => {
     setLoading(true);
     try {
       const response = userType === 'tenant'
-        ? await documentService.getByTenant(user?.id)
+        ? await tenantPortal.documents()
         : await documentService.getByLandlord(user?.id);
-      
-      if (response.data.success) {
-        setDocuments(response.data.documents);
-      }
+      const raw = Array.isArray(response.data) ? response.data : response.data?.documents || [];
+      setDocuments(raw.map(toDoc));
+      setLoadError(false);
     } catch (error) {
-      console.error('Error loading documents:', error);
-      // Mock data
-      setDocuments([
-        {
-          id: 1,
-          title: 'Lease Agreement 2024',
-          category: 'lease',
-          fileName: 'lease_2024.pdf',
-          fileSize: 245000,
-          uploadedBy: 'Landlord',
-          uploadedAt: '2024-01-15',
-          description: 'Annual lease agreement',
-        },
-        {
-          id: 2,
-          title: 'Rent Receipt - November 2024',
-          category: 'receipt',
-          fileName: 'receipt_nov_2024.pdf',
-          fileSize: 125000,
-          uploadedBy: 'System',
-          uploadedAt: '2024-11-01',
-          description: 'Payment confirmation',
-        },
-        {
-          id: 3,
-          title: 'Move-in Inspection Report',
-          category: 'inspection',
-          fileName: 'inspection_movein.pdf',
-          fileSize: 890000,
-          uploadedBy: 'Property Manager',
-          uploadedAt: '2024-01-01',
-          description: 'Initial property condition',
-        },
-      ]);
+      setDocuments([]);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -186,9 +164,6 @@ const DocumentsScreen = ({ userType = 'tenant' }) => {
     );
   };
 
-  const handleShareDocument = (document) => {
-    Alert.alert('Share Document', 'Share functionality coming soon');
-  };
 
   const resetForm = () => {
     setFormData({
@@ -397,7 +372,7 @@ const DocumentsScreen = ({ userType = 'tenant' }) => {
             <Text style={styles.inputLabel}>Document Title *</Text>
             <TextInput
               style={styles.input}
-              placeholder="e.g., Lease Agreement 2024"
+              placeholder="Document title"
               placeholderTextColor="#64748B"
               value={formData.title}
               onChangeText={(text) => setFormData({ ...formData, title: text })}
@@ -548,14 +523,6 @@ const DocumentsScreen = ({ userType = 'tenant' }) => {
                 <Text style={styles.actionButtonLargeText}>Download</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.actionButtonLarge}
-                onPress={() => handleShareDocument(selectedDocument)}
-              >
-                <Ionicons name="share-outline" size={24} color={colors.success} />
-                <Text style={styles.actionButtonLargeText}>Share</Text>
-              </TouchableOpacity>
-
               {userType === 'landlord' && (
                 <TouchableOpacity
                   style={styles.actionButtonLarge}
@@ -600,7 +567,7 @@ const styles = StyleSheet.create({
   documentFileName: { fontSize: 13, color: colors.textSecondary, marginBottom: spacing[1] },
   documentMeta: { flexDirection: 'row', alignItems: 'center' },
   documentMetaText: { fontSize: 11, color: colors.textMuted, marginRight: spacing[1] + 2 },
-  documentFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: spacing[3], borderTopWidth: 1, borderTopColor: '#1E293B' },
+  documentFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: spacing[3], borderTopWidth: 1, borderTopColor: colors.border },
   categoryBadge: { paddingHorizontal: 10, paddingVertical: spacing[1] + 2, borderRadius: borderRadius.xl },
   categoryBadgeText: { fontSize: 11, fontWeight: typography.fontWeight.semibold, textTransform: 'capitalize' },
   downloadButton: { padding: spacing[2] },
@@ -612,7 +579,7 @@ const styles = StyleSheet.create({
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing[6] },
   modalTitle: { fontSize: typography['2xl'], fontWeight: typography.fontWeight.bold, color: colors.textPrimary },
   inputLabel: { fontSize: typography.sm, fontWeight: typography.fontWeight.semibold, color: colors.slate[200], marginBottom: spacing[2], marginTop: spacing[2] },
-  input: { backgroundColor: colors.slate[800], borderWidth: 1, borderColor: '#334155', borderRadius: borderRadius.lg, padding: spacing[4], fontSize: typography.base, color: colors.textPrimary, marginBottom: spacing[4] },
+  input: { backgroundColor: colors.slate[800], borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.lg, padding: spacing[4], fontSize: typography.base, color: colors.textPrimary, marginBottom: spacing[4] },
   textArea: { height: 80, textAlignVertical: 'top' },
   categorySelector: { marginBottom: spacing[4] },
   categoryOption: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.slate[800], borderRadius: borderRadius.lg, paddingHorizontal: spacing[3], paddingVertical: 10, marginRight: spacing[2] },
@@ -620,7 +587,7 @@ const styles = StyleSheet.create({
   },
   categoryOptionText: { fontSize: typography.xs, color: colors.textSecondary, marginLeft: spacing[1] + 2 },
   categoryOptionTextSelected: { color: '#fff', fontWeight: typography.fontWeight.semibold },
-  filePickerButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.slate[800], borderWidth: 2, borderColor: '#334155', borderRadius: borderRadius.lg, padding: spacing[4], marginBottom: spacing[2], borderStyle: 'dashed' },
+  filePickerButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.slate[800], borderWidth: 2, borderColor: colors.border, borderRadius: borderRadius.lg, padding: spacing[4], marginBottom: spacing[2], borderStyle: 'dashed' },
   filePickerText: { fontSize: typography.sm, color: colors.textSecondary, marginLeft: spacing[3], flex: 1 },
   fileSizeText: { fontSize: typography.xs, color: colors.textMuted, marginBottom: spacing[4] },
   modalButtons: { flexDirection: 'row', marginTop: spacing[6] },
@@ -635,7 +602,7 @@ const styles = StyleSheet.create({
   documentIconLarge: { width: 80, height: 80, borderRadius: 40, justifyContent: 'center', alignItems: 'center', marginBottom: spacing[4] },
   detailTitle: { fontSize: typography.xl, fontWeight: typography.fontWeight.bold, color: colors.textPrimary, marginBottom: spacing[1], textAlign: 'center' },
   detailFileName: { fontSize: typography.sm, color: colors.textSecondary, marginBottom: spacing[5], textAlign: 'center' },
-  detailRow: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', paddingVertical: spacing[3], borderBottomWidth: 1, borderBottomColor: '#1E293B' },
+  detailRow: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', paddingVertical: spacing[3], borderBottomWidth: 1, borderBottomColor: colors.border },
   detailLabel: { fontSize: typography.sm, color: colors.textSecondary, fontWeight: typography.fontWeight.medium },
   detailValue: { fontSize: typography.sm, color: colors.textPrimary, fontWeight: typography.fontWeight.medium, textTransform: 'capitalize' },
   detailDescription: { fontSize: typography.sm, color: colors.slate[200], marginTop: spacing[2], lineHeight: 20 },

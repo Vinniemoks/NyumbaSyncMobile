@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
         padding: spacing[4],
         backgroundColor: colors.surface,
         borderBottomWidth: 1,
-        borderBottomColor: '#1E293B',
+        borderBottomColor: colors.border,
     },
     headerTitle: {
         fontSize: typography.xl,
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
         padding: spacing[3],
         borderRadius: borderRadius.xl,
         borderWidth: 1,
-        borderColor: '#1E293B',
+        borderColor: colors.border,
     },
     searchIcon: {
         marginRight: spacing[2],
@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
         backgroundColor: colors.surface,
         borderRadius: 20,
         borderWidth: 1,
-        borderColor: '#1E293B',
+        borderColor: colors.border,
     },
     yearButtonActive: {
         backgroundColor: colors.darkBlue,
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
         padding: spacing[4],
         marginBottom: spacing[3],
         borderWidth: 1,
-        borderColor: '#1E293B',
+        borderColor: colors.border,
     },
     receiptIcon: {
         width: 56,
@@ -467,7 +467,7 @@ const styles = StyleSheet.create({
     footer: {
         padding: spacing[4],
         borderTopWidth: 1,
-        borderTopColor: '#1E293B',
+        borderTopColor: colors.border,
         backgroundColor: colors.surface,
     },
     footerText: {

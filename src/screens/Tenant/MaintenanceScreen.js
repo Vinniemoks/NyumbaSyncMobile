@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,11 +8,15 @@ import {
   Modal,
   TextInput,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { tenantPortal, leaseService } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
 
 const MaintenanceScreen = () => {
+  const { user } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -20,46 +24,64 @@ const MaintenanceScreen = () => {
     category: 'plumbing',
     priority: 'medium',
   });
-  const [requests, setRequests] = useState([
-    {
-      id: 1,
-      title: 'Leaking faucet',
-      description: 'Kitchen faucet is leaking',
-      category: 'plumbing',
-      priority: 'high',
-      status: 'in_progress',
-      date: '2025-11-15',
-    },
-    {
-      id: 2,
-      title: 'AC not cooling',
-      description: 'Air conditioner not working properly',
-      category: 'hvac',
-      priority: 'urgent',
-      status: 'assigned',
-      date: '2025-11-14',
-    },
-  ]);
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [propertyId, setPropertyId] = useState(null);
+  const [loadError, setLoadError] = useState(null);
 
-  const handleSubmit = () => {
+  const toRequest = (r) => ({
+    id: String(r.id || r._id),
+    title: r.title || r.category || 'Request',
+    description: r.description || '',
+    category: r.category || r.issueType || 'other',
+    priority: r.priority || 'medium',
+    // The API's first status is "reported"; the screen calls it "pending".
+    status: r.status === 'reported' ? 'pending' : r.status || 'pending',
+    date: r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '',
+  });
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [list, leases] = await Promise.all([tenantPortal.maintenance(), leaseService.getByTenant(user?.id)]);
+      setRequests((Array.isArray(list.data) ? list.data : []).map(toRequest));
+      // The tenant's property is the one on their active lease.
+      const active = (Array.isArray(leases.data) ? leases.data : []).find((l) => l.status === 'active');
+      const prop = active?.property;
+      setPropertyId(prop?._id || prop?.id || (typeof prop === 'string' ? prop : null));
+      setLoadError(null);
+    } catch (e) {
+      setLoadError('Could not load your requests. Check your connection and try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.id]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleSubmit = async () => {
     if (!formData.title || !formData.description) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
-
-    setRequests([
-      {
-        id: Date.now(),
-        ...formData,
-        status: 'pending',
-        date: new Date().toISOString().split('T')[0],
-      },
-      ...requests,
-    ]);
-
-    setFormData({ title: '', description: '', category: 'plumbing', priority: 'medium' });
-    setShowForm(false);
-    Alert.alert('Success', 'Maintenance request submitted successfully!');
+    if (!propertyId) {
+      Alert.alert('No property linked', 'Ask your landlord to add you to your unit before sending a request.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      // The backend keeps no separate title, so it travels at the start of the description.
+      const body = { ...formData, description: `${formData.title.trim()} — ${formData.description.trim()}`, propertyId };
+      const { data } = await tenantPortal.createMaintenance(body);
+      setRequests((prev) => [toRequest({ ...formData, ...data, description: body.description, createdAt: data.createdAt || new Date() }), ...prev]);
+      setFormData({ title: '', description: '', category: 'plumbing', priority: 'medium' });
+      setShowForm(false);
+    } catch (e) {
+      Alert.alert('Could not send request', e.response?.data?.error || e.response?.data?.message || 'Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const getStatusColor = (status) => {
@@ -96,6 +118,17 @@ const MaintenanceScreen = () => {
           ))}
         </View>
 
+        {loading && <ActivityIndicator style={{ marginTop: spacing[6] }} color={colors.info} />}
+        {!loading && loadError && (
+          <TouchableOpacity onPress={load} style={{ padding: spacing[5] }}>
+            <Text style={{ color: colors.textSecondary, textAlign: 'center' }}>{loadError} Tap to retry.</Text>
+          </TouchableOpacity>
+        )}
+        {!loading && !loadError && requests.length === 0 && (
+          <Text style={{ color: colors.textSecondary, textAlign: 'center', padding: spacing[6] }}>
+            No maintenance requests yet. Tap + to report an issue.
+          </Text>
+        )}
         <View style={styles.requestsList}>
           {requests.map((request) => (
             <View key={request.id} style={styles.requestCard}>
@@ -169,7 +202,7 @@ const MaintenanceScreen = () => {
               style={styles.input}
               value={formData.title}
               onChangeText={(text) => setFormData({ ...formData, title: text })}
-              placeholder="e.g., Leaking faucet"
+              placeholder="Short title"
               placeholderTextColor="#64748B"
             />
 
@@ -240,6 +273,7 @@ const MaintenanceScreen = () => {
               <TouchableOpacity
                 style={[styles.modalButton, styles.submitButton]}
                 onPress={handleSubmit}
+                disabled={submitting}
               >
                 <Text style={styles.submitButtonText}>Submit</Text>
               </TouchableOpacity>
@@ -361,7 +395,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#10B981',
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -397,7 +431,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: colors.slate[800], // slate-800
     borderWidth: 1,
-    borderColor: '#334155', // slate-700
+    borderColor: colors.border, // slate-700
     borderRadius: borderRadius.lg,
     padding: spacing[4],
     fontSize: typography.base,
@@ -453,11 +487,11 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeight.semibold,
   },
   submitButton: {
-    backgroundColor: '#10B981',
+    backgroundColor: colors.primary,
     marginLeft: spacing[2],
   },
   submitButtonText: {
-    color: colors.gold,
+    color: colors.white,
     fontSize: typography.base,
     fontWeight: typography.fontWeight.semibold,
   },

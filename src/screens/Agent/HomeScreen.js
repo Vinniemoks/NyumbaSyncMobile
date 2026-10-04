@@ -1,130 +1,103 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../../context/AuthContext';
-import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
-import MorphingBackground from '../../components/MorphingBackground';
+import { propertyService } from '../../services/api';
+import { colors, spacing, typography, borderRadius } from '../../config/theme';
+
+const rentOf = (p) => Number(p?.rent?.amount ?? p?.rent ?? 0) || 0;
+const where = (p) => [p?.address?.area || p?.address?.street, p?.address?.city].filter(Boolean).join(', ');
 
 const AgentHomeScreen = ({ navigation }) => {
   const { user } = useAuth();
+  const [listings, setListings] = useState([]);
+  const [clients, setClients] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      let live = true;
+      (async () => {
+        try {
+          const res = await propertyService.getPublic({});
+          const data = res?.data ?? res;
+          const list = data?.data || data?.properties || (Array.isArray(data) ? data : []);
+          if (live) { setListings(list); setError(false); }
+        } catch (e) {
+          if (live) { setListings([]); setError(true); }
+        }
+        try {
+          const raw = await AsyncStorage.getItem(`nyumbasync_agent_clients_${user?.id || 'me'}`);
+          if (live) setClients(raw ? JSON.parse(raw).length : 0);
+        } catch (e) { /* none saved */ }
+        if (live) setLoading(false);
+      })();
+      return () => { live = false; };
+    }, [user?.id])
+  );
+
+  const cards = [
+    { icon: 'business', color: colors.info, label: 'Listings on the market', value: listings.length, to: 'Listings' },
+    { icon: 'people', color: colors.primary, label: 'Your clients', value: clients, to: 'Clients' },
+  ];
 
   return (
-    <View style={styles.container}>
-      <MorphingBackground />
-      <ScrollView style={{ flex: 1 }}>
-      <View style={styles.header}>
-        <Text style={styles.greeting}>Welcome back,</Text>
-        <Text style={styles.userName}>{user?.firstName || 'Agent'}</Text>
-        <View style={styles.roleBadge}>
-          <Text style={styles.roleText}>Real Estate Agent</Text>
-        </View>
-      </View>
+    <ScrollView style={styles.container} contentContainerStyle={{ padding: spacing[3], paddingBottom: spacing[8] }}>
+      <Text style={styles.sub}>Welcome back</Text>
+      <Text style={styles.name}>{user?.firstName || 'Agent'}</Text>
 
-      <View style={styles.statsGrid}>
-        <View style={styles.statCard}>
-          <Ionicons name="business-outline" size={32} color={colors.info} />
-          <Text style={styles.statValue}>18</Text>
-          <Text style={styles.statLabel}>Active Listings</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Ionicons name="people-outline" size={32} color="#8B5CF6" />
-          <Text style={styles.statValue}>32</Text>
-          <Text style={styles.statLabel}>Clients</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Ionicons name="checkmark-circle-outline" size={32} color={colors.success} />
-          <Text style={styles.statValue}>7</Text>
-          <Text style={styles.statLabel}>Closed Deals</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Ionicons name="cash-outline" size={32} color={colors.warning} />
-          <Text style={styles.statValue}>KSh 450K</Text>
-          <Text style={styles.statLabel}>Commission</Text>
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <View style={styles.actionsGrid}>
-          <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('Listings')}>
-            <Ionicons name="business-outline" size={32} color={colors.info} />
-            <Text style={styles.actionCardText}>My Listings</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('Clients')}>
-            <Ionicons name="people-outline" size={32} color={colors.success} />
-            <Text style={styles.actionCardText}>Clients</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('Listings')}>
-            <Ionicons name="add-circle-outline" size={32} color={colors.warning} />
-            <Text style={styles.actionCardText}>Add Listing</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('Clients')}>
-            <Ionicons name="calendar-outline" size={32} color="#8B5CF6" />
-            <Text style={styles.actionCardText}>Viewings</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Recent Listings</Text>
-        {[
-          { id: 1, title: 'Westlands 3BR Apartment', price: 85000, status: 'available', views: 45 },
-          { id: 2, title: 'Kilimani 2BR Penthouse', price: 120000, status: 'pending', views: 32 },
-          { id: 3, title: 'Karen 4BR Villa', price: 250000, status: 'available', views: 67 },
-        ].map((listing) => (
-          <View key={listing.id} style={styles.listingCard}>
-            <View style={styles.listingHeader}>
-              <Text style={styles.listingTitle}>{listing.title}</Text>
-              <View style={[styles.statusBadge, { backgroundColor: listing.status === 'available' ? '#10B98120' : '#F59E0B20' }]}>
-                <Text style={[styles.statusText, { color: listing.status === 'available' ? '#10B981' : '#F59E0B' }]}>
-                  {listing.status}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.listingDetails}>
-              <View style={styles.listingDetailRow}>
-                <Ionicons name="cash-outline" size={16} color={colors.success} />
-                <Text style={[styles.listingDetailText, { color: colors.success, fontWeight: typography.fontWeight.semibold }]}>
-                  KSh {listing.price.toLocaleString()}/month
-                </Text>
-              </View>
-              <View style={styles.listingDetailRow}>
-                <Ionicons name="eye-outline" size={16} color={colors.textSecondary} />
-                <Text style={styles.listingDetailText}>{listing.views} views</Text>
-              </View>
-            </View>
+      {loading ? (
+        <ActivityIndicator style={{ marginTop: spacing[10] }} size="large" color={colors.info} />
+      ) : (
+        <>
+          <View style={styles.grid}>
+            {cards.map((c) => (
+              <TouchableOpacity key={c.label} style={styles.card} onPress={() => navigation.navigate(c.to)} activeOpacity={0.8}>
+                <View style={[styles.icon, { backgroundColor: `${c.color}1A` }]}><Ionicons name={c.icon} size={18} color={c.color} /></View>
+                <Text style={styles.value}>{c.value}</Text>
+                <Text style={styles.label}>{c.label}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
-        ))}
-      </View>
+
+          <Text style={styles.section}>Latest listings</Text>
+          {listings.length === 0 ? (
+            <Text style={styles.empty}>{error ? 'Could not load listings. Try again shortly.' : 'No listings are on the market yet.'}</Text>
+          ) : (
+            listings.slice(0, 5).map((p) => (
+              <View key={String(p._id || p.id)} style={styles.listing}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.listingTitle} numberOfLines={1}>{p.title || p.name}</Text>
+                  <Text style={styles.listingSub} numberOfLines={1}>{where(p)}</Text>
+                </View>
+                {rentOf(p) > 0 && <Text style={styles.price}>KSh {rentOf(p).toLocaleString()}</Text>}
+              </View>
+            ))
+          )}
+        </>
+      )}
     </ScrollView>
-    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  header: { backgroundColor: colors.surface, padding: spacing[5], alignItems: 'center' },
-  greeting: { fontSize: typography.sm, color: colors.textSecondary },
-  userName: { fontSize: typography['2xl'], fontWeight: typography.fontWeight.bold, color: colors.textPrimary, marginTop: spacing[1] },
-  roleBadge: { backgroundColor: '#1E3A8A', paddingHorizontal: spacing[3], paddingVertical: spacing[1] + 2, borderRadius: borderRadius.xl, marginTop: spacing[2] },
-  roleText: { fontSize: typography.xs, fontWeight: typography.fontWeight.semibold, color: '#BFDBFE', textTransform: 'uppercase' },
-  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', padding: spacing[5] },
-  statCard: { width: '48%', backgroundColor: colors.surface, borderRadius: borderRadius.xl, padding: spacing[5], margin: '1%', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
-  statValue: { fontSize: typography['2xl'], fontWeight: typography.fontWeight.bold, color: colors.textPrimary, marginTop: spacing[2] },
-  statLabel: { fontSize: typography.xs, color: colors.textSecondary, marginTop: spacing[1], textAlign: 'center' },
-  section: { padding: spacing[5] },
-  sectionTitle: { fontSize: typography.lg, fontWeight: typography.fontWeight.bold, color: colors.textPrimary, marginBottom: spacing[4] },
-  actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  actionCard: { width: '48%', backgroundColor: colors.surface, borderRadius: borderRadius.xl, padding: spacing[5], alignItems: 'center', marginBottom: spacing[3], shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
-  actionCardText: { fontSize: typography.sm, fontWeight: typography.fontWeight.semibold, color: colors.slate[200], marginTop: spacing[2] },
-  listingCard: { backgroundColor: colors.surface, borderRadius: borderRadius.xl, padding: spacing[4], marginBottom: spacing[3], shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
-  listingHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing[3] },
-  listingTitle: { fontSize: typography.base, fontWeight: typography.fontWeight.semibold, color: colors.textPrimary, flex: 1 },
-  statusBadge: { borderRadius: borderRadius.xl, paddingHorizontal: 10, paddingVertical: spacing[1] + 2 },
-  statusText: { fontSize: 11, fontWeight: typography.fontWeight.semibold, textTransform: 'capitalize' },
-  listingDetails: { flexDirection: 'row', justifyContent: 'space-between' },
-  listingDetailRow: { flexDirection: 'row', alignItems: 'center' },
-  listingDetailText: { fontSize: 13, color: colors.textSecondary, marginLeft: spacing[2] },
+  sub: { color: colors.textSecondary, fontSize: typography.sm },
+  name: { color: colors.textPrimary, fontSize: typography['2xl'], fontWeight: '800', marginBottom: spacing[3] },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3] },
+  card: { width: '47.5%', padding: spacing[3], backgroundColor: colors.surface, borderRadius: borderRadius.xl, borderWidth: 1, borderColor: colors.border },
+  icon: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginBottom: spacing[2] },
+  value: { color: colors.textPrimary, fontSize: typography['2xl'], fontWeight: '800' },
+  label: { color: colors.textSecondary, fontSize: typography.xs, marginTop: 2, fontWeight: '600' },
+  section: { color: colors.textPrimary, fontSize: typography.base, fontWeight: '800', marginTop: spacing[4], marginBottom: spacing[2] },
+  listing: { flexDirection: 'row', alignItems: 'center', padding: spacing[3], marginBottom: spacing[2], backgroundColor: colors.surface, borderRadius: borderRadius.xl, borderWidth: 1, borderColor: colors.border },
+  listingTitle: { color: colors.textPrimary, fontWeight: '700' },
+  listingSub: { color: colors.textSecondary, fontSize: typography.xs, marginTop: 2 },
+  price: { color: colors.primary, fontWeight: '800', fontSize: typography.sm },
+  empty: { color: colors.textSecondary, textAlign: 'center', marginTop: spacing[6] },
 });
 
 export default AgentHomeScreen;

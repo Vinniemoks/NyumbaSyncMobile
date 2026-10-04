@@ -415,7 +415,7 @@ const PublicListingsScreen = ({ navigation }) => {
                 <Text style={styles.modalLabel}>Message to landlord (optional)</Text>
                 <TextInput
                   style={[styles.input, styles.textArea]}
-                  placeholder="Introduce yourself or ask a question..."
+                  placeholder="Your message"
                   placeholderTextColor={colors.textMuted}
                   value={message}
                   onChangeText={setMessage}

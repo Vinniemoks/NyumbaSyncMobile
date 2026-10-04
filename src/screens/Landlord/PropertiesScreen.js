@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Button from '../../components/Button';
 import { propertyService } from '../../services/api';
 import { buildStaticMapUrl, openInGoogleMaps } from '../../services/locationService';
@@ -28,35 +29,24 @@ const TYPE_ICONS = {
 };
 
 const PropertiesScreen = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState(null);
+  const [loadError, setLoadError] = useState(false);
 
   const loadProperties = useCallback(async () => {
     setLoading(true);
+    setLoadError(false);
     try {
       const response = await propertyService.getByLandlord();
       const data = response?.data ?? response;
       setProperties(data?.properties || data || []);
     } catch (error) {
       console.error('Error loading properties:', error);
-      // Fallback demo data
-      setProperties([
-        {
-          _id: '1',
-          title: 'Riverside Apartments',
-          address: { street: '123 Riverside Drive', city: 'Nairobi' },
-          type: 'apartment',
-          bedrooms: 3,
-          bathrooms: 2,
-          rent: { amount: 35000 },
-          houses: [{ houseNumber: 'A1', floor: '2nd' }],
-          occupied: 10,
-          units: 12,
-          amenities: ['Parking', 'WiFi', 'Security', 'Water'],
-        },
-      ]);
+      setProperties([]);
+      setLoadError(true);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -96,9 +86,16 @@ const PropertiesScreen = ({ navigation }) => {
     );
   };
 
+  // Units are the property's houses; with none listed the property is one unit.
+  const unitCounts = (property) => {
+    const houses = Array.isArray(property.houses) ? property.houses : [];
+    if (houses.length) return { total: houses.length, occupied: houses.filter((h) => h.status === 'occupied').length };
+    return { total: 1, occupied: property.status === 'occupied' ? 1 : 0 };
+  };
+
   const occupancyRate = (property) => {
-    if (!property.units) return 0;
-    return Math.round(((property.occupied || 0) / property.units) * 100);
+    const { total, occupied } = unitCounts(property);
+    return Math.round((occupied / total) * 100);
   };
 
   const occupancyColor = (rate) => {
@@ -136,7 +133,7 @@ const PropertiesScreen = ({ navigation }) => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.textPrimary} />
         }
       >
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top + spacing[3] }]}>
           <View>
             <Text style={styles.headerTitle}>My Properties</Text>
             <Text style={styles.headerSubtitle}>{properties.length} listed</Text>
@@ -204,7 +201,7 @@ const PropertiesScreen = ({ navigation }) => {
                 <View style={styles.cardFooter}>
                   <View style={styles.occupancy}>
                     <Text style={styles.occupancyText}>
-                      {property.occupied || 0}/{property.units || 1} units
+                      {unitCounts(property).occupied}/{unitCounts(property).total} units
                     </Text>
                     <View style={styles.occupancyBar}>
                       <View
@@ -227,8 +224,8 @@ const PropertiesScreen = ({ navigation }) => {
         {properties.length === 0 && (
           <View style={styles.emptyState}>
             <Ionicons name="home-outline" size={64} color={colors.textMuted} />
-            <Text style={styles.emptyTitle}>No properties yet</Text>
-            <Text style={styles.emptySubtitle}>Add your first property to get started.</Text>
+            <Text style={styles.emptyTitle}>{loadError ? 'Could not load properties' : 'No properties yet'}</Text>
+            <Text style={styles.emptySubtitle}>{loadError ? 'Pull down to try again.' : 'Add your first property to get started.'}</Text>
             <Button
               title="Add Property"
               icon="add"

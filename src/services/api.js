@@ -144,7 +144,7 @@ export const paymentService = {
   confirmPayment: (paymentId, data) => apiClient.post(`/payments/${paymentId}/confirm`, data),
 
   // Get payment history
-  getHistory: (tenantId) => apiClient.get(`/payments/history/${tenantId}`),
+  getHistory: () => apiClient.get('/payments/history'),
 };
 
 export const maintenanceService = {
@@ -252,7 +252,7 @@ export const notificationService = {
 
 export const messageService = {
   // Get conversations
-  getConversations: () => apiClient.get('/messages/conversations'),
+  getConversations: (userId) => apiClient.get(`/messages/conversations/${userId}`),
   getConversationById: (conversationId) => apiClient.get(`/messages/conversations/details/${conversationId}`),
 
   // Get messages
@@ -321,3 +321,37 @@ export const analyticsService = {
 };
 
 export default apiClient;
+
+// Admin portal (super admin / admin). Same endpoints the web portal uses.
+export const adminService = {
+  stats: () => apiClient.get('/v1/admin/dashboard/stats'),
+  listUsers: (params) => apiClient.get('/v1/admin/users', { params }),
+  createUser: (body) => apiClient.post('/v1/admin/users', body),
+  updateUser: (id, body) => apiClient.patch(`/v1/admin/users/${id}`, body),
+  bulkStatus: (userIds, action) => apiClient.post('/v1/admin/users/bulk-status', { userIds, action }),
+  resendActivation: (id) => apiClient.post(`/v1/admin/users/${id}/resend-activation`),
+  resetMfa: (id) => apiClient.post(`/v1/admin/users/${id}/reset-mfa`),
+  loginAudit: (params) => apiClient.get('/v1/admin/audit/logins', { params }),
+};
+
+export const profileService = {
+  update: (body) => apiClient.put('/v1/auth/profile', body),
+  changePassword: (currentPassword, newPassword) =>
+    apiClient.post('/v1/auth/change-password', { currentPassword, newPassword }),
+};
+
+// Tenant self-service portal.
+export const tenantPortal = {
+  profile: () => apiClient.get('/v1/tenant/profile'),
+  maintenance: () => apiClient.get('/v1/tenant/maintenance'),
+  createMaintenance: (body) => apiClient.post('/v1/tenant/maintenance', body),
+  documents: () => apiClient.get('/v1/tenant/documents'),
+};
+
+// Vendor portal: jobs assigned to the signed-in vendor.
+export const vendorPortal = {
+  myJobs: (status) => apiClient.get('/v1/vendors/requests/my', { params: status ? { status } : undefined }),
+  accept: (id) => apiClient.post(`/v1/vendors/requests/${id}/accept`),
+  start: (id) => apiClient.post(`/v1/vendors/requests/${id}/start`),
+  complete: (id, body) => apiClient.post(`/v1/vendors/requests/${id}/complete`, body),
+};

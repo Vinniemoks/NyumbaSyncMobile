@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { apiClient } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { dashboardFor } from '../utils/roleRoutes';
 import { colors, spacing, typography, commonStyles } from '../config/theme';
 import Button from '../components/Button';
 
-const ROLE_ROUTES = { admin: 'AdminDashboard', super_admin: 'AdminDashboard' };
 
 // Admins signing in from a new network confirm with the code we emailed.
 const IpVerifyScreen = ({ navigation, route }) => {
@@ -20,7 +20,7 @@ const IpVerifyScreen = ({ navigation, route }) => {
       const { data } = await apiClient.post('/auth/verify-ip', { ipSessionToken, code: code.trim() });
       if (!data?.token) throw new Error('Verification failed');
       await setAuthSession({ token: data.token, refreshToken: data.refreshToken, user: data.user });
-      navigation.replace(ROLE_ROUTES[data.user?.role] || 'AdminDashboard');
+      navigation.replace(dashboardFor(data.user) || 'Landing');
     } catch (e) {
       const d = e.response?.data;
       Alert.alert('Verification failed', d?.error || d?.message || e.message || 'Please try again.', [
@@ -45,7 +45,7 @@ const IpVerifyScreen = ({ navigation, route }) => {
             value={code}
             onChangeText={(t) => setCode(t.replace(/\D/g, '').slice(0, 6))}
             keyboardType="number-pad"
-            placeholder="000000"
+            placeholder="6-digit code"
             placeholderTextColor={colors.textMuted}
             maxLength={6}
           />

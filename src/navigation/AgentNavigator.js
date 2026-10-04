@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../config/theme';
 
 import AgentHomeScreen from '../screens/Agent/HomeScreen';
-import LandlordPropertiesScreen from '../screens/Landlord/PropertiesScreen';
+import PublicListingsScreen from '../screens/PublicListingsScreen';
 import AgentClientsScreen from '../screens/Agent/ClientsScreen';
 import AgentProfileScreen from '../screens/Agent/ProfileScreen';
 import LandlordNotificationsScreen from '../screens/Landlord/NotificationsScreen';
@@ -50,7 +50,7 @@ const AgentNavigator = () => {
       })}
     >
       <Tab.Screen name="Home" component={AgentHomeScreen} options={{ title: 'Dashboard' }} />
-      <Tab.Screen name="Listings" component={LandlordPropertiesScreen} />
+      <Tab.Screen name="Listings" component={PublicListingsScreen} />
       <Tab.Screen name="Clients" component={AgentClientsScreen} />
       <Tab.Screen name="Profile" component={ProfileStack} options={{ headerShown: false }} />
     </Tab.Navigator>
