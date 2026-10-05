@@ -41,7 +41,7 @@ const IpVerifyScreen = ({ navigation, route }) => {
         </Text>
         <View style={commonStyles.form}>
           <TextInput
-            style={[commonStyles.input, { textAlign: 'center', fontSize: typography['2xl'], letterSpacing: 8 }]}
+            style={[commonStyles.input, { fontSize: typography['2xl'], letterSpacing: code ? 8 : 0 }]}
             value={code}
             onChangeText={(t) => setCode(t.replace(/\D/g, '').slice(0, 6))}
             keyboardType="number-pad"

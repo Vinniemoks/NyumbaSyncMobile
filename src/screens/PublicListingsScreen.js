@@ -18,7 +18,8 @@ import Button from '../components/Button';
 import { propertyService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { buildStaticMapUrl, openInGoogleMaps } from '../services/locationService';
-import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../config/theme';
+import { colors, spacing, typography, commonStyles } from '../config/theme';
+import { Rows, Row, Field, Options, Sheet } from '../components/ui';
 
 const TYPE_ICONS = {
   apartment: 'business',
@@ -140,565 +141,144 @@ const PublicListingsScreen = ({ navigation }) => {
 
   if (loading && !refreshing) {
     return (
-      <View style={commonStyles.container}>
-        <View style={commonStyles.centered}>
-          <ActivityIndicator size="large" color={colors.leaf} />
-        </View>
+      <View style={[commonStyles.container, commonStyles.centered]}>
+        <ActivityIndicator size="small" color={colors.textMuted} />
       </View>
     );
   }
 
+  const sel = selectedProperty;
+  const setF = (key) => (text) => setFilters((f) => ({ ...f, [key]: text }));
+  const amenityLabel = (a) => {
+    const name = typeof a === 'string' ? a : a?.name;
+    return AMENITY_DISPLAY_MAP[name] || name;
+  };
+
   return (
     <View style={commonStyles.container}>
       <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.textPrimary} />
-        }
+        contentContainerStyle={{ paddingHorizontal: spacing[5], paddingBottom: spacing[8] }}
+        keyboardShouldPersistTaps="handled"
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.textMuted} />}
       >
-        <View style={styles.header}>
-          <View style={styles.headerRow}>
-            <View>
-              <Text style={styles.headerTitle}>Browse Properties</Text>
-              <Text style={styles.headerSubtitle}>{properties.length} available</Text>
-            </View>
-            <TouchableOpacity
-              style={[styles.filterToggle, showFilters && styles.filterToggleActive]}
-              onPress={() => setShowFilters((s) => !s)}
-            >
-              <Ionicons name="options-outline" size={20} color={showFilters ? colors.gold : colors.textSecondary} />
-            </TouchableOpacity>
-          </View>
-
-          {showFilters && (
-            <View style={styles.filtersCard}>
-              <TextInput
-                style={[styles.input, { marginBottom: spacing[3] }]}
-                placeholder="Search area or keyword"
-                placeholderTextColor={colors.textMuted}
-                value={filters.search}
-                onChangeText={(text) => setFilters((f) => ({ ...f, search: text }))}
-              />
-              <View style={styles.row}>
-                <TextInput
-                  style={[styles.input, styles.filterHalf]}
-                  placeholder="City"
-                  placeholderTextColor={colors.textMuted}
-                  value={filters.city}
-                  onChangeText={(text) => setFilters((f) => ({ ...f, city: text }))}
-                />
-                <TextInput
-                  style={[styles.input, styles.filterHalf]}
-                  placeholder="Bedrooms"
-                  placeholderTextColor={colors.textMuted}
-                  value={filters.bedrooms}
-                  onChangeText={(text) => setFilters((f) => ({ ...f, bedrooms: text }))}
-                  keyboardType="number-pad"
-                />
-              </View>
-              <View style={styles.row}>
-                <TextInput
-                  style={[styles.input, styles.filterHalf]}
-                  placeholder="Min rent (KES)"
-                  placeholderTextColor={colors.textMuted}
-                  value={filters.minRent}
-                  onChangeText={(text) => setFilters((f) => ({ ...f, minRent: text }))}
-                  keyboardType="number-pad"
-                />
-                <TextInput
-                  style={[styles.input, styles.filterHalf]}
-                  placeholder="Max rent (KES)"
-                  placeholderTextColor={colors.textMuted}
-                  value={filters.maxRent}
-                  onChangeText={(text) => setFilters((f) => ({ ...f, maxRent: text }))}
-                  keyboardType="number-pad"
-                />
-              </View>
-              <View style={styles.typeRow}>
-                {['apartment', 'house', 'studio', 'bedsitter', 'commercial'].map((type) => (
-                  <TouchableOpacity
-                    key={type}
-                    style={[
-                      styles.typeChip,
-                      filters.type === type && styles.typeChipActive,
-                    ]}
-                    onPress={() =>
-                      setFilters((f) => ({ ...f, type: f.type === type ? '' : type }))
-                    }
-                  >
-                    <Text
-                      style={[
-                        styles.typeChipText,
-                        filters.type === type && styles.typeChipTextActive,
-                      ]}
-                    >
-                      {type.charAt(0).toUpperCase() + type.slice(1)}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-              <Button
-                title="Apply Filters"
-                onPress={() => {
-                  setShowFilters(false);
-                  loadProperties();
-                }}
-                size="sm"
-                fullWidth
-              />
-            </View>
-          )}
+        <View style={styles.top}>
+          <Text style={styles.count}>{properties.length} available</Text>
+          <TouchableOpacity onPress={() => setShowFilters((v) => !v)} hitSlop={8}>
+            <Text style={styles.link}>{showFilters ? 'Hide filters' : 'Filter'}</Text>
+          </TouchableOpacity>
         </View>
 
-        <View style={styles.list}>
+        {showFilters && (
+          <View style={{ marginBottom: spacing[3] }}>
+            <Field label="Search" value={filters.search} onChangeText={setF('search')} />
+            <View style={styles.pair}>
+              <Field style={{ flex: 1 }} label="City" value={filters.city} onChangeText={setF('city')} />
+              <Field style={{ flex: 1 }} label="Bedrooms" value={filters.bedrooms} onChangeText={setF('bedrooms')} keyboardType="number-pad" />
+            </View>
+            <View style={styles.pair}>
+              <Field style={{ flex: 1 }} label="Min rent (KSh)" value={filters.minRent} onChangeText={setF('minRent')} keyboardType="number-pad" />
+              <Field style={{ flex: 1 }} label="Max rent (KSh)" value={filters.maxRent} onChangeText={setF('maxRent')} keyboardType="number-pad" />
+            </View>
+            <Options
+              label="Type"
+              options={['apartment', 'house', 'studio', 'bedsitter', 'commercial']}
+              value={filters.type}
+              onChange={(type) => setFilters((f) => ({ ...f, type: f.type === type ? '' : type }))}
+            />
+            <Button title="Apply filters" onPress={() => { setShowFilters(false); loadProperties(); }} fullWidth />
+          </View>
+        )}
+
+        <Rows>
           {properties.map((property) => {
-            const iconName = TYPE_ICONS[property.type] || 'home';
+            const bits = [
+              property.bedrooms ? `${property.bedrooms} bed` : null,
+              property.bathrooms ? `${property.bathrooms} bath` : null,
+              property.type,
+            ].filter(Boolean).join(' · ');
             return (
-              <TouchableOpacity
-                key={property._id || property.id}
-                style={styles.card}
-                onPress={() => setSelectedProperty(property)}
-                activeOpacity={0.85}
-              >
-                <View style={styles.cardHeader}>
-                  <View style={styles.iconWrap}>
-                    <Ionicons name={iconName} size={24} color={colors.gold} />
-                  </View>
-                  <View style={styles.cardInfo}>
-                    <Text style={styles.propertyName}>{property.title || property.name}</Text>
-                    <Text style={styles.propertyAddress} numberOfLines={1}>
-                      {formatAddress(property.address)}
-                    </Text>
-                  </View>
+              <TouchableOpacity key={property._id || property.id} style={styles.item} onPress={() => setSelectedProperty(property)} activeOpacity={0.6}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.itemTitle} numberOfLines={1}>{property.title || property.name}</Text>
+                  <Text style={styles.itemSub} numberOfLines={2}>{[formatAddress(property.address), bits].filter(Boolean).join(' · ')}</Text>
                 </View>
-
-                <View style={styles.cardDetails}>
-                  <View style={styles.detailPill}>
-                    <Ionicons name="bed-outline" size={14} color={colors.textSecondary} />
-                    <Text style={styles.detailText}>{property.bedrooms || 0} Beds</Text>
-                  </View>
-                  <View style={styles.detailPill}>
-                    <Ionicons name="water-outline" size={14} color={colors.textSecondary} />
-                    <Text style={styles.detailText}>{property.bathrooms || 0} Baths</Text>
-                  </View>
-                  <View style={styles.detailPill}>
-                    <Ionicons name="cash-outline" size={14} color={colors.textSecondary} />
-                    <Text style={styles.detailText}>{formatRent(property)}</Text>
-                  </View>
-                </View>
-
-                {property.amenities?.length > 0 && (
-                  <View style={styles.amenitiesWrap}>
-                    {property.amenities.slice(0, 4).map((a, i) => (
-                      <View key={i} style={styles.amenityChip}>
-                        <Text style={styles.amenityChipText}>
-                          {AMENITY_DISPLAY_MAP[typeof a === 'string' ? a : a?.name] || (typeof a === 'string' ? a : a?.name)}
-                        </Text>
-                      </View>
-                    ))}
-                  </View>
-                )}
+                <Text style={styles.itemRent}>{formatRent(property)}</Text>
               </TouchableOpacity>
             );
           })}
-        </View>
+        </Rows>
 
-        {properties.length === 0 && (
-          <View style={styles.emptyState}>
-            <Ionicons name="home-outline" size={64} color={colors.textMuted} />
-            <Text style={styles.emptyTitle}>No listings yet</Text>
-            <Text style={styles.emptySubtitle}>Check back soon for available properties.</Text>
-          </View>
-        )}
+        {properties.length === 0 && <Text style={styles.empty}>No listings yet. Check back soon.</Text>}
       </ScrollView>
 
-      {/* Detail / Apply Modal */}
-      <Modal
-        visible={Boolean(selectedProperty)}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setSelectedProperty(null)}
-      >
-        {selectedProperty && (
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>{selectedProperty.title || selectedProperty.name}</Text>
-                <TouchableOpacity onPress={() => setSelectedProperty(null)}>
-                  <Ionicons name="close" size={24} color={colors.textSecondary} />
-                </TouchableOpacity>
-              </View>
-
-              <ScrollView showsVerticalScrollIndicator={false}>
-                {selectedProperty.address?.coordinates && (
-                  <TouchableOpacity
-                    style={styles.mapCard}
-                    onPress={() =>
-                      openInGoogleMaps(
-                        selectedProperty.address.coordinates.latitude,
-                        selectedProperty.address.coordinates.longitude,
-                        selectedProperty.title || selectedProperty.name
-                      )
-                    }
-                  >
-                    <Image
-                      source={{
-                        uri: buildStaticMapUrl(
-                          selectedProperty.address.coordinates.latitude,
-                          selectedProperty.address.coordinates.longitude
-                        ),
-                      }}
-                      style={styles.mapImage}
-                      resizeMode="cover"
-                    />
-                    <View style={styles.mapOverlay}>
-                      <Ionicons name="map-outline" size={18} color={colors.white} />
-                      <Text style={styles.mapOverlayText}>Get directions on Google Maps</Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-
-                <Text style={styles.modalLabel}>Address</Text>
-                <Text style={styles.modalValue}>{formatAddress(selectedProperty.address)}</Text>
-
-                <Text style={styles.modalLabel}>Base Rent</Text>
-                <Text style={styles.modalValue}>{formatRent(selectedProperty)}</Text>
-
-                {selectedProperty.deposit ? (
-                  <>
-                    <Text style={styles.modalLabel}>Deposit</Text>
-                    <Text style={styles.modalValue}>KSh {Number(selectedProperty.deposit).toLocaleString()}</Text>
-                  </>
-                ) : null}
-
-                {selectedProperty.serviceCharge ? (
-                  <>
-                    <Text style={styles.modalLabel}>Service Charge</Text>
-                    <Text style={styles.modalValue}>KSh {Number(selectedProperty.serviceCharge).toLocaleString()}</Text>
-                  </>
-                ) : null}
-
-                {selectedProperty.utilities?.length > 0 && (
-                  <>
-                    <Text style={styles.modalLabel}>Utilities</Text>
-                    {selectedProperty.utilities.map((u, i) => (
-                      <View key={i} style={styles.utilityRow}>
-                        <Text style={styles.utilityName}>{u.name}</Text>
-                        <Text style={styles.utilityAmount}>
-                          KSh {Number(u.amount).toLocaleString()}
-                          {u.isMandatory ? ' (mandatory)' : ''}
-                        </Text>
-                      </View>
-                    ))}
-                  </>
-                )}
-
-                {selectedProperty.houses?.length > 0 && (
-                  <>
-                    <Text style={styles.modalLabel}>House / Unit</Text>
-                    {selectedProperty.houses.map((h, i) => (
-                      <Text key={i} style={styles.modalValue}>
-                        {h.houseNumber ? `House ${h.houseNumber}` : 'Unnumbered'}
-                        {h.floor ? ` • ${h.floor} floor` : ''}
-                        {h.status ? ` • ${h.status}` : ''}
-                      </Text>
-                    ))}
-                  </>
-                )}
-
-                {selectedProperty.description ? (
-                  <>
-                    <Text style={styles.modalLabel}>Description</Text>
-                    <Text style={styles.modalValue}>{selectedProperty.description}</Text>
-                  </>
-                ) : null}
-
-                <Text style={styles.modalLabel}>Message to landlord (optional)</Text>
-                <TextInput
-                  style={[styles.input, styles.textArea]}
-                  placeholder="Your message"
-                  placeholderTextColor={colors.textMuted}
-                  value={message}
-                  onChangeText={setMessage}
-                  multiline
-                  numberOfLines={3}
-                  textAlignVertical="top"
-                />
-
-                <Button
-                  title="Apply / Express Interest"
-                  onPress={handleApply}
-                  loading={applyLoading}
-                  disabled={applyLoading}
-                  fullWidth
-                  size="lg"
-                  style={{ marginTop: spacing[4], marginBottom: spacing[6] }}
-                />
-              </ScrollView>
+      <Sheet visible={Boolean(sel)} title={sel?.title || sel?.name || ''} onClose={() => setSelectedProperty(null)}>
+        {!!sel?.address?.coordinates && (
+          <TouchableOpacity
+            style={styles.mapCard}
+            onPress={() => openInGoogleMaps(sel.address.coordinates.latitude, sel.address.coordinates.longitude, sel.title || sel.name)}
+          >
+            <Image
+              source={{ uri: buildStaticMapUrl(sel.address.coordinates.latitude, sel.address.coordinates.longitude) }}
+              style={styles.mapImage}
+              resizeMode="cover"
+            />
+            <View style={styles.mapOverlay}>
+              <Text style={styles.mapOverlayText}>Directions in Google Maps</Text>
             </View>
-          </View>
+          </TouchableOpacity>
         )}
-      </Modal>
+
+        {!!sel && (
+          <Rows>
+            <Row label="Address" value={formatAddress(sel.address)} />
+            <Row label="Rent" value={formatRent(sel)} />
+            {!!sel.deposit && <Row label="Deposit" value={`KSh ${Number(sel.deposit).toLocaleString()}`} />}
+            {!!sel.serviceCharge && <Row label="Service charge" value={`KSh ${Number(sel.serviceCharge).toLocaleString()}`} />}
+            {(sel.utilities || []).map((u, i) => (
+              <Row key={i} label={u.name} value={`KSh ${Number(u.amount).toLocaleString()}${u.isMandatory ? ' · mandatory' : ''}`} />
+            ))}
+            {(sel.houses || []).map((h, i) => (
+              <Row
+                key={`h${i}`}
+                label={h.houseNumber ? `House ${h.houseNumber}` : 'Unit'}
+                value={[h.floor ? `${h.floor} floor` : null, h.status].filter(Boolean).join(' · ') || undefined}
+              />
+            ))}
+          </Rows>
+        )}
+        {sel?.amenities?.length > 0 && (
+          <Text style={styles.copy}>{sel.amenities.map(amenityLabel).filter(Boolean).join(' · ')}</Text>
+        )}
+        {!!sel?.description && <Text style={styles.copy}>{sel.description}</Text>}
+
+        <Field
+          style={{ marginTop: spacing[4] }}
+          label="Message to the landlord (optional)"
+          value={message}
+          onChangeText={setMessage}
+          multiline
+        />
+        <Button title="Express interest" onPress={handleApply} loading={applyLoading} disabled={applyLoading} fullWidth size="lg" />
+      </Sheet>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  header: {
-    padding: spacing[5],
-    paddingTop: spacing[6],
-  },
-  headerTitle: {
-    fontSize: typography['2xl'],
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary,
-  },
-  headerSubtitle: {
-    fontSize: typography.sm,
-    color: colors.textSecondary,
-    marginTop: spacing[1],
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  filterToggle: {
-    width: 44,
-    height: 44,
-    borderRadius: borderRadius.lg,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.slate[700],
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  filterToggleActive: {
-    borderColor: colors.gold,
-    backgroundColor: `${colors.gold}12`,
-  },
-  filtersCard: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing[4],
-    marginTop: spacing[4],
-    ...shadows.card,
-  },
-  row: {
-    flexDirection: 'row',
-    gap: spacing[3],
-    marginBottom: spacing[3],
-  },
-  filterHalf: {
-    flex: 1,
-    marginBottom: 0,
-  },
-  typeRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing[2],
-    marginBottom: spacing[4],
-  },
-  typeChip: {
-    backgroundColor: colors.surfaceAlt,
-    borderWidth: 1,
-    borderColor: colors.slate[700],
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[3],
-  },
-  typeChipActive: {
-    borderColor: colors.gold,
-    backgroundColor: `${colors.gold}12`,
-  },
-  typeChipText: {
-    color: colors.textSecondary,
-    fontSize: typography.sm,
-  },
-  typeChipTextActive: {
-    color: colors.gold,
-    fontWeight: typography.fontWeight.semibold,
-  },
-  list: {
-    paddingHorizontal: spacing[5],
-    paddingBottom: spacing[6],
-  },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing[4],
-    marginBottom: spacing[3],
-    ...shadows.card,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing[3],
-  },
-  iconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: `${colors.gold}12`,
-    borderWidth: 1,
-    borderColor: `${colors.gold}25`,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: spacing[3],
-  },
-  cardInfo: {
-    flex: 1,
-  },
-  propertyName: {
-    fontSize: typography.base,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary,
-  },
-  propertyAddress: {
-    fontSize: typography.sm,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  cardDetails: {
-    flexDirection: 'row',
-    gap: spacing[2],
-    marginBottom: spacing[3],
-  },
-  detailPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing[1],
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing[1],
-    paddingHorizontal: spacing[2],
-  },
-  detailText: {
-    fontSize: typography.xs,
-    color: colors.textSecondary,
-  },
-  amenitiesWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing[2],
-  },
-  amenityChip: {
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: borderRadius.full,
-    paddingVertical: spacing[1],
-    paddingHorizontal: spacing[3],
-  },
-  amenityChipText: {
-    color: colors.textSecondary,
-    fontSize: typography.xs,
-  },
-  emptyState: {
-    alignItems: 'center',
-    padding: spacing[10],
-  },
-  emptyTitle: {
-    fontSize: typography.lg,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary,
-    marginTop: spacing[4],
-  },
-  emptySubtitle: {
-    fontSize: typography.base,
-    color: colors.textSecondary,
-    marginTop: spacing[1],
-    textAlign: 'center',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.65)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: borderRadius['2xl'],
-    borderTopRightRadius: borderRadius['2xl'],
-    maxHeight: '92%',
-    padding: spacing[5],
-    paddingTop: spacing[4],
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing[4],
-  },
-  modalTitle: {
-    fontSize: typography.xl,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary,
-    flex: 1,
-    marginRight: spacing[3],
-  },
-  mapCard: {
-    borderRadius: borderRadius.xl,
-    overflow: 'hidden',
-    marginBottom: spacing[4],
-    position: 'relative',
-    ...shadows.card,
-  },
-  mapImage: {
-    width: '100%',
-    height: 180,
-  },
-  mapOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing[2],
-    paddingVertical: spacing[3],
-    backgroundColor: 'rgba(15,23,42,0.75)',
-  },
-  mapOverlayText: {
-    color: colors.white,
-    fontWeight: typography.fontWeight.semibold,
-  },
-  modalLabel: {
-    fontSize: typography.sm,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.textMuted,
-    marginTop: spacing[4],
-    marginBottom: spacing[1],
-  },
-  modalValue: {
-    fontSize: typography.base,
-    color: colors.textPrimary,
-  },
-  utilityRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: spacing[2],
-    borderBottomWidth: 1,
-    borderBottomColor: colors.slate[800],
-  },
-  utilityName: {
-    color: colors.textPrimary,
-    fontSize: typography.base,
-  },
-  utilityAmount: {
-    color: colors.textSecondary,
-    fontSize: typography.base,
-  },
-  input: {
-    backgroundColor: colors.surfaceAlt,
-    borderWidth: 1,
-    borderColor: colors.slate[700],
-    borderRadius: borderRadius.lg,
-    padding: spacing[4],
-    color: colors.textPrimary,
-    fontSize: typography.base,
-  },
-  textArea: {
-    minHeight: 80,
-    textAlignVertical: 'top',
-  },
+  top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: spacing[4] },
+  count: { color: colors.textSecondary, fontSize: typography.sm },
+  link: { color: colors.leaf, fontSize: typography.base, fontWeight: '600' },
+  pair: { flexDirection: 'row', gap: spacing[3] },
+  item: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing[4], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+  itemTitle: { color: colors.textPrimary, fontSize: typography.base, fontWeight: '600' },
+  itemSub: { color: colors.textMuted, fontSize: typography.sm, marginTop: 2, textTransform: 'capitalize' },
+  itemRent: { color: colors.textPrimary, fontSize: typography.sm, fontWeight: '600', marginLeft: spacing[3] },
+  empty: { color: colors.textSecondary, paddingVertical: spacing[5] },
+  copy: { color: colors.textSecondary, fontSize: typography.sm, lineHeight: 21, marginTop: spacing[3] },
+  mapCard: { borderRadius: 8, overflow: 'hidden', marginBottom: spacing[4] },
+  mapImage: { width: '100%', height: 160 },
+  mapOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingVertical: spacing[2], backgroundColor: 'rgba(23,24,28,0.7)', alignItems: 'center' },
+  mapOverlayText: { color: colors.white, fontSize: typography.sm, fontWeight: '600' },
 });
 
 export default PublicListingsScreen;

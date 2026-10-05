@@ -58,15 +58,15 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg },
   summary: { margin: spacing[3], padding: spacing[4], backgroundColor: colors.primary, borderRadius: borderRadius['2xl'] },
   summaryLabel: { color: '#C9D6F5', fontSize: typography.sm },
-  summaryAmount: { color: colors.white, fontSize: typography['3xl'], fontWeight: '800', marginTop: 2 },
+  summaryAmount: { color: colors.white, fontSize: typography['3xl'], fontWeight: '700', marginTop: 2 },
   summaryRow: { flexDirection: 'row', marginTop: spacing[3], gap: spacing[3] },
   cell: { flex: 1, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: borderRadius.xl, padding: spacing[3] },
-  cellV: { color: colors.white, fontWeight: '800', fontSize: typography.base },
+  cellV: { color: colors.white, fontWeight: '700', fontSize: typography.base },
   cellK: { color: '#C9D6F5', fontSize: typography.xs, marginTop: 2 },
   row: { flexDirection: 'row', alignItems: 'center', padding: spacing[3], marginBottom: spacing[2], backgroundColor: colors.surface, borderRadius: borderRadius.xl, borderWidth: 1, borderColor: colors.border },
   title: { color: colors.textPrimary, fontWeight: '700' },
   sub: { color: colors.textSecondary, fontSize: typography.xs, marginTop: 2 },
-  amount: { color: colors.success, fontWeight: '800' },
+  amount: { color: colors.success, fontWeight: '700' },
   empty: { color: colors.textSecondary, textAlign: 'center', marginTop: spacing[8], paddingHorizontal: spacing[5] },
 });
 

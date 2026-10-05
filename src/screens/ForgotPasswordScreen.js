@@ -44,11 +44,11 @@ const ForgotPasswordScreen = ({ navigation }) => {
       style={commonStyles.container}
     >
       <View style={commonStyles.content}>
-        <Logo size={76} style={{ marginBottom: 20 }} />
+        <Logo size={40} style={{ marginBottom: spacing[5] }} />
 
         {!sent ? (
           <>
-            <Text style={commonStyles.title}>Reset Password</Text>
+            <Text style={commonStyles.title}>Reset password</Text>
             <Text style={commonStyles.subtitle}>
               Enter your email and we'll send you a link to reset your password.
             </Text>
@@ -67,7 +67,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
               />
 
               <Button
-                title="Send Reset Link"
+                title="Send reset link"
                 onPress={handleSubmit}
                 loading={loading}
                 disabled={loading || !email.trim()}
@@ -78,15 +78,12 @@ const ForgotPasswordScreen = ({ navigation }) => {
           </>
         ) : (
           <>
-            <View style={styles.successIcon}>
-              <Ionicons name="mail-outline" size={48} color={colors.success} />
-            </View>
-            <Text style={commonStyles.title}>Check Your Email</Text>
+            <Text style={commonStyles.title}>Check your email</Text>
             <Text style={commonStyles.subtitle}>
               If your email is registered, you will receive a password reset link shortly.
             </Text>
             <Button
-              title="Back to Sign In"
+              title="Back to sign in"
               onPress={() => navigation.replace('Login')}
               fullWidth
               size="lg"
@@ -109,15 +106,6 @@ const ForgotPasswordScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  successIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: `${colors.success}18`,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing[5],
-  },
   linkText: {
     color: colors.textSecondary,
     fontSize: typography.sm,

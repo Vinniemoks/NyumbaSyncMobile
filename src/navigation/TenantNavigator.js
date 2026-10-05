@@ -18,7 +18,7 @@ import ChatScreen from '../screens/Shared/ChatScreen';
 import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../config/theme';
 
 const headerTheme = {
-  headerStyle: {
+  headerStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 0.5, borderBottomColor: colors.border,
     backgroundColor: colors.surface,
   },
   headerTintColor: colors.textPrimary,
@@ -28,7 +28,7 @@ const headerTheme = {
 };
 
 const tabBarTheme = {
-  tabBarActiveTintColor: colors.gold,
+  tabBarActiveTintColor: colors.primary,
   tabBarInactiveTintColor: colors.textMuted,
   tabBarStyle: {
     backgroundColor: colors.surface,
@@ -110,11 +110,11 @@ const TenantNavigator = () => {
         ...headerTheme,
       })}
     >
-      <Tab.Screen name="Home" component={TenantHomeScreen} options={{ title: 'Dashboard' }} />
+      <Tab.Screen name="Home" component={TenantHomeScreen} options={{ title: 'Dashboard', tabBarLabel: 'Home' }} />
       <Tab.Screen name="Browse" component={PublicListingsScreen} options={{ title: 'Browse' }} />
       <Tab.Screen name="Payments" component={TenantPaymentsScreen} />
       <Tab.Screen name="Lease" component={TenantLeaseScreen} />
-      <Tab.Screen name="Maintenance" component={TenantMaintenanceScreen} />
+      <Tab.Screen name="Maintenance" component={TenantMaintenanceScreen} options={{ tabBarLabel: 'Repairs' }} />
       <Tab.Screen name="Messages" component={MessagesStack} options={{ headerShown: false }} />
       <Tab.Screen name="Profile" component={ProfileStack} options={{ headerShown: false }} />
     </Tab.Navigator>

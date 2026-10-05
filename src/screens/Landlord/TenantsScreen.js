@@ -171,113 +171,52 @@ const TenantsScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <ScrollView>
-        {/* Stats Cards */}
-        <View style={styles.statsContainer}>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>{stats.active}</Text>
-            <Text style={styles.statLabel}>Active</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>{stats.pending}</Text>
-            <Text style={styles.statLabel}>Pending</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>{stats.inactive}</Text>
-            <Text style={styles.statLabel}>Inactive</Text>
-          </View>
-        </View>
+        <Text style={styles.summary}>
+          {stats.active} active · {stats.pending} pending · {stats.inactive} inactive
+        </Text>
 
-        {/* Search Bar */}
-        <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color={colors.textSecondary} style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search tenants..."
-            placeholderTextColor="#64748B"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View>
+        <TextInput
+          style={styles.searchLine}
+          placeholder="Search"
+          placeholderTextColor={colors.textMuted}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
 
-        {/* Filter Tabs */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterContainer}>
+        <View style={styles.tabs}>
           {['all', 'active', 'pending', 'inactive'].map((status) => (
-            <TouchableOpacity
-              key={status}
-              style={[
-                styles.filterTab,
-                filterStatus === status && styles.filterTabActive,
-              ]}
-              onPress={() => setFilterStatus(status)}
-            >
-              <Text
-                style={[
-                  styles.filterTabText,
-                  filterStatus === status && styles.filterTabTextActive,
-                ]}
-              >
+            <TouchableOpacity key={status} onPress={() => setFilterStatus(status)} style={[styles.tab, filterStatus === status && styles.tabOn]}>
+              <Text style={[styles.tabText, filterStatus === status && styles.tabTextOn]}>
                 {status.charAt(0).toUpperCase() + status.slice(1)}
               </Text>
             </TouchableOpacity>
           ))}
-        </ScrollView>
+        </View>
 
-        {/* Tenants List */}
         {tenants.length === 0 && (
-          <Text style={{ color: colors.textSecondary, textAlign: 'center', padding: spacing[6] }}>
+          <Text style={{ color: colors.textSecondary, padding: spacing[5] }}>
             {loadError || 'No tenants yet. Tap the person icon at the top to add your first tenant and open their lease.'}
           </Text>
         )}
-        <View style={styles.tenantsList}>
+        <View style={{ paddingHorizontal: spacing[5] }}>
           {filteredTenants.map((tenant) => (
             <TouchableOpacity
               key={tenant.id}
-              style={styles.tenantCard}
+              style={styles.tRow}
+              activeOpacity={0.6}
               onPress={() => {
                 setSelectedTenant(tenant);
                 setShowDetailsModal(true);
               }}
             >
-              <View style={styles.tenantHeader}>
-                <View style={styles.tenantAvatar}>
-                  <Text style={styles.tenantAvatarText}>
-                    {tenant.firstName.charAt(0)}
-                    {tenant.lastName.charAt(0)}
-                  </Text>
-                </View>
-                <View style={styles.tenantInfo}>
-                  <Text style={styles.tenantName}>
-                    {tenant.firstName} {tenant.lastName}
-                  </Text>
-                  <Text style={styles.tenantProperty}>{tenant.property}</Text>
-                  {!!tenant.unitNumber && <Text style={styles.tenantUnit}>Unit {tenant.unitNumber}</Text>}
-                </View>
-                <View style={styles.tenantStatus}>
-                  <Ionicons
-                    name={getStatusIcon(tenant.status)}
-                    size={20}
-                    color={getStatusColor(tenant.status)}
-                  />
-                </View>
+              <View style={[styles.dot, { backgroundColor: getStatusColor(tenant.status) }]} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.tName} numberOfLines={1}>{tenant.firstName} {tenant.lastName}</Text>
+                <Text style={styles.tSub} numberOfLines={1}>
+                  {[tenant.property, tenant.unitNumber ? `Unit ${tenant.unitNumber}` : null].filter(Boolean).join(' · ')}
+                </Text>
               </View>
-
-              <View style={styles.tenantDetails}>
-                <View style={styles.tenantDetailItem}>
-                  <Ionicons name="mail-outline" size={14} color={colors.textSecondary} />
-                  <Text style={styles.tenantDetailText}>{tenant.email}</Text>
-                </View>
-                <View style={styles.tenantDetailItem}>
-                  <Ionicons name="call-outline" size={14} color={colors.textSecondary} />
-                  <Text style={styles.tenantDetailText}>{tenant.phone}</Text>
-                </View>
-              </View>
-
-              <View style={styles.tenantFooter}>
-                <View style={styles.rentInfo}>
-                  <Text style={styles.rentLabel}>Monthly Rent</Text>
-                  <Text style={styles.rentValue}>KSh {tenant.rent?.toLocaleString()}</Text>
-                </View>
-              </View>
+              <Text style={styles.tRent}>KSh {tenant.rent?.toLocaleString()}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -415,6 +354,21 @@ const TenantsScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  summary: { color: colors.textSecondary, fontSize: typography.sm, paddingHorizontal: spacing[5], paddingTop: spacing[4] },
+  searchLine: {
+    marginHorizontal: spacing[5], marginTop: spacing[3], paddingVertical: spacing[3], fontSize: typography.base,
+    color: colors.textPrimary, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border,
+  },
+  tabs: { flexDirection: 'row', paddingHorizontal: spacing[5], marginTop: spacing[2], marginBottom: spacing[2] },
+  tab: { paddingVertical: spacing[3], marginRight: spacing[5], borderBottomWidth: 2, borderBottomColor: 'transparent' },
+  tabOn: { borderBottomColor: colors.primary },
+  tabText: { color: colors.textMuted, fontSize: typography.sm, fontWeight: '600' },
+  tabTextOn: { color: colors.textPrimary },
+  tRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing[4], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+  dot: { width: 8, height: 8, borderRadius: 4, marginRight: spacing[3] },
+  tName: { color: colors.textPrimary, fontSize: typography.base, fontWeight: '600' },
+  tSub: { color: colors.textMuted, fontSize: typography.sm, marginTop: 2 },
+  tRent: { color: colors.textPrimary, fontSize: typography.sm, fontWeight: '600', marginLeft: spacing[3] },
   container: {
     flex: 1,
     backgroundColor: colors.bg,

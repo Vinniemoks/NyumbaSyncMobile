@@ -127,10 +127,6 @@ const MFAVerifyScreen = ({ navigation, route }) => {
       style={commonStyles.container}
     >
       <View style={commonStyles.content}>
-        <View style={styles.iconCircle}>
-          <Ionicons name="shield-checkmark-outline" size={40} color={colors.gold} />
-        </View>
-
         <Text style={commonStyles.title}>{title}</Text>
         <Text style={commonStyles.subtitle}>{subtitle}</Text>
 
@@ -139,7 +135,7 @@ const MFAVerifyScreen = ({ navigation, route }) => {
             {useBackupCode ? 'Backup code' : isEmailOtp ? 'Email code' : 'Authenticator code'}
           </Text>
           <TextInput
-            style={[commonStyles.input, styles.codeInput]}
+            style={[commonStyles.input, styles.codeInput, !code && { letterSpacing: 0, fontWeight: '400' }]}
             value={code}
             onChangeText={handleChange}
             placeholder={useBackupCode ? 'Backup code' : isEmailOtp ? '8-digit code' : '6-digit code'}
@@ -211,19 +207,7 @@ const MFAVerifyScreen = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
-  iconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: `${colors.leaf}15`,
-    borderWidth: 1,
-    borderColor: `${colors.gold}40`,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing[5],
-  },
   codeInput: {
-    textAlign: 'center',
     fontSize: typography['2xl'],
     letterSpacing: 8,
     fontWeight: typography.fontWeight.bold,

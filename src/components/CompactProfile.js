@@ -18,6 +18,7 @@ import { useAuth } from '../context/AuthContext';
 import { profileService } from '../services/api';
 import { colors, spacing, typography, borderRadius } from '../config/theme';
 import { roleLabel, fullName } from '../utils/roles';
+import { Rows, Row } from './ui';
 import { checkAndOffer } from './UpdatePrompt';
 import { installedVersion, installedBuild } from '../services/appUpdate';
 
@@ -63,34 +64,24 @@ const CompactProfile = ({ navigation, extraTiles = [] }) => {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.top}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{(user?.firstName || user?.email || '?').charAt(0).toUpperCase()}</Text>
-        </View>
         <View style={{ flex: 1 }}>
           <Text style={styles.name} numberOfLines={1}>{fullName(user)}</Text>
-          <View style={styles.rolePill}><Text style={styles.roleText}>{roleLabel(user?.role)}</Text></View>
+          <Text style={styles.meta} numberOfLines={1}>{roleLabel(user?.role)}</Text>
         </View>
-        <TouchableOpacity style={styles.logout} onPress={confirmLogout} accessibilityRole="button" accessibilityLabel="Log out">
-          <Ionicons name="log-out-outline" size={20} color={colors.danger} />
+        <TouchableOpacity onPress={confirmLogout} accessibilityRole="button" accessibilityLabel="Log out" hitSlop={10}>
           <Text style={styles.logoutText}>Log out</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.details}>
-        <Detail icon="mail-outline" text={user?.email} />
-        {!!user?.phone && <Detail icon="call-outline" text={user.phone} />}
-        {!!user?.accountNumber && <Detail icon="id-card-outline" text={user.accountNumber} />}
+        <Text style={styles.detailText} numberOfLines={1}>{user?.email}</Text>
+        {!!user?.phone && <Text style={styles.detailText}>{user.phone}</Text>}
+        {!!user?.accountNumber && <Text style={styles.detailText}>Account {user.accountNumber}</Text>}
       </View>
 
-      <View style={styles.grid}>
-        {tiles.map((t) => (
-          <TouchableOpacity key={t.title} style={styles.tile} onPress={t.onPress} activeOpacity={0.75} accessibilityRole="button">
-            <View style={styles.tileIcon}><Ionicons name={t.icon} size={22} color={colors.primary} /></View>
-            <Text style={styles.tileTitle} numberOfLines={1}>{t.title}</Text>
-            {!!t.subtitle && <Text style={styles.tileSub} numberOfLines={1}>{t.subtitle}</Text>}
-          </TouchableOpacity>
-        ))}
-      </View>
+      <Rows>
+        {tiles.map((t) => <Row key={t.title} label={t.title} note={t.subtitle} onPress={t.onPress} />)}
+      </Rows>
 
       <EditProfileModal
         visible={editing}
@@ -109,13 +100,6 @@ const CompactProfile = ({ navigation, extraTiles = [] }) => {
     </SafeAreaView>
   );
 };
-
-const Detail = ({ icon, text }) => (
-  <View style={styles.detail}>
-    <Ionicons name={icon} size={14} color={colors.textMuted} />
-    <Text style={styles.detailText} numberOfLines={1}>{text}</Text>
-  </View>
-);
 
 const Sheet = ({ visible, title, onClose, children }) => (
   <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -211,44 +195,25 @@ const ChangePasswordModal = ({ visible, onClose, onChanged }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg, paddingHorizontal: spacing[4] },
-  top: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], paddingTop: spacing[3] },
-  avatar: { width: 52, height: 52, borderRadius: 26, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { color: colors.white, fontSize: typography.xl, fontWeight: '800' },
-  name: { color: colors.textPrimary, fontSize: typography.lg, fontWeight: '800' },
-  rolePill: { alignSelf: 'flex-start', backgroundColor: colors.leafTint, borderRadius: 999, paddingHorizontal: spacing[2], paddingVertical: 2, marginTop: 4 },
-  roleText: { color: colors.primary, fontSize: 11, fontWeight: '800' },
-  logout: {
-    flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: spacing[3], paddingVertical: spacing[2],
-    borderRadius: 999, borderWidth: 1, borderColor: colors.danger + '55', backgroundColor: colors.surface,
-  },
-  logoutText: { color: colors.danger, fontWeight: '800', fontSize: typography.sm },
-  details: {
-    marginTop: spacing[3], padding: spacing[3], gap: 6, backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl, borderWidth: 1, borderColor: colors.border,
-  },
-  detail: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
-  detailText: { color: colors.textSecondary, fontSize: typography.sm, flex: 1 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3], marginTop: spacing[3] },
-  tile: {
-    width: '47.5%', padding: spacing[3], backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl, borderWidth: 1, borderColor: colors.border,
-  },
-  tileIcon: { width: 38, height: 38, borderRadius: 12, backgroundColor: colors.leafTint, alignItems: 'center', justifyContent: 'center', marginBottom: spacing[2] },
-  tileTitle: { color: colors.textPrimary, fontWeight: '800', fontSize: typography.base },
-  tileSub: { color: colors.textSecondary, fontSize: typography.xs, marginTop: 2 },
+  container: { flex: 1, backgroundColor: colors.bg, paddingHorizontal: spacing[5] },
+  top: { flexDirection: 'row', alignItems: 'center', paddingTop: spacing[4] },
+  name: { color: colors.textPrimary, fontSize: 26, fontWeight: '700', letterSpacing: -0.5 },
+  meta: { color: colors.textMuted, fontSize: typography.sm, marginTop: 2 },
+  logoutText: { color: colors.danger, fontWeight: '600', fontSize: typography.base },
+  details: { marginTop: spacing[3], marginBottom: spacing[5], gap: 2 },
+  detailText: { color: colors.textSecondary, fontSize: typography.sm },
   backdrop: { flex: 1, backgroundColor: 'rgba(11,31,75,0.45)', justifyContent: 'flex-end' },
-  sheet: { backgroundColor: colors.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: spacing[4], paddingBottom: spacing[6] },
+  sheet: { backgroundColor: colors.surface, borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: spacing[4], paddingBottom: spacing[6] },
   sheetHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[3] },
-  sheetTitle: { color: colors.textPrimary, fontSize: typography.lg, fontWeight: '800' },
-  label: { color: colors.textSecondary, fontSize: typography.xs, fontWeight: '700', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
+  sheetTitle: { color: colors.textPrimary, fontSize: typography.lg, fontWeight: '700' },
+  label: { color: colors.textSecondary, fontSize: typography.xs, fontWeight: '700', marginBottom: 4, letterSpacing: 0.5 },
   input: {
     backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.lg,
     paddingHorizontal: spacing[3], paddingVertical: spacing[3], color: colors.textPrimary, fontSize: typography.base,
   },
   hint: { color: colors.textSecondary, fontSize: typography.xs, marginBottom: spacing[3] },
   submit: { backgroundColor: colors.primary, borderRadius: borderRadius.lg, paddingVertical: spacing[3], alignItems: 'center', marginTop: spacing[2] },
-  submitText: { color: colors.white, fontWeight: '800', fontSize: typography.base },
+  submitText: { color: colors.white, fontWeight: '700', fontSize: typography.base },
 });
 
 export default CompactProfile;

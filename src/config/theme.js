@@ -15,16 +15,16 @@
 // Bright executive scale: the old dark-slate ramp, reversed, so direct uses of
 // slate[900] (surface) and slate[50] (text) flip with the theme.
 const slate = {
-  50: '#0A1A44',
-  100: '#13265A',
-  200: '#1F3068',
-  300: '#3A4A7F',
-  400: '#5D6B96',
-  500: '#7C88AC',
-  600: '#A9B3CE',
-  700: '#D3DAEA',
-  800: '#E6EBF5',
-  900: '#F2F5FB',
+  50: '#17181C',
+  100: '#25272D',
+  200: '#3A3D45',
+  300: '#55575F',
+  400: '#70737B',
+  500: '#8C8F96',
+  600: '#B0B2B7',
+  700: '#D2D1CB',
+  800: '#E4E1D8',
+  900: '#F1EEE7',
   950: '#FFFFFF',
 };
 
@@ -127,18 +127,18 @@ const gold = {
 
 const colors = {
   // Semantic aliases: deep navy primary, royal-blue actions, gold trim, green only for "success"
-  primary: '#0B2A6F',        // deep royal navy (buttons, active chips)
-  primaryDark: '#071B4D',
-  primaryLight: '#2457D6',
-  secondary: '#2457D6',
-  success: green[600],       // '#16A34A'
-  warning: amber[600],       // '#D97706'
-  danger: red[600],          // '#DC2626'
-  info: '#2457D6',           // royal blue
+  primary: '#16294D',        // ink navy (buttons, active chips)
+  primaryDark: '#0F1D38',
+  primaryLight: '#2D5AA8',
+  secondary: '#2D5AA8',
+  success: '#2F7D55',       // '#16A34A'
+  warning: '#B26A12',       // '#D97706'
+  danger: '#B3372F',          // '#DC2626'
+  info: '#2D5AA8',
   // "leaf" is the interactive accent (links, secondary buttons): royal blue
-  leaf: '#2457D6',
-  leafDeep: '#0B2A6F',
-  leafTint: '#E3EBFD',
+  leaf: '#2D5AA8',
+  leafDeep: '#16294D',
+  leafTint: '#E8ECF3',
   // Rent-specific aliases
   'rent-paid': green[500],
   'rent-due': amber[500],
@@ -155,19 +155,18 @@ const colors = {
   gold,
 
   // Shorthand access for the most common theme colors
-  bg: '#F3F6FC',             // page background (cool white)
-  surface: '#FFFFFF',        // card / section background
-  surfaceAlt: '#E8EDF7',     // alternate card background
-  surfaceHover: '#DDE4F2',   // pressed state
-  border: '#D5DCEB',         // borders
-  textPrimary: '#0B1F4B',    // main text (navy ink)
-  textSecondary: '#44527F',  // subtitles, labels
-  textMuted: '#66729A',      // hints, disabled
-  // Legacy alias: the dark accent for selected chips, add buttons and own chat bubbles
-  darkBlue: '#0B2A6F',
+  bg: '#F6F4EF',             // warm paper
+  surface: '#FFFFFF',
+  surfaceAlt: '#EFECE5',
+  surfaceHover: '#E6E2D8',
+  border: '#E3DFD5',
+  textPrimary: '#17181C',    // near-black ink
+  textSecondary: '#55575F',
+  textMuted: '#85878F',
+  darkBlue: '#16294D',
 
   // Backward-compatible flat aliases
-  gold: gold.DEFAULT,        // string alias for Ionicons etc.
+  gold: '#8A6D2B',           // muted brass, trim only
   white: '#FFFFFF',
   black: '#000000',
 };
@@ -220,49 +219,17 @@ const typography = {
 // Matches web Tailwind boxShadow values
 
 const shadows = {
-  card: {
-    shadowColor: '#0B1F4B',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.10,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  cardHover: {
-    shadowColor: '#0B1F4B',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.10,
-    shadowRadius: 6,
-    elevation: 5,
-  },
-  gold: {
-    shadowColor: gold.DEFAULT,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 6,
-  },
-  none: {
-    shadowColor: 'transparent',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0,
-    shadowRadius: 0,
-    elevation: 0,
-  },
+  card: { shadowColor: 'transparent', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
+  cardHover: { shadowColor: 'transparent', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
+  gold: { shadowColor: 'transparent', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
+  none: { shadowColor: 'transparent', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
 };
 
 // ── Border Radius ───────────────────────────────────────────────────
 // Matches Tailwind's rounded scale
 
 const borderRadius = {
-  none: 0,
-  sm: 2,
-  DEFAULT: 4,
-  md: 6,
-  lg: 8,
-  xl: 12,
-  '2xl': 16,
-  '3xl': 24,
-  full: 9999,
+  none: 0, sm: 2, DEFAULT: 4, md: 6, lg: 8, xl: 10, '2xl': 12, '3xl': 16, full: 9999,
 };
 
 // ── Shared StyleSheet helpers ───────────────────────────────────────
@@ -281,8 +248,8 @@ const commonStyles = {
   content: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing[5],
+    alignItems: 'stretch',
+    padding: spacing[6],
   },
   row: {
     flexDirection: 'row',
@@ -328,16 +295,14 @@ const commonStyles = {
   subtitle: {
     fontSize: typography.base,
     color: colors.textSecondary,
-    marginTop: spacing[2],
-    textAlign: 'center',
-    paddingHorizontal: spacing[5],
+    marginBottom: spacing[6],
   },
   title: {
-    fontSize: typography['3xl'],
+    fontSize: 32,
     fontWeight: typography.fontWeight.bold,
+    letterSpacing: -0.8,
     color: colors.textPrimary,
     marginBottom: spacing[2],
-    textAlign: 'center',
   },
   roleBadge: {
     paddingHorizontal: spacing[3],
@@ -348,7 +313,6 @@ const commonStyles = {
   roleText: {
     fontSize: typography.xs,
     fontWeight: typography.fontWeight.semibold,
-    textTransform: 'uppercase',
   },
 
   // ── Section ───────────────────────────────────────────────────────
@@ -368,7 +332,8 @@ const commonStyles = {
     borderRadius: borderRadius.xl,
     padding: spacing[4],
     marginBottom: spacing[3],
-    ...shadows.card,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   cardRow: {
     flexDirection: 'row',
@@ -377,7 +342,8 @@ const commonStyles = {
     borderRadius: borderRadius.xl,
     padding: spacing[4],
     marginBottom: spacing[3],
-    ...shadows.card,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   statCard: {
     width: '48%',
@@ -386,7 +352,8 @@ const commonStyles = {
     padding: spacing[5],
     margin: '1%',
     alignItems: 'center',
-    ...shadows.card,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   statCardFull: {
     flexDirection: 'row',
@@ -395,7 +362,8 @@ const commonStyles = {
     padding: spacing[4],
     marginBottom: spacing[3],
     borderLeftWidth: 4,
-    ...shadows.card,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   statValue: {
     fontSize: typography['2xl'],
@@ -431,7 +399,8 @@ const commonStyles = {
     padding: spacing[5],
     alignItems: 'center',
     marginBottom: spacing[3],
-    ...shadows.card,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   actionCardText: {
     fontSize: typography.sm,
@@ -443,7 +412,8 @@ const commonStyles = {
     backgroundColor: colors.surface,
     borderRadius: borderRadius.xl,
     padding: spacing[4],
-    ...shadows.card,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   propertyAddress: {
     fontSize: typography.base,
@@ -465,9 +435,6 @@ const commonStyles = {
     padding: spacing[4],
     alignItems: 'center',
     marginTop: spacing[2],
-    borderWidth: 1,
-    borderColor: colors.gold + '50',
-    ...shadows.card,
   },
   buttonAccept: {
     backgroundColor: colors.primaryDark,
@@ -475,27 +442,18 @@ const commonStyles = {
     padding: spacing[4],
     alignItems: 'center',
     marginTop: spacing[2],
-    borderWidth: 1,
-    borderColor: colors.gold + '50',
-    ...shadows.card,
   },
   buttonPrimary: {
     backgroundColor: colors.primary,
     borderRadius: borderRadius.lg,
     padding: spacing[4],
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.gold + '50',
-    ...shadows.card,
   },
   buttonSecondary: {
     backgroundColor: colors.surfaceAlt,
     borderRadius: borderRadius.lg,
     padding: spacing[4],
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.gold + '50',
-    ...shadows.card,
   },
   buttonDanger: {
     backgroundColor: colors.danger + '18',
@@ -504,7 +462,8 @@ const commonStyles = {
     alignItems: 'center',
     borderWidth: 1,
     borderColor: colors.danger + '40',
-    ...shadows.card,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   buttonOutline: {
     backgroundColor: 'transparent',
@@ -515,12 +474,12 @@ const commonStyles = {
     borderColor: colors.border,
   },
   buttonText: {
-    color: colors.gold,
+    color: colors.white,
     fontSize: typography.base,
     fontWeight: typography.fontWeight.semibold,
   },
   buttonTextPrimary: {
-    color: colors.gold,
+    color: colors.white,
     fontSize: typography.base,
     fontWeight: typography.fontWeight.semibold,
   },
@@ -537,7 +496,6 @@ const commonStyles = {
   // ── Inputs & Forms ───────────────────────────────────────────────
   form: {
     width: '100%',
-    maxWidth: 400,
   },
   formGroup: {
     marginBottom: spacing[4],
@@ -547,7 +505,6 @@ const commonStyles = {
     fontWeight: typography.fontWeight.semibold,
     color: colors.slate[200],
     marginBottom: spacing[2],
-    marginLeft: spacing[1],
   },
   input: {
     backgroundColor: colors.surface,
@@ -573,7 +530,8 @@ const commonStyles = {
     borderRadius: borderRadius.xl,
     padding: spacing[4],
     marginBottom: spacing[3],
-    ...shadows.card,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   activityItem: {
     flexDirection: 'row',
@@ -582,7 +540,8 @@ const commonStyles = {
     borderRadius: borderRadius.xl,
     padding: spacing[4],
     marginBottom: spacing[3],
-    ...shadows.card,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   activityIcon: {
     marginRight: spacing[3],
@@ -638,7 +597,7 @@ const commonStyles = {
 
   // ── Tags & Badges ────────────────────────────────────────────────
   tag: {
-    backgroundColor: indigo[900],
+    backgroundColor: colors.surfaceAlt,
     borderRadius: borderRadius.full,
     paddingHorizontal: spacing[3],
     paddingVertical: 6,
@@ -647,23 +606,23 @@ const commonStyles = {
   },
   tagText: {
     fontSize: typography.xs,
-    color: indigo[300],
+    color: colors.textSecondary,
     fontWeight: typography.fontWeight.medium,
   },
   badgeSuccess: {
-    backgroundColor: green[900],
+    backgroundColor: '#E4F0E8',
     paddingHorizontal: spacing[3],
     paddingVertical: spacing[1],
     borderRadius: borderRadius.lg,
   },
   badgeWarning: {
-    backgroundColor: amber[900],
+    backgroundColor: '#F6EAD6',
     paddingHorizontal: spacing[3],
     paddingVertical: spacing[1],
     borderRadius: borderRadius.lg,
   },
   badgeDanger: {
-    backgroundColor: red[900],
+    backgroundColor: '#F6E1DF',
     paddingHorizontal: spacing[3],
     paddingVertical: spacing[1],
     borderRadius: borderRadius.lg,
@@ -671,17 +630,17 @@ const commonStyles = {
   badgeTextSuccess: {
     fontSize: typography.xs,
     fontWeight: typography.fontWeight.semibold,
-    color: green[200],
+    color: '#2F7D55',
   },
   badgeTextWarning: {
     fontSize: typography.xs,
     fontWeight: typography.fontWeight.semibold,
-    color: amber[200],
+    color: '#8A540E',
   },
   badgeTextDanger: {
     fontSize: typography.xs,
     fontWeight: typography.fontWeight.semibold,
-    color: red[200],
+    color: '#B3372F',
   },
 
   // ── Dividers ──────────────────────────────────────────────────────
@@ -710,10 +669,8 @@ const commonStyles = {
   logoBadge: {
     width: 76,
     height: 76,
-    borderRadius: 22,
-    backgroundColor: 'rgba(212,175,55,0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(212,175,55,0.35)',
+    borderRadius: 16,
+    backgroundColor: colors.surfaceAlt,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: spacing[5],

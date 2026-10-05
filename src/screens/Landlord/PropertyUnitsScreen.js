@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { propertyService } from '../../services/api';
+import Button from '../../components/Button';
+import { Heading, Field, Options, Sheet } from '../../components/ui';
 import { colors, spacing, typography, borderRadius } from '../../config/theme';
 
 // Units are the `houses[]` array embedded on the property document — the same
@@ -227,612 +229,137 @@ const PropertyUnitsScreen = ({ route, navigation }) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.info} />
+        <ActivityIndicator size="small" color={colors.textMuted} />
       </View>
     );
   }
 
+  const bulkCount = Math.min(Math.max(parseInt(bulkData.count) || 0, 1), 200);
+  const bulkFirst = parseInt(bulkData.startNumber) || 1;
+  const toggleType = (data, setData) => (value) => setData({ ...data, unitType: data.unitType === value ? '' : value });
+  const unitTypeOptions = UNIT_TYPES.map((t) => ({ value: t.value, label: t.label }));
+
   return (
     <View style={styles.container}>
-      <ScrollView>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#F8FAFC" />
-          </TouchableOpacity>
-          <View style={styles.headerInfo}>
-            <Text style={styles.headerTitle}>{property?.title || propertyName || 'Units'}</Text>
-            <Text style={styles.headerSubtitle}>{stats.total} units · {occupancyRate}% occupied</Text>
-          </View>
-          <TouchableOpacity style={styles.addButton} onPress={openAdd} disabled={saving}>
-            <Ionicons name="add" size={24} color="#fff" />
-          </TouchableOpacity>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: spacing[5], paddingBottom: spacing[8] }}>
+        <Heading
+          title={property?.title || propertyName || 'Units'}
+          eyebrow={`${stats.total} units · ${occupancyRate}% occupied`}
+        />
+
+        <View style={styles.actions}>
+          <TouchableOpacity onPress={openAdd} disabled={saving} hitSlop={8}><Text style={styles.link}>Add unit</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => setModal('bulk')} disabled={saving} hitSlop={8}><Text style={styles.link}>Bulk add</Text></TouchableOpacity>
         </View>
 
-        {/* Stats Cards */}
-        <View style={styles.statsContainer}>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>{occupancyRate}%</Text>
-            <Text style={styles.statLabel}>Occupancy</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={[styles.statValue, { color: STATUS_COLORS.available }]}>{stats.available}</Text>
-            <Text style={styles.statLabel}>Vacant</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={[styles.statValue, { color: STATUS_COLORS.occupied }]}>{stats.occupied}</Text>
-            <Text style={styles.statLabel}>Occupied</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={[styles.statValue, { color: STATUS_COLORS.maintenance }]}>{stats.maintenance}</Text>
-            <Text style={styles.statLabel}>Maintenance</Text>
-          </View>
-        </View>
-
-        {/* Legend + bulk add */}
         <View style={styles.legendRow}>
-          {STATUSES.map((s) => (
-            <View key={s.value} style={styles.legendItem}>
-              <View style={[styles.legendSwatch, { backgroundColor: STATUS_COLORS[s.value] }]} />
-              <Text style={styles.legendText}>{s.label}</Text>
+          {STATUSES.map((st) => (
+            <View key={st.value} style={styles.legendItem}>
+              <View style={[styles.legendSwatch, { backgroundColor: STATUS_COLORS[st.value] }]} />
+              <Text style={styles.legendText}>{st.label} {stats[st.value]}</Text>
             </View>
           ))}
-          <TouchableOpacity style={styles.bulkButton} onPress={() => setModal('bulk')} disabled={saving}>
-            <Ionicons name="flash" size={14} color={colors.gold} />
-            <Text style={styles.bulkButtonText}>Bulk add</Text>
-          </TouchableOpacity>
         </View>
 
-        {/* Floor-by-floor unit map */}
-        <View style={styles.unitMap}>
-          {floors.map((floor) => (
-            <View key={floor === null ? 'none' : String(floor)} style={styles.floorSection}>
-              <Text style={styles.floorLabel}>{floorLabel(floor)}</Text>
-              <View style={styles.floorUnits}>
-                {houses.map((house, index) => {
-                  const houseFloor = house.floor === undefined || house.floor === null ? null : house.floor;
-                  if (houseFloor !== floor) return null;
-                  const statusColor = STATUS_COLORS[house.status] || colors.textMuted;
-                  return (
-                    <TouchableOpacity
-                      key={house._id || `${house.houseNumber}-${index}`}
-                      style={[
-                        styles.unitTile,
-                        { borderColor: statusColor, backgroundColor: statusColor + '22' },
-                      ]}
-                      onPress={() => openEdit(index)}
-                      disabled={saving}
-                    >
-                      <Ionicons name={STATUS_ICONS[house.status] || 'home-outline'} size={14} color={statusColor} />
-                      <Text style={styles.unitNumber}>{house.houseNumber || house.number}</Text>
-                      {house.unitType ? (
-                        <Text style={[styles.unitType, { color: statusColor }]}>
-                          {UNIT_TYPE_LABELS[house.unitType]}
-                        </Text>
-                      ) : null}
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
+        {floors.map((floor) => (
+          <View key={floor === null ? 'none' : String(floor)} style={styles.floorSection}>
+            <Text style={styles.floorLabel}>{floorLabel(floor)}</Text>
+            <View style={styles.floorUnits}>
+              {houses.map((house, index) => {
+                const houseFloor = house.floor === undefined || house.floor === null ? null : house.floor;
+                if (houseFloor !== floor) return null;
+                const statusColor = STATUS_COLORS[house.status] || colors.textMuted;
+                return (
+                  <TouchableOpacity
+                    key={house._id || `${house.houseNumber}-${index}`}
+                    style={[styles.unitTile, { borderColor: statusColor }]}
+                    onPress={() => openEdit(index)}
+                    disabled={saving}
+                  >
+                    <Text style={styles.unitNumber}>{house.houseNumber || house.number}</Text>
+                    {!!house.unitType && <Text style={styles.unitType}>{UNIT_TYPE_LABELS[house.unitType]}</Text>}
+                  </TouchableOpacity>
+                );
+              })}
             </View>
-          ))}
-        </View>
+          </View>
+        ))}
 
         {houses.length === 0 && (
-          <View style={styles.emptyState}>
-            <Ionicons name="home-outline" size={64} color={colors.textMuted} />
-            <Text style={styles.emptyStateText}>No units yet</Text>
-            <Text style={styles.emptyStateSubtext}>Add units one by one or generate them in bulk</Text>
-          </View>
+          <Text style={styles.emptyStateSubtext}>No units yet. Add them one by one or generate a batch.</Text>
         )}
       </ScrollView>
 
-      {/* Add / Edit unit modal */}
-      <Modal
-        visible={modal === 'add' || modal === 'edit'}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={closeModal}
-      >
-        <View style={styles.modalOverlay}>
-          <ScrollView contentContainerStyle={styles.modalScrollContent}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>{modal === 'edit' ? 'Edit Unit' : 'Add Unit'}</Text>
-                <TouchableOpacity onPress={closeModal}>
-                  <Ionicons name="close" size={24} color={colors.textSecondary} />
-                </TouchableOpacity>
-              </View>
-
-              <Text style={styles.inputLabel}>Unit Number *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Unit label"
-                placeholderTextColor="#64748B"
-                value={formData.houseNumber}
-                onChangeText={(text) => setFormData({ ...formData, houseNumber: text })}
-              />
-
-              <View style={styles.row}>
-                <View style={styles.halfWidth}>
-                  <Text style={styles.inputLabel}>Floor</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="0 = ground"
-                    placeholderTextColor="#64748B"
-                    keyboardType="numeric"
-                    value={formData.floor}
-                    onChangeText={(text) => setFormData({ ...formData, floor: text })}
-                  />
-                </View>
-                <View style={styles.halfWidth}>
-                  <Text style={styles.inputLabel}>Rent (KSh)</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder={defaultRent ? String(defaultRent) : 'Property rent'}
-                    placeholderTextColor="#64748B"
-                    keyboardType="numeric"
-                    value={formData.rent}
-                    onChangeText={(text) => setFormData({ ...formData, rent: text })}
-                  />
-                </View>
-              </View>
-
-              <Text style={styles.inputLabel}>Unit Type</Text>
-              <View style={styles.chipRow}>
-                {UNIT_TYPES.map((t) => (
-                  <TouchableOpacity
-                    key={t.value}
-                    style={[styles.chip, formData.unitType === t.value && styles.chipSelected]}
-                    onPress={() =>
-                      setFormData({ ...formData, unitType: formData.unitType === t.value ? '' : t.value })
-                    }
-                  >
-                    <Text style={[styles.chipText, formData.unitType === t.value && styles.chipTextSelected]}>
-                      {t.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              <Text style={styles.inputLabel}>Status</Text>
-              <View style={styles.chipRow}>
-                {STATUSES.map((s) => (
-                  <TouchableOpacity
-                    key={s.value}
-                    style={[
-                      styles.chip,
-                      formData.status === s.value && { backgroundColor: STATUS_COLORS[s.value] + '33' },
-                    ]}
-                    onPress={() => setFormData({ ...formData, status: s.value })}
-                  >
-                    <Text
-                      style={[
-                        styles.chipText,
-                        formData.status === s.value && { color: STATUS_COLORS[s.value], fontWeight: '600' },
-                      ]}
-                    >
-                      {s.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              {modal === 'edit' && houses.length > 1 && (
-                <TouchableOpacity style={styles.deleteRow} onPress={handleDeleteUnit} disabled={saving}>
-                  <Ionicons name="trash-outline" size={16} color={colors.danger} />
-                  <Text style={styles.deleteRowText}>Delete this unit</Text>
-                </TouchableOpacity>
-              )}
-
-              <View style={styles.modalButtons}>
-                <TouchableOpacity style={[styles.modalButton, styles.cancelButton]} onPress={closeModal}>
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.modalButton, styles.saveButton]}
-                  onPress={handleSubmitUnit}
-                  disabled={saving}
-                >
-                  {saving ? (
-                    <ActivityIndicator size="small" color={colors.gold} />
-                  ) : (
-                    <Text style={styles.saveButtonText}>{modal === 'edit' ? 'Save Changes' : 'Add Unit'}</Text>
-                  )}
-                </TouchableOpacity>
-              </View>
-            </View>
-          </ScrollView>
+      <Sheet visible={modal === 'add' || modal === 'edit'} title={modal === 'edit' ? 'Edit unit' : 'New unit'} onClose={closeModal}>
+        <Field label="Unit number" value={formData.houseNumber} onChangeText={(text) => setFormData({ ...formData, houseNumber: text })} />
+        <View style={styles.pair}>
+          <Field style={{ flex: 1 }} label="Floor (0 = ground)" keyboardType="numeric" value={formData.floor} onChangeText={(text) => setFormData({ ...formData, floor: text })} />
+          <Field
+            style={{ flex: 1 }}
+            label="Rent (KSh)"
+            keyboardType="numeric"
+            placeholder={defaultRent ? String(defaultRent) : undefined}
+            value={formData.rent}
+            onChangeText={(text) => setFormData({ ...formData, rent: text })}
+          />
         </View>
-      </Modal>
+        <Options label="Type" options={unitTypeOptions} value={formData.unitType} onChange={toggleType(formData, setFormData)} />
+        <Options label="Status" options={STATUSES} value={formData.status} onChange={(status) => setFormData({ ...formData, status })} />
 
-      {/* Bulk add modal */}
-      <Modal visible={modal === 'bulk'} animationType="slide" transparent={true} onRequestClose={closeModal}>
-        <View style={styles.modalOverlay}>
-          <ScrollView contentContainerStyle={styles.modalScrollContent}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Bulk Add Units</Text>
-                <TouchableOpacity onPress={closeModal}>
-                  <Ionicons name="close" size={24} color={colors.textSecondary} />
-                </TouchableOpacity>
-              </View>
+        {modal === 'edit' && houses.length > 1 && (
+          <TouchableOpacity onPress={handleDeleteUnit} disabled={saving} style={styles.deleteRow}>
+            <Text style={styles.deleteRowText}>Delete this unit</Text>
+          </TouchableOpacity>
+        )}
+        <Button title={modal === 'edit' ? 'Save changes' : 'Add unit'} size="lg" onPress={handleSubmitUnit} loading={saving} />
+      </Sheet>
 
-              <View style={styles.row}>
-                <View style={styles.halfWidth}>
-                  <Text style={styles.inputLabel}>How many?</Text>
-                  <TextInput
-                    style={styles.input}
-                    keyboardType="numeric"
-                    placeholderTextColor="#64748B"
-                    value={bulkData.count}
-                    onChangeText={(text) => setBulkData({ ...bulkData, count: text })}
-                  />
-                </View>
-                <View style={styles.halfWidth}>
-                  <Text style={styles.inputLabel}>Floor</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="0 = ground"
-                    placeholderTextColor="#64748B"
-                    keyboardType="numeric"
-                    value={bulkData.floor}
-                    onChangeText={(text) => setBulkData({ ...bulkData, floor: text })}
-                  />
-                </View>
-              </View>
-
-              <View style={styles.row}>
-                <View style={styles.halfWidth}>
-                  <Text style={styles.inputLabel}>Prefix</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Block / wing"
-                    placeholderTextColor="#64748B"
-                    value={bulkData.prefix}
-                    onChangeText={(text) => setBulkData({ ...bulkData, prefix: text })}
-                  />
-                </View>
-                <View style={styles.halfWidth}>
-                  <Text style={styles.inputLabel}>Start at #</Text>
-                  <TextInput
-                    style={styles.input}
-                    keyboardType="numeric"
-                    placeholderTextColor="#64748B"
-                    value={bulkData.startNumber}
-                    onChangeText={(text) => setBulkData({ ...bulkData, startNumber: text })}
-                  />
-                </View>
-              </View>
-
-              <Text style={styles.inputLabel}>Unit Type</Text>
-              <View style={styles.chipRow}>
-                {UNIT_TYPES.map((t) => (
-                  <TouchableOpacity
-                    key={t.value}
-                    style={[styles.chip, bulkData.unitType === t.value && styles.chipSelected]}
-                    onPress={() =>
-                      setBulkData({ ...bulkData, unitType: bulkData.unitType === t.value ? '' : t.value })
-                    }
-                  >
-                    <Text style={[styles.chipText, bulkData.unitType === t.value && styles.chipTextSelected]}>
-                      {t.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              <Text style={styles.inputLabel}>Rent per unit (KSh)</Text>
-              <TextInput
-                style={styles.input}
-                placeholder={defaultRent ? String(defaultRent) : 'Property rent'}
-                placeholderTextColor="#64748B"
-                keyboardType="numeric"
-                value={bulkData.rent}
-                onChangeText={(text) => setBulkData({ ...bulkData, rent: text })}
-              />
-
-              <Text style={styles.bulkPreview}>
-                Will create {Math.min(Math.max(parseInt(bulkData.count) || 0, 1), 200)} vacant units:{' '}
-                {`${bulkData.prefix.trim()}${parseInt(bulkData.startNumber) || 1}`} …{' '}
-                {`${bulkData.prefix.trim()}${(parseInt(bulkData.startNumber) || 1) + Math.min(Math.max(parseInt(bulkData.count) || 0, 1), 200) - 1}`}
-                . Run once per floor or unit type.
-              </Text>
-
-              <View style={styles.modalButtons}>
-                <TouchableOpacity style={[styles.modalButton, styles.cancelButton]} onPress={closeModal}>
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.modalButton, styles.saveButton]}
-                  onPress={handleBulkGenerate}
-                  disabled={saving}
-                >
-                  {saving ? (
-                    <ActivityIndicator size="small" color={colors.gold} />
-                  ) : (
-                    <Text style={styles.saveButtonText}>Generate Units</Text>
-                  )}
-                </TouchableOpacity>
-              </View>
-            </View>
-          </ScrollView>
+      <Sheet visible={modal === 'bulk'} title="Add units in bulk" onClose={closeModal}>
+        <View style={styles.pair}>
+          <Field style={{ flex: 1 }} label="How many" keyboardType="numeric" value={bulkData.count} onChangeText={(text) => setBulkData({ ...bulkData, count: text })} />
+          <Field style={{ flex: 1 }} label="Floor (0 = ground)" keyboardType="numeric" value={bulkData.floor} onChangeText={(text) => setBulkData({ ...bulkData, floor: text })} />
         </View>
-      </Modal>
+        <View style={styles.pair}>
+          <Field style={{ flex: 1 }} label="Prefix" placeholder="Block or wing" value={bulkData.prefix} onChangeText={(text) => setBulkData({ ...bulkData, prefix: text })} />
+          <Field style={{ flex: 1 }} label="Start at number" keyboardType="numeric" value={bulkData.startNumber} onChangeText={(text) => setBulkData({ ...bulkData, startNumber: text })} />
+        </View>
+        <Options label="Type" options={unitTypeOptions} value={bulkData.unitType} onChange={toggleType(bulkData, setBulkData)} />
+        <Field
+          label="Rent per unit (KSh)"
+          keyboardType="numeric"
+          placeholder={defaultRent ? String(defaultRent) : undefined}
+          value={bulkData.rent}
+          onChangeText={(text) => setBulkData({ ...bulkData, rent: text })}
+        />
+        <Text style={styles.bulkPreview}>
+          Creates {bulkCount} vacant units, {`${bulkData.prefix.trim()}${bulkFirst}`} to {`${bulkData.prefix.trim()}${bulkFirst + bulkCount - 1}`}. Run once per floor or unit type.
+        </Text>
+        <Button title="Create units" size="lg" onPress={handleBulkGenerate} loading={saving} />
+      </Sheet>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.bg,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: spacing[5],
-    backgroundColor: colors.surface,
-  },
-  backButton: {
-    marginRight: spacing[3],
-  },
-  headerInfo: {
-    flex: 1,
-  },
-  headerTitle: {
-    fontSize: typography.xl,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary,
-  },
-  headerSubtitle: {
-    fontSize: typography.sm,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  addButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.darkBlue,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    padding: spacing[5],
-    paddingTop: spacing[4],
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing[3],
-    marginHorizontal: 4,
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: typography.xl,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary,
-    marginBottom: spacing[1],
-  },
-  statLabel: {
-    fontSize: 11,
-    color: colors.textSecondary,
-  },
-  legendRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing[5],
-    marginBottom: spacing[3],
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: spacing[4],
-  },
-  legendSwatch: {
-    width: 10,
-    height: 10,
-    borderRadius: 3,
-    marginRight: spacing[1],
-  },
-  legendText: {
-    fontSize: 11,
-    color: colors.textSecondary,
-  },
-  bulkButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 'auto',
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    paddingHorizontal: spacing[3],
-    paddingVertical: spacing[2],
-  },
-  bulkButtonText: {
-    fontSize: 12,
-    color: colors.gold,
-    fontWeight: typography.fontWeight.semibold,
-    marginLeft: spacing[1],
-  },
-  unitMap: {
-    paddingHorizontal: spacing[5],
-    paddingBottom: spacing[6],
-  },
-  floorSection: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing[4],
-    marginBottom: spacing[3],
-  },
-  floorLabel: {
-    fontSize: typography.sm,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.textSecondary,
-    marginBottom: spacing[3],
-  },
-  floorUnits: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  unitTile: {
-    minWidth: 74,
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[3],
-    marginRight: spacing[2],
-    marginBottom: spacing[2],
-  },
-  unitNumber: {
-    fontSize: typography.sm,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary,
-    marginTop: 2,
-  },
-  unitType: {
-    fontSize: 10,
-    marginTop: 1,
-  },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 60,
-  },
-  emptyStateText: {
-    fontSize: typography.lg,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.textSecondary,
-    marginTop: spacing[4],
-  },
-  emptyStateSubtext: {
-    fontSize: typography.sm,
-    color: colors.textMuted,
-    marginTop: spacing[2],
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalScrollContent: {
-    flexGrow: 1,
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: spacing[6],
-    maxHeight: '90%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing[6],
-  },
-  modalTitle: {
-    fontSize: typography['2xl'],
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary,
-  },
-  inputLabel: {
-    fontSize: typography.sm,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.slate[200],
-    marginBottom: spacing[2],
-  },
-  input: {
-    backgroundColor: colors.slate[800],
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: borderRadius.lg,
-    padding: spacing[4],
-    fontSize: typography.base,
-    color: colors.textPrimary,
-    marginBottom: spacing[4],
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  halfWidth: {
-    width: '48%',
-  },
-  chipRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: spacing[4],
-  },
-  chip: {
-    backgroundColor: colors.slate[800],
-    borderRadius: borderRadius['2xl'],
-    paddingHorizontal: spacing[3],
-    paddingVertical: spacing[1] + 2,
-    marginRight: spacing[2],
-    marginBottom: spacing[2],
-  },
-  chipSelected: {
-    backgroundColor: '#1E3A8A',
-  },
-  chipText: {
-    fontSize: typography.xs,
-    color: colors.textSecondary,
-  },
-  chipTextSelected: {
-    color: colors.blue[300],
-    fontWeight: typography.fontWeight.semibold,
-  },
-  deleteRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing[3],
-  },
-  deleteRowText: {
-    color: colors.danger,
-    fontSize: typography.sm,
-    fontWeight: typography.fontWeight.semibold,
-    marginLeft: spacing[1],
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    marginTop: spacing[4],
-  },
-  modalButton: {
-    flex: 1,
-    padding: spacing[4],
-    borderRadius: borderRadius.lg,
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: colors.slate[800],
-    marginRight: spacing[2],
-  },
-  cancelButtonText: {
-    color: colors.slate[200],
-    fontSize: typography.base,
-    fontWeight: typography.fontWeight.semibold,
-  },
-  saveButton: {
-    backgroundColor: colors.darkBlue,
-    marginLeft: spacing[2],
-  },
-  saveButtonText: {
-    color: colors.gold,
-    fontSize: typography.base,
-    fontWeight: typography.fontWeight.semibold,
-  },
+  container: { flex: 1, backgroundColor: colors.bg },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
+  actions: { flexDirection: 'row', gap: spacing[5], marginBottom: spacing[4] },
+  link: { color: colors.leaf, fontSize: typography.base, fontWeight: '600' },
+  legendRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[4], marginBottom: spacing[4] },
+  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  legendSwatch: { width: 8, height: 8, borderRadius: 4 },
+  legendText: { color: colors.textSecondary, fontSize: typography.sm },
+  floorSection: { marginBottom: spacing[5] },
+  floorLabel: { color: colors.textSecondary, fontSize: typography.sm, fontWeight: '600', marginBottom: spacing[2] },
+  floorUnits: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  unitTile: { minWidth: 72, paddingVertical: spacing[3], paddingHorizontal: spacing[3], borderRadius: 8, borderWidth: 1.5, backgroundColor: colors.surface },
+  unitNumber: { color: colors.textPrimary, fontSize: typography.base, fontWeight: '700' },
+  unitType: { color: colors.textMuted, fontSize: typography.xs, marginTop: 2 },
+  pair: { flexDirection: 'row', gap: spacing[3] },
+  deleteRow: { paddingVertical: spacing[3], marginBottom: spacing[2] },
+  deleteRowText: { color: colors.danger, fontSize: typography.sm, fontWeight: '600' },
+  bulkPreview: { color: colors.textSecondary, fontSize: typography.sm, marginBottom: spacing[4] },
+  emptyStateSubtext: { color: colors.textSecondary, fontSize: typography.sm },
 });
 
 export default PropertyUnitsScreen;

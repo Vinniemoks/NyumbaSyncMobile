@@ -11,21 +11,9 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { paymentService, maintenanceService, leaseService } from '../../services/api';
-import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../../config/theme';
-import MorphingBackground from '../../components/MorphingBackground';
-
-const StatCard = ({ title, value, subtitle, icon, color }) => (
-  <View style={[commonStyles.statCardFull, { borderLeftColor: color }]}>
-    <View style={commonStyles.statIcon}>
-      <Ionicons name={icon} size={24} color={color} />
-    </View>
-    <View style={commonStyles.statContent}>
-      <Text style={commonStyles.statTitle}>{title}</Text>
-      <Text style={commonStyles.statValue}>{value}</Text>
-      <Text style={commonStyles.statSubtitle}>{subtitle}</Text>
-    </View>
-  </View>
-);
+import { colors, spacing, commonStyles } from '../../config/theme';
+import Button from '../../components/Button';
+import { Heading, Figure, Section, Rows, Row, today } from '../../components/ui';
 
 // The API sends the address as an object ({ street, area, city, county }).
 const addressText = (p) => {
@@ -153,148 +141,69 @@ const TenantHomeScreen = ({ navigation }) => {
     );
   };
 
-  return (
-    <View style={commonStyles.container}>
-      <MorphingBackground />
-    <ScrollView
-      style={{ flex: 1 }}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-    >
-      <View style={commonStyles.header}>
-        <View>
-          <Text style={commonStyles.greeting}>Welcome back,</Text>
-          <Text style={commonStyles.userName}>{user?.firstName || 'Tenant'}</Text>
-        </View>
-        <TouchableOpacity onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={24} color={colors.danger} />
-        </TouchableOpacity>
-      </View>
+  const dueNote = stats.daysUntilRent === null ? null
+    : stats.daysUntilRent === 0 ? 'Due today'
+    : `Due in ${stats.daysUntilRent} day${stats.daysUntilRent === 1 ? '' : 's'}`;
 
-      <View style={commonStyles.section}>
-        {stats.hasLease ? (
-          <StatCard
-            title="Rent Due"
-            value={`KSh ${stats.rentDue.toLocaleString()}`}
-            subtitle={stats.daysUntilRent === 0 ? 'Due today' : `Due in ${stats.daysUntilRent} day${stats.daysUntilRent === 1 ? '' : 's'}`}
-            icon="cash-outline"
-            color={colors.info}
-          />
-        ) : (
-          <StatCard
-            title="Lease"
-            value="No active lease"
-            subtitle="Your rent and lease details appear here once your landlord activates your lease"
-            icon="document-text-outline"
-            color={colors.textMuted}
-          />
-        )}
-        <StatCard
-          title="Maintenance"
-          value={`${stats.maintenanceActive} open`}
-          subtitle={stats.maintenanceActive === 1 ? 'request in progress' : 'requests in progress'}
-          icon="construct-outline"
-          color={colors.warning}
+  return (
+    <ScrollView
+      style={commonStyles.container}
+      contentContainerStyle={{ paddingHorizontal: spacing[5], paddingBottom: spacing[8] }}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.textMuted} />}
+    >
+      <Heading eyebrow={today()} title={user?.firstName || 'Home'} />
+
+      {stats.hasLease ? (
+        <Figure label="Rent due" value={`KSh ${stats.rentDue.toLocaleString()}`} note={dueNote} />
+      ) : (
+        <Figure label="Lease" value="None yet" note="Your rent and lease details appear here once your landlord sets up your lease." />
+      )}
+
+      {stats.hasLease && (
+        <Button title="Pay rent" size="lg" onPress={handlePayRent} />
+      )}
+
+      <Section title="At a glance" />
+      <Rows>
+        <Row
+          label="Maintenance"
+          value={stats.maintenanceActive ? `${stats.maintenanceActive} open` : 'None open'}
+          onPress={() => navigation.navigate('Maintenance')}
         />
         {stats.hasLease && stats.leaseEndDays !== null && (
-          <StatCard
-            title="Lease Ends"
-            value={`${stats.leaseEndDays} days`}
-            subtitle={stats.leaseEndDays <= 60 ? 'Contact your landlord about renewal' : 'Lease in good standing'}
-            icon="calendar-outline"
-            color={colors.success}
-          />
+          <Row label="Lease ends" value={`${stats.leaseEndDays} days`} tone={stats.leaseEndDays <= 60 ? colors.warning : undefined} />
         )}
-      </View>
+        <Row label="Messages" onPress={() => navigation.navigate('Messages')} />
+        <Row label="Documents" onPress={() => navigation.navigate('Profile', { screen: 'Documents' })} />
+      </Rows>
 
-      <View style={commonStyles.section}>
-        <Text style={commonStyles.sectionTitle}>Quick Actions</Text>
-        <View style={commonStyles.flexWrapBetween}>
-          <TouchableOpacity style={commonStyles.actionCard} onPress={handlePayRent}>
-            <Ionicons name="card-outline" size={32} color={colors.info} />
-            <Text style={commonStyles.actionCardText}>Pay Rent</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={commonStyles.actionCard} onPress={handleRequestMaintenance}>
-            <Ionicons name="construct-outline" size={32} color={colors.success} />
-            <Text style={commonStyles.actionCardText}>Request Help</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={commonStyles.actionCard}
-            onPress={() => navigation.navigate('Browse')}
-          >
-            <Ionicons name="search-outline" size={32} color={colors.gold} />
-            <Text style={commonStyles.actionCardText}>Browse Listings</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={commonStyles.actionCard}
-            onPress={() => navigation.navigate('Profile', { screen: 'Documents' })}
-          >
-            <Ionicons name="document-text-outline" size={32} color={colors.blue[400]} />
-            <Text style={commonStyles.actionCardText}>Documents</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={commonStyles.actionCard}
-            onPress={() => navigation.navigate('Messages')}
-          >
-            <Ionicons name="chatbubble-outline" size={32} color={colors.warning} />
-            <Text style={commonStyles.actionCardText}>Message</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      {!!(addressText(property) || property?.title || property?.name) && (
+        <>
+          <Section title="Your home" />
+          <Rows>
+            <Row
+              label={addressText(property) || property?.title || property?.name}
+              note={[
+                property?.bedrooms ? `${property.bedrooms} bed` : null,
+                property?.bathrooms ? `${property.bathrooms} bath` : null,
+                property?.type,
+              ].filter(Boolean).join(' · ') || undefined}
+            />
+          </Rows>
+        </>
+      )}
 
-      <View style={commonStyles.section}>
-        <Text style={commonStyles.sectionTitle}>Your Property</Text>
-        <View style={commonStyles.propertyInfo}>
-          <Text style={commonStyles.propertyAddress}>
-            {addressText(property) || property?.title || property?.name || 'No property assigned'}
-          </Text>
-          <View style={commonStyles.propertyDetails}>
-            {!!property?.bedrooms && (
-              <View style={commonStyles.tag}>
-                <Text style={commonStyles.tagText}>{property.bedrooms} Bedrooms</Text>
-              </View>
-            )}
-            {!!property?.bathrooms && (
-              <View style={commonStyles.tag}>
-                <Text style={commonStyles.tagText}>{property.bathrooms} Bathrooms</Text>
-              </View>
-            )}
-            {!!property?.type && (
-              <View style={commonStyles.tag}>
-                <Text style={commonStyles.tagText}>{property.type}</Text>
-              </View>
-            )}
-            {!!property?.size && (
-              <View style={commonStyles.tag}>
-                <Text style={commonStyles.tagText}>{property.size} sq ft</Text>
-              </View>
-            )}
-          </View>
-        </View>
-      </View>
-
-      <View style={commonStyles.section}>
-        <Text style={commonStyles.sectionTitle}>Recent Activity</Text>
-        {activities.length === 0 ? (
-          <Text style={commonStyles.emptyState}>No recent activity</Text>
-        ) : (
-          activities.map((item) => (
-            <View key={item.id} style={commonStyles.activityItem}>
-              <View style={commonStyles.activityIcon}>
-                <Ionicons name={item.icon} size={20} color={item.color} />
-              </View>
-              <View style={commonStyles.listItemContent}>
-                <Text style={commonStyles.listItemTitle}>{item.title}</Text>
-                <Text style={commonStyles.listItemSubtitle}>{item.subtitle}</Text>
-              </View>
-              <Text style={commonStyles.listItemMeta}>{item.time}</Text>
-            </View>
-          ))
-        )}
-      </View>
+      {activities.length > 0 && (
+        <>
+          <Section title="Recent" />
+          <Rows>
+            {activities.map((item) => (
+              <Row key={item.id} label={item.title} note={item.subtitle} value={item.time} />
+            ))}
+          </Rows>
+        </>
+      )}
     </ScrollView>
-    </View>
   );
 };
 

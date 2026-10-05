@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Button from '../../components/Button';
+import { Field } from '../../components/ui';
 import { propertyService } from '../../services/api';
 import {
   searchPlaces,
@@ -296,21 +297,13 @@ const AddPropertyScreen = ({ navigation }) => {
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>Add New Property</Text>
-        <Text style={styles.subtitle}>List a property for tenants to discover.</Text>
+        <Text style={styles.title}>New property</Text>
 
         {/* Property name */}
-        <Text style={styles.label}>Property Name *</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Property name"
-          placeholderTextColor={colors.textMuted}
-          value={form.title}
-          onChangeText={(text) => updateField('title', text)}
-        />
+        <Field label="Property name" value={form.title} onChangeText={(text) => updateField('title', text)} />
 
         {/* Location search */}
-        <Text style={styles.label}>Location *</Text>
+        <Text style={styles.label}>Location</Text>
         <View style={styles.searchRow}>
           <TextInput
             style={[styles.input, styles.searchInput]}
@@ -349,28 +342,10 @@ const AddPropertyScreen = ({ navigation }) => {
           </View>
         )}
 
-        <TextInput
-          style={styles.input}
-          placeholder="Street / Building"
-          placeholderTextColor={colors.textMuted}
-          value={form.address.street}
-          onChangeText={(text) => updateAddress({ street: text })}
-        />
+        <Field label="Street / Building" value={form.address.street} onChangeText={(text) => updateAddress({ street: text })} />
         <View style={styles.row}>
-          <TextInput
-            style={[styles.input, styles.half]}
-            placeholder="Area *"
-            placeholderTextColor={colors.textMuted}
-            value={form.address.area}
-            onChangeText={(text) => updateAddress({ area: text })}
-          />
-          <TextInput
-            style={[styles.input, styles.half]}
-            placeholder="City"
-            placeholderTextColor={colors.textMuted}
-            value={form.address.city}
-            onChangeText={(text) => updateAddress({ city: text })}
-          />
+          <Field label="Area" style={{ flex: 1 }} value={form.address.area} onChangeText={(text) => updateAddress({ area: text })} />
+          <Field label="City" style={{ flex: 1 }} value={form.address.city} onChangeText={(text) => updateAddress({ city: text })} />
         </View>
 
         {/* Map preview */}
@@ -403,7 +378,7 @@ const AddPropertyScreen = ({ navigation }) => {
         )}
 
         {/* Property type */}
-        <Text style={styles.label}>Property Type *</Text>
+        <Text style={styles.label}>Property type</Text>
         <View style={styles.typeRow}>
           {PROPERTY_TYPES.map((type) => (
             <TouchableOpacity
@@ -417,7 +392,7 @@ const AddPropertyScreen = ({ navigation }) => {
               <Ionicons
                 name={type.icon}
                 size={16}
-                color={form.type === type.value ? colors.gold : colors.textMuted}
+                color={form.type === type.value ? colors.primary : colors.textMuted}
               />
               <Text
                 style={[
@@ -433,78 +408,23 @@ const AddPropertyScreen = ({ navigation }) => {
 
         {/* Beds / Baths / Size */}
         <View style={styles.row}>
-          <TextInput
-            style={[styles.input, styles.third]}
-            placeholder="Beds *"
-            placeholderTextColor={colors.textMuted}
-            value={form.bedrooms}
-            onChangeText={(text) => updateField('bedrooms', text)}
-            keyboardType="number-pad"
-          />
-          <TextInput
-            style={[styles.input, styles.third]}
-            placeholder="Baths *"
-            placeholderTextColor={colors.textMuted}
-            value={form.bathrooms}
-            onChangeText={(text) => updateField('bathrooms', text)}
-            keyboardType="number-pad"
-          />
-          <TextInput
-            style={[styles.input, styles.third]}
-            placeholder="Sq ft"
-            placeholderTextColor={colors.textMuted}
-            value={form.squareFootage}
-            onChangeText={(text) => updateField('squareFootage', text)}
-            keyboardType="number-pad"
-          />
+          <Field label="Beds" style={{ flex: 1 }} value={form.bedrooms} onChangeText={(text) => updateField('bedrooms', text)} keyboardType="number-pad" />
+          <Field label="Baths" style={{ flex: 1 }} value={form.bathrooms} onChangeText={(text) => updateField('bathrooms', text)} keyboardType="number-pad" />
+          <Field label="Sq ft" style={{ flex: 1 }} value={form.squareFootage} onChangeText={(text) => updateField('squareFootage', text)} keyboardType="number-pad" />
         </View>
 
         {/* House number / floor */}
         <View style={styles.row}>
-          <TextInput
-            style={[styles.input, styles.half]}
-            placeholder="House / Unit Number *"
-            placeholderTextColor={colors.textMuted}
-            value={form.houseNumber}
-            onChangeText={(text) => updateField('houseNumber', text)}
-          />
-          <TextInput
-            style={[styles.input, styles.half]}
-            placeholder="Floor"
-            placeholderTextColor={colors.textMuted}
-            value={form.floor}
-            onChangeText={(text) => updateField('floor', text)}
-          />
+          <Field label="House / unit number" style={{ flex: 1 }} value={form.houseNumber} onChangeText={(text) => updateField('houseNumber', text)} />
+          <Field label="Floor" style={{ flex: 1 }} value={form.floor} onChangeText={(text) => updateField('floor', text)} />
         </View>
 
         {/* Rent / deposit / service charge */}
-        <Text style={styles.label}>Base Rent (KES) *</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Monthly rent (KES)"
-          placeholderTextColor={colors.textMuted}
-          value={form.rentAmount}
-          onChangeText={(text) => updateField('rentAmount', text)}
-          keyboardType="number-pad"
-        />
+        <Field label="Monthly rent (KES)" value={form.rentAmount} onChangeText={(text) => updateField('rentAmount', text)} keyboardType="number-pad" />
 
         <View style={styles.row}>
-          <TextInput
-            style={[styles.input, styles.half]}
-            placeholder="Deposit (KES) — defaults to rent"
-            placeholderTextColor={colors.textMuted}
-            value={form.deposit}
-            onChangeText={(text) => updateField('deposit', text)}
-            keyboardType="number-pad"
-          />
-          <TextInput
-            style={[styles.input, styles.half]}
-            placeholder="Service Charge (KES)"
-            placeholderTextColor={colors.textMuted}
-            value={form.serviceCharge}
-            onChangeText={(text) => updateField('serviceCharge', text)}
-            keyboardType="number-pad"
-          />
+          <Field label="Deposit (KES)" hint="Defaults to the rent" style={{ flex: 1 }} value={form.deposit} onChangeText={(text) => updateField('deposit', text)} keyboardType="number-pad" />
+          <Field label="Service charge (KES)" style={{ flex: 1 }} value={form.serviceCharge} onChangeText={(text) => updateField('serviceCharge', text)} keyboardType="number-pad" />
         </View>
 
         {/* Utilities */}
@@ -519,7 +439,7 @@ const AddPropertyScreen = ({ navigation }) => {
                 <Ionicons
                   name={utility.enabled ? 'checkbox' : 'square-outline'}
                   size={20}
-                  color={utility.enabled ? colors.gold : colors.textMuted}
+                  color={utility.enabled ? colors.primary : colors.textMuted}
                 />
                 <Text style={styles.utilityName}>{utility.name}</Text>
               </TouchableOpacity>
@@ -589,7 +509,7 @@ const AddPropertyScreen = ({ navigation }) => {
         </View>
 
         {/* Description */}
-        <Text style={styles.label}>Description * (min 50 characters)</Text>
+        <Text style={styles.label}>Description (at least 50 characters)</Text>
         <TextInput
           style={[styles.input, styles.textArea]}
           placeholder="Describe the property..."
@@ -603,7 +523,7 @@ const AddPropertyScreen = ({ navigation }) => {
 
         {/* Submit */}
         <Button
-          title="List Property"
+          title="List property"
           onPress={handleSubmit}
           loading={submitting}
           disabled={submitting}
@@ -626,10 +546,11 @@ const styles = {
     paddingTop: spacing[6],
   },
   title: {
-    fontSize: typography['2xl'],
-    fontWeight: typography.fontWeight.bold,
+    fontSize: 30,
+    fontWeight: '700',
+    letterSpacing: -0.6,
     color: colors.textPrimary,
-    marginBottom: spacing[1],
+    marginBottom: spacing[5],
   },
   subtitle: {
     fontSize: typography.base,
@@ -639,16 +560,15 @@ const styles = {
   label: {
     fontSize: typography.sm,
     fontWeight: typography.fontWeight.semibold,
-    color: colors.slate[200],
-    marginBottom: spacing[2],
-    marginLeft: spacing[1],
+    color: colors.textSecondary,
+    marginBottom: 6,
   },
   input: {
     backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: colors.slate[700],
+    borderColor: colors.border,
     borderRadius: borderRadius.lg,
-    padding: spacing[4],
+    padding: spacing[3],
     marginBottom: spacing[4],
     fontSize: typography.base,
     color: colors.textPrimary,
@@ -681,7 +601,8 @@ const styles = {
     borderRadius: borderRadius.xl,
     padding: spacing[3],
     marginBottom: spacing[4],
-    ...shadows.card,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   resultItem: {
     flexDirection: 'row',
@@ -701,7 +622,8 @@ const styles = {
     overflow: 'hidden',
     marginBottom: spacing[4],
     position: 'relative',
-    ...shadows.card,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   mapImage: {
     width: '100%',
@@ -717,7 +639,7 @@ const styles = {
     justifyContent: 'center',
     gap: spacing[2],
     paddingVertical: spacing[3],
-    backgroundColor: 'rgba(15,23,42,0.75)',
+    backgroundColor: 'rgba(23,24,28,0.7)',
   },
   mapOverlayText: {
     color: colors.white,
@@ -741,15 +663,15 @@ const styles = {
     paddingHorizontal: spacing[3],
   },
   typeChipActive: {
-    borderColor: colors.gold,
-    backgroundColor: `${colors.gold}12`,
+    borderColor: colors.primary,
+    backgroundColor: `${colors.primary}12`,
   },
   typeChipText: {
     color: colors.textSecondary,
     fontSize: typography.sm,
   },
   typeChipTextActive: {
-    color: colors.gold,
+    color: colors.primary,
     fontWeight: typography.fontWeight.semibold,
   },
   utilitiesCard: {
@@ -757,7 +679,8 @@ const styles = {
     borderRadius: borderRadius.xl,
     padding: spacing[4],
     marginBottom: spacing[4],
-    ...shadows.card,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   utilityRow: {
     flexDirection: 'row',
@@ -804,20 +727,20 @@ const styles = {
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.slate[700],
-    borderRadius: borderRadius.full,
-    paddingVertical: spacing[1],
+    borderRadius: 8,
+    paddingVertical: 7,
     paddingHorizontal: spacing[3],
   },
   amenityChipActive: {
-    backgroundColor: `${colors.leaf}15`,
-    borderColor: colors.leaf,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   amenityChipText: {
     color: colors.textSecondary,
     fontSize: typography.sm,
   },
   amenityChipTextActive: {
-    color: colors.leaf,
+    color: colors.white,
     fontWeight: typography.fontWeight.semibold,
   },
 };

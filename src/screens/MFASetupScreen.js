@@ -101,7 +101,6 @@ const MFASetupScreen = ({ navigation, route }) => {
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <Ionicons name="shield-checkmark-outline" size={40} color={colors.gold} />
           <Text style={styles.headerTitle}>Authenticator app</Text>
           <Text style={styles.headerSubtitle}>
             For {displayEmail}
@@ -115,9 +114,6 @@ const MFASetupScreen = ({ navigation, route }) => {
         ) : step === STEPS.SCAN ? (
           <View style={styles.card}>
             <View style={styles.stepRow}>
-              <View style={styles.stepNumber}>
-                <Text style={styles.stepNumberText}>1</Text>
-              </View>
               <View>
                 <Text style={styles.stepTitle}>Add to authenticator</Text>
                 <Text style={styles.stepSubtitle}>
@@ -151,7 +147,7 @@ const MFASetupScreen = ({ navigation, route }) => {
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Enter the 6-digit code from your app</Text>
               <TextInput
-                style={[commonStyles.input, styles.codeInput]}
+                style={[commonStyles.input, styles.codeInput, !verificationCode && { letterSpacing: 0, fontWeight: '400' }]}
                 value={verificationCode}
                 onChangeText={(value) => setVerificationCode(value.replace(/\D/g, '').slice(0, 6))}
                 placeholder="6-digit code"
@@ -169,7 +165,7 @@ const MFASetupScreen = ({ navigation, route }) => {
             ) : null}
 
             <Button
-              title="Verify & Continue"
+              title="Verify and continue"
               onPress={handleVerify}
               loading={loading}
               disabled={verificationCode.length !== 6}
@@ -178,9 +174,6 @@ const MFASetupScreen = ({ navigation, route }) => {
         ) : (
           <View style={styles.card}>
             <View style={styles.stepRow}>
-              <View style={[styles.stepNumber, styles.stepNumberDone]}>
-                <Ionicons name="checkmark" size={18} color={colors.bg} />
-              </View>
               <View>
                 <Text style={styles.stepTitle}>Save your backup codes</Text>
                 <Text style={styles.stepSubtitle}>
@@ -199,13 +192,13 @@ const MFASetupScreen = ({ navigation, route }) => {
 
             <Button
               variant="secondary"
-              title="Copy Backup Codes"
+              title="Copy backup codes"
               icon="copy-outline"
               onPress={copyBackupCodes}
               style={{ marginBottom: spacing[3] }}
             />
 
-            <Button title="Complete Setup" onPress={handleComplete} />
+            <Button title="Finish setup" onPress={handleComplete} />
           </View>
         )}
       </ScrollView>
@@ -216,34 +209,27 @@ const MFASetupScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   scrollContent: {
     padding: spacing[5],
-    paddingTop: spacing[8],
+    paddingTop: 64,
   },
   header: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: spacing[6],
   },
   headerTitle: {
-    fontSize: typography['2xl'],
-    fontWeight: typography.fontWeight.bold,
+    fontSize: 30,
+    fontWeight: '700',
+    letterSpacing: -0.6,
     color: colors.textPrimary,
-    textAlign: 'center',
-    marginTop: spacing[3],
   },
   headerSubtitle: {
     fontSize: typography.sm,
     color: colors.textSecondary,
-    textAlign: 'center',
     marginTop: spacing[1],
   },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing[5],
-  },
+  card: {},
   bodyText: {
     fontSize: typography.base,
     color: colors.textPrimary,
-    textAlign: 'center',
   },
   stepRow: {
     flexDirection: 'row',
@@ -268,8 +254,8 @@ const styles = StyleSheet.create({
     color: colors.leafDeep,
   },
   stepTitle: {
-    fontSize: typography.base,
-    fontWeight: typography.fontWeight.bold,
+    fontSize: typography.lg,
+    fontWeight: '700',
     color: colors.textPrimary,
   },
   stepSubtitle: {
@@ -278,8 +264,10 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   secretBox: {
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: colors.surface,
     borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
     padding: spacing[4],
     marginBottom: spacing[5],
   },
@@ -321,7 +309,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing[4],
   },
   codeInput: {
-    textAlign: 'center',
     fontSize: typography['2xl'],
     letterSpacing: 8,
     fontWeight: typography.fontWeight.bold,
@@ -355,6 +342,8 @@ const styles = StyleSheet.create({
     padding: spacing[3],
     margin: '1%',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   codePillText: {
     color: colors.textPrimary,

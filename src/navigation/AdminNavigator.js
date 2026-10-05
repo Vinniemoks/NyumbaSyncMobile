@@ -21,7 +21,7 @@ const ProfileStack = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: {
+        headerStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 0.5, borderBottomColor: colors.border,
           backgroundColor: colors.surface,
         },
         headerTintColor: colors.textPrimary,
@@ -68,14 +68,14 @@ const AdminNavigator = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: colors.gold,
+        tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
         },
         headerShown: true,
-        headerStyle: {
+        headerStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 0.5, borderBottomColor: colors.border,
           backgroundColor: colors.surface,
         },
         headerTintColor: colors.textPrimary,

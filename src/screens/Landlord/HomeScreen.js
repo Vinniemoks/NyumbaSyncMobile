@@ -1,18 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-  RefreshControl,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { propertyService, leaseService, maintenanceService } from '../../services/api';
-import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../../config/theme';
-import MorphingBackground from '../../components/MorphingBackground';
+import { colors, spacing, commonStyles } from '../../config/theme';
+import { Heading, Figure, Section, Rows, Row, today } from '../../components/ui';
 
 const LandlordHomeScreen = ({ navigation }) => {
   const { user } = useAuth();
@@ -58,85 +49,36 @@ const LandlordHomeScreen = ({ navigation }) => {
   if (loading) {
     return (
       <View style={[commonStyles.container, commonStyles.centered]}>
-        <ActivityIndicator size="large" color={colors.info} />
+        <ActivityIndicator size="small" color={colors.textMuted} />
       </View>
     );
   }
 
   return (
-    <View style={commonStyles.container}>
-      <MorphingBackground />
     <ScrollView
-      style={{ flex: 1 }}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.textPrimary} />
-      }
+      style={commonStyles.container}
+      contentContainerStyle={{ paddingHorizontal: spacing[5], paddingBottom: spacing[8] }}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.textMuted} />}
     >
-      <View style={commonStyles.headerCentered}>
-        <Text style={commonStyles.greeting}>Welcome back,</Text>
-        <Text style={commonStyles.userName}>{user?.firstName || 'Landlord'}</Text>
-      </View>
+      <Heading eyebrow={today()} title={user?.firstName || 'Home'} />
 
-      <View style={commonStyles.flexWrap}>
-        <View style={commonStyles.statCard}>
-          <Ionicons name="cash-outline" size={32} color={colors.success} />
-          <Text style={commonStyles.statValue}>
-            KSh {(stats?.monthlyRent || 0).toLocaleString()}
-          </Text>
-          <Text style={commonStyles.statLabel}>Monthly rent</Text>
-        </View>
-        <View style={commonStyles.statCard}>
-          <Ionicons name="home-outline" size={32} color={colors.info} />
-          <Text style={commonStyles.statValue}>{stats?.properties || 0}</Text>
-          <Text style={commonStyles.statLabel}>Properties</Text>
-        </View>
-        <View style={commonStyles.statCard}>
-          <Ionicons name="people-outline" size={32} color={colors.purple[500]} />
-          <Text style={commonStyles.statValue}>{stats?.tenants || 0}</Text>
-          <Text style={commonStyles.statLabel}>Tenants</Text>
-        </View>
-        <View style={commonStyles.statCard}>
-          <Ionicons name="construct-outline" size={32} color={colors.warning} />
-          <Text style={commonStyles.statValue}>{stats?.openMaintenance || 0}</Text>
-          <Text style={commonStyles.statLabel}>Open requests</Text>
-        </View>
-      </View>
+      <Figure
+        label="Rent due each month"
+        value={`KSh ${(stats?.monthlyRent || 0).toLocaleString()}`}
+        note={stats?.tenants ? `from ${stats.tenants} ${stats.tenants === 1 ? 'tenant' : 'tenants'}` : 'No active leases yet'}
+      />
 
-      <View style={commonStyles.section}>
-        <Text style={commonStyles.sectionTitle}>Quick Actions</Text>
-        <View style={commonStyles.flexWrapBetween}>
-          <TouchableOpacity
-            style={commonStyles.actionCard}
-            onPress={() => navigation.navigate('Properties')}
-          >
-            <Ionicons name="business-outline" size={32} color={colors.info} />
-            <Text style={commonStyles.actionCardText}>Properties</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={commonStyles.actionCard}
-            onPress={() => navigation.navigate('Tenants')}
-          >
-            <Ionicons name="people-outline" size={32} color={colors.success} />
-            <Text style={commonStyles.actionCardText}>Tenants</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={commonStyles.actionCard}
-            onPress={() => navigation.navigate('Maintenance')}
-          >
-            <Ionicons name="construct-outline" size={32} color={colors.warning} />
-            <Text style={commonStyles.actionCardText}>Maintenance</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={commonStyles.actionCard}
-            onPress={() => navigation.navigate('Analytics')}
-          >
-            <Ionicons name="stats-chart-outline" size={32} color={colors.purple[500]} />
-            <Text style={commonStyles.actionCardText}>Analytics</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <Rows>
+        <Row label="Properties" value={stats?.properties || 0} onPress={() => navigation.navigate('Properties')} />
+        <Row label="Tenants" value={stats?.tenants || 0} onPress={() => navigation.navigate('Tenants')} />
+        <Row
+          label="Open maintenance"
+          value={stats?.openMaintenance || 0}
+          tone={stats?.openMaintenance ? colors.warning : undefined}
+          onPress={() => navigation.navigate('Maintenance')}
+        />
+      </Rows>
     </ScrollView>
-    </View>
   );
 };
 

@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { propertyService, landlordPortal } from '../../services/api';
 import { normalizeKenyanPhone } from '../../utils/phone';
+import { Field } from '../../components/ui';
 import { colors, spacing, typography, borderRadius } from '../../config/theme';
 
 const today = () => {
@@ -114,7 +115,6 @@ const AddTenantScreen = ({ navigation }) => {
   if (result) {
     return (
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-        <View style={styles.doneIcon}><Ionicons name="checkmark" size={36} color={colors.white} /></View>
         <Text style={styles.doneTitle}>{result.tenant.firstName} {result.tenant.lastName} is on the lease</Text>
         <Text style={styles.sub}>
           {property?.title}{result.lease.unit ? ` · ${result.lease.unit}` : ''} · {money(result.lease.rentAmount)} a month, due on the {result.lease.rentDueDate}th
@@ -239,37 +239,29 @@ const Chip = ({ label, active, onPress, disabled }) => (
   </TouchableOpacity>
 );
 
-const Field = ({ label, style, ...props }) => (
-  <View style={[{ marginBottom: spacing[3] }, style]}>
-    <Text style={styles.label}>{label}</Text>
-    <TextInput style={styles.input} autoCorrect={false} placeholderTextColor={colors.textMuted} {...props} />
-  </View>
-);
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing[4], paddingBottom: spacing[10] },
+  content: { padding: spacing[5], paddingBottom: spacing[10] },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg },
-  section: { color: colors.textPrimary, fontSize: typography.base, fontWeight: '800', marginTop: spacing[4], marginBottom: spacing[2] },
+  section: { color: colors.textSecondary, fontSize: typography.sm, fontWeight: '600', marginTop: spacing[5], marginBottom: spacing[2] },
   row: { flexDirection: 'row', gap: spacing[3] },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
-  chip: { paddingHorizontal: spacing[3], paddingVertical: 8, borderRadius: 999, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
+  chip: { paddingHorizontal: spacing[3], paddingVertical: 9, borderRadius: 8, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.textSecondary, fontWeight: '700', fontSize: typography.sm },
-  label: { color: colors.textSecondary, fontSize: typography.xs, fontWeight: '700', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
+  chipText: { color: colors.textSecondary, fontWeight: '600', fontSize: typography.sm },
+  label: { color: colors.textSecondary, fontSize: typography.sm, fontWeight: '600', marginBottom: 6 },
   input: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.lg, paddingHorizontal: spacing[3], paddingVertical: spacing[3], color: colors.textPrimary, fontSize: typography.base },
   btn: { minHeight: 52, backgroundColor: colors.primary, borderRadius: borderRadius.lg, paddingHorizontal: spacing[4], alignItems: 'center', justifyContent: 'center' },
   btnGhost: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.border },
-  btnText: { color: colors.white, fontWeight: '800', fontSize: typography.base },
-  sub: { color: colors.textSecondary, fontSize: typography.sm, marginTop: spacing[1], textAlign: 'center' },
+  btnText: { color: colors.white, fontWeight: '700', fontSize: typography.base },
+  sub: { color: colors.textSecondary, fontSize: typography.sm, marginTop: spacing[2] },
   note: { color: colors.textSecondary, fontSize: typography.xs, marginVertical: spacing[3] },
   empty: { padding: spacing[3] },
   link: { alignSelf: 'center', padding: spacing[3] },
-  linkText: { color: colors.info, fontWeight: '800' },
-  doneIcon: { alignSelf: 'center', width: 72, height: 72, borderRadius: 36, backgroundColor: colors.success, alignItems: 'center', justifyContent: 'center', marginTop: spacing[6] },
-  doneTitle: { color: colors.textPrimary, fontSize: typography.xl, fontWeight: '800', textAlign: 'center', marginTop: spacing[4] },
-  pwBox: { backgroundColor: colors.surface, borderRadius: borderRadius.xl, borderWidth: 1, borderColor: colors.border, padding: spacing[4], marginTop: spacing[5] },
-  pw: { color: colors.textPrimary, fontSize: typography.xl, fontWeight: '800', letterSpacing: 1, marginVertical: spacing[2] },
+  linkText: { color: colors.leaf, fontWeight: '700' },
+  doneTitle: { color: colors.textPrimary, fontSize: 26, fontWeight: '700', letterSpacing: -0.5, marginTop: spacing[4] },
+  pwBox: { borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: colors.border, paddingVertical: spacing[4], marginTop: spacing[5] },
+  pw: { color: colors.textPrimary, fontSize: typography.xl, fontWeight: '700', letterSpacing: 1, marginVertical: spacing[2] },
 });
 
 export default AddTenantScreen;

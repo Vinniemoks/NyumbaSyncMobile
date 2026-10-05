@@ -16,7 +16,6 @@ import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../services/api';
 import { normalizeKenyanPhone } from '../utils/phone';
 import { colors, spacing, typography, commonStyles } from '../config/theme';
-import MorphingBackground from '../components/MorphingBackground';
 
 const LoginScreen = ({ navigation }) => {
   const [identifier, setIdentifier] = useState('');
@@ -85,18 +84,15 @@ const LoginScreen = ({ navigation }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={commonStyles.container}
     >
-      <MorphingBackground />
-      <View style={commonStyles.content}>
-        <Logo size={80} showWordmark style={{ marginBottom: spacing[6] }} />
-        <Text style={commonStyles.title}>Welcome Back</Text>
-        <Text style={commonStyles.subtitle}>Sign in with your email or phone number</Text>
+      <View style={styles.page}>
+        <Logo size={40} style={{ alignSelf: 'flex-start', marginBottom: spacing[5] }} />
+        <Text style={styles.heading}>Sign in</Text>
 
         <View style={commonStyles.form}>
-          <Text style={commonStyles.label}>Email or Phone Number</Text>
+          <Text style={commonStyles.label}>Email or phone</Text>
           <TextInput
-            style={commonStyles.input}
-            placeholder="Email or phone"
-            placeholderTextColor={colors.textMuted}
+            style={[commonStyles.input, { marginBottom: spacing[4] }]}
+                        placeholderTextColor={colors.textMuted}
             value={identifier}
             onChangeText={setIdentifier}
             keyboardType="default"
@@ -106,9 +102,8 @@ const LoginScreen = ({ navigation }) => {
 
           <Text style={commonStyles.label}>Password</Text>
           <TextInput
-            style={commonStyles.input}
-            placeholder="Password"
-            placeholderTextColor={colors.textMuted}
+            style={[commonStyles.input, { marginBottom: spacing[4] }]}
+                        placeholderTextColor={colors.textMuted}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -116,11 +111,11 @@ const LoginScreen = ({ navigation }) => {
           />
 
           <Text style={styles.forgotButton} onPress={handleForgotPassword}>
-            Forgot Password?
+            Forgot password?
           </Text>
 
           <Button
-            title="Sign In"
+            title="Continue"
             onPress={handleLogin}
             loading={loading}
             disabled={loading || !identifier || !password}
@@ -134,8 +129,8 @@ const LoginScreen = ({ navigation }) => {
             style={{ marginTop: spacing[4] }}
           >
             <Text style={styles.signUpText}>
-              Don't have an account?{' '}
-              <Text style={styles.signUpBold}>Sign Up</Text>
+              New here?{' '}
+              <Text style={styles.signUpBold}>Create an account</Text>
             </Text>
           </Button>
         </View>
@@ -145,8 +140,10 @@ const LoginScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  page: { flex: 1, justifyContent: 'center', paddingHorizontal: spacing[6] },
+  heading: { fontSize: 32, fontWeight: '700', letterSpacing: -0.8, color: colors.textPrimary, marginBottom: spacing[6] },
   forgotButton: {
-    alignSelf: 'flex-end',
+    alignSelf: 'flex-start',
     marginBottom: spacing[4],
     color: colors.leaf,
     fontSize: typography.sm,

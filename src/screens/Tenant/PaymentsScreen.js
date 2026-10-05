@@ -1,21 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Modal,
-  TextInput,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { Ionicons } from '@expo/vector-icons';
 import { paymentService, leaseService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { normalizeKenyanPhone } from '../../utils/phone';
-import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
+import { colors, spacing, typography } from '../../config/theme';
+import Button from '../../components/Button';
+import { Figure, Section, Rows, Row, Field, Options, Sheet } from '../../components/ui';
 
 const PaymentsScreen = () => {
   const { user } = useAuth();
@@ -274,751 +265,108 @@ const PaymentsScreen = () => {
     Alert.alert('Copied', `${label} copied to clipboard`);
   };
 
+  const isPaid = (st) => ['completed', 'verified'].includes(st);
+  const METHODS = [
+    { value: 'mpesa', label: 'M-Pesa' },
+    { value: 'card', label: 'Card' },
+    { value: 'bank', label: 'Bank transfer' },
+  ];
+  const pi = paymentInstructions;
+  const Copy = ({ label, value }) => (
+    <Row label={label} value={value} onPress={() => copyToClipboard(String(value), label)} />
+  );
+
   return (
     <View style={styles.container}>
-      <ScrollView>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: spacing[5], paddingBottom: spacing[8] }}>
+        <View style={{ height: spacing[4] }} />
+
         {lease ? (
-          <View style={styles.nextPaymentCard}>
-            <View style={styles.nextPaymentHeader}>
-              <Text style={styles.nextPaymentTitle}>Next Payment</Text>
-              <Text style={styles.nextPaymentDue}>
-                {lease.days === 0 ? 'Due today' : `Due ${lease.due.toLocaleDateString()} (${lease.days} day${lease.days === 1 ? '' : 's'})`}
-              </Text>
-            </View>
-            <Text style={styles.nextPaymentAmount}>KSh {lease.rent.toLocaleString()}</Text>
-            <TouchableOpacity
-              style={styles.payButton}
-              onPress={() => { setAmount(String(lease.rent)); setShowPaymentModal(true); }}
-            >
-              <Text style={styles.payButtonText}>Pay Now</Text>
-            </TouchableOpacity>
-          </View>
+          <>
+            <Figure
+              label={lease.days === 0 ? 'Rent due today' : `Next rent · due ${lease.due.toLocaleDateString()}`}
+              value={`KSh ${lease.rent.toLocaleString()}`}
+              note={lease.days > 0 ? `in ${lease.days} day${lease.days === 1 ? '' : 's'}` : undefined}
+            />
+            <Button title="Pay now" size="lg" onPress={() => { setAmount(String(lease.rent)); setShowPaymentModal(true); }} />
+          </>
         ) : (
-          <View style={styles.nextPaymentCard}>
-            <Text style={styles.nextPaymentTitle}>No active lease</Text>
-            <Text style={styles.nextPaymentDue}>Rent appears here once your landlord activates your lease.</Text>
-          </View>
+          <Figure label="Rent" value="—" note="Rent appears here once your landlord sets up your lease." />
         )}
 
-        <View style={styles.historySection}>
-          <Text style={styles.sectionTitle}>Payment History</Text>
-          {payments.length === 0 && (
-            <Text style={{ color: colors.textSecondary, paddingVertical: spacing[4] }}>
-              {historyError ? 'Could not load your payments.' : 'No payments yet.'}
-            </Text>
-          )}
-          {payments.map((payment) => (
-            <View key={payment.id} style={styles.paymentItem}>
-              <View style={styles.paymentIcon}>
-                <Ionicons
-                  name={['completed', 'verified'].includes(payment.status) ? 'checkmark-circle' : 'time'}
-                  size={24}
-                  color={['completed', 'verified'].includes(payment.status) ? colors.success : colors.warning}
-                />
-              </View>
-              <View style={styles.paymentDetails}>
-                <Text style={styles.paymentTitle}>Rent Payment</Text>
-                <Text style={styles.paymentDate}>{payment.date}</Text>
-                {!!payment.method && <Text style={styles.paymentMethod}>{payment.method}</Text>}
-              </View>
-              <View style={styles.paymentAmount}>
-                <Text style={styles.paymentAmountText}>
-                  KSh {payment.amount.toLocaleString()}
-                </Text>
-                <View style={styles.statusBadge}>
-                  <Text style={styles.statusText}>{String(payment.status).replace(/_/g, ' ')}</Text>
-                </View>
-              </View>
-            </View>
-          ))}
-        </View>
+        <Section title="History" />
+        {payments.length === 0 ? (
+          <Text style={styles.muted}>{historyError ? 'Could not load your payments.' : 'No payments yet.'}</Text>
+        ) : (
+          <Rows>
+            {payments.map((payment) => (
+              <Row
+                key={payment.id}
+                label={`KSh ${payment.amount.toLocaleString()}`}
+                note={[payment.date, payment.method].filter(Boolean).join(' · ')}
+                value={String(payment.status).replace(/_/g, ' ')}
+                tone={isPaid(payment.status) ? colors.success : colors.warning}
+                cap
+              />
+            ))}
+          </Rows>
+        )}
       </ScrollView>
 
-      <Modal
-        visible={showPaymentModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowPaymentModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Make Payment</Text>
+      <Sheet visible={showPaymentModal} title="Pay rent" onClose={() => !loading && setShowPaymentModal(false)}>
+        <Field label="Amount (KSh)" value={amount} onChangeText={setAmount} keyboardType="numeric" />
+        <Options label="Pay with" options={METHODS} value={paymentMethod} onChange={setPaymentMethod} />
+        {paymentMethod === 'mpesa' && (
+          <Field
+            label="M-Pesa number"
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+            keyboardType="phone-pad"
+            hint="We send a prompt to this number. If it fails you get Paybill details instead."
+          />
+        )}
+        <Button title="Continue" size="lg" onPress={handlePayment} loading={loading} />
+      </Sheet>
 
-            <Text style={styles.inputLabel}>Amount (KSh)</Text>
-            <TextInput
-              style={styles.input}
-              value={amount}
-              onChangeText={setAmount}
-              keyboardType="numeric"
-              placeholder="Amount (KES)"
-              placeholderTextColor="#64748B"
-            />
-
-            {paymentMethod === 'mpesa' && (
-              <>
-                <Text style={styles.inputLabel}>Phone Number</Text>
-                <TextInput
-                  style={styles.input}
-                  value={phoneNumber}
-                  onChangeText={setPhoneNumber}
-                  keyboardType="phone-pad"
-                  placeholder="Phone number"
-                  placeholderTextColor="#64748B"
-                />
-                <Text style={styles.helperText}>
-                  We'll send an STK push to this number. If it fails, we'll provide paybill details.
-                </Text>
-              </>
-            )}
-
-            <Text style={styles.inputLabel}>Payment Method</Text>
-            <TouchableOpacity
-              style={[
-                styles.methodOption,
-                paymentMethod === 'mpesa' && styles.methodOptionSelected,
-              ]}
-              onPress={() => setPaymentMethod('mpesa')}
-            >
-              <Ionicons name="phone-portrait-outline" size={24} color={colors.success} />
-              <View style={styles.methodTextContainer}>
-                <Text style={styles.methodText}>Mobile Money (M-Pesa)</Text>
-                <Text style={styles.methodSubtext}>STK Push or Paybill</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.methodOption,
-                paymentMethod === 'card' && styles.methodOptionSelected,
-              ]}
-              onPress={() => setPaymentMethod('card')}
-            >
-              <Ionicons name="card-outline" size={24} color={colors.leaf} />
-              <View style={styles.methodTextContainer}>
-                <Text style={styles.methodText}>Credit/Debit Card</Text>
-                <Text style={styles.methodSubtext}>Visa, Mastercard</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.methodOption,
-                paymentMethod === 'bank' && styles.methodOptionSelected,
-              ]}
-              onPress={() => setPaymentMethod('bank')}
-            >
-              <Ionicons name="business-outline" size={24} color={colors.warning} />
-              <View style={styles.methodTextContainer}>
-                <Text style={styles.methodText}>Bank Transfer</Text>
-                <Text style={styles.methodSubtext}>Direct bank deposit</Text>
-              </View>
-            </TouchableOpacity>
-
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setShowPaymentModal(false)}
-                disabled={loading}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.confirmButton]}
-                onPress={handlePayment}
-                disabled={loading}
-              >
-                {loading ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text style={styles.confirmButtonText}>Continue</Text>
-                )}
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Payment Instructions Modal */}
-      <Modal
+      <Sheet
         visible={showInstructionsModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowInstructionsModal(false)}
+        title={pi?.type === 'mpesa_paybill' ? 'Pay by Paybill' : 'Bank transfer'}
+        onClose={() => setShowInstructionsModal(false)}
       >
-        <View style={styles.modalOverlay}>
-          <ScrollView contentContainerStyle={styles.instructionsScrollContent}>
-            <View style={styles.instructionsContent}>
-              <View style={styles.instructionsHeader}>
-                <Ionicons 
-                  name={paymentInstructions?.type === 'mpesa_paybill' ? 'phone-portrait' : 'business'} 
-                  size={48} 
-                  color={colors.info} 
-                />
-                <Text style={styles.instructionsTitle}>
-                  {paymentInstructions?.type === 'mpesa_paybill' ? 'M-Pesa Paybill' : 'Bank Transfer'}
-                </Text>
-                <Text style={styles.instructionsSubtitle}>Follow these steps to complete payment</Text>
-              </View>
-
-              {paymentInstructions?.type === 'mpesa_paybill' && (
-                <View style={styles.instructionsBody}>
-                  <View style={styles.instructionStep}>
-                    <View style={styles.stepNumber}>
-                      <Text style={styles.stepNumberText}>1</Text>
-                    </View>
-                    <Text style={styles.stepText}>Go to M-Pesa menu on your phone</Text>
-                  </View>
-
-                  <View style={styles.instructionStep}>
-                    <View style={styles.stepNumber}>
-                      <Text style={styles.stepNumberText}>2</Text>
-                    </View>
-                    <Text style={styles.stepText}>Select Lipa na M-Pesa → Paybill</Text>
-                  </View>
-
-                  <View style={styles.instructionStep}>
-                    <View style={styles.stepNumber}>
-                      <Text style={styles.stepNumberText}>3</Text>
-                    </View>
-                    <View style={styles.stepTextContainer}>
-                      <Text style={styles.stepText}>Enter Business Number:</Text>
-                      <TouchableOpacity 
-                        style={styles.copyableField}
-                        onPress={() => copyToClipboard(paymentInstructions.paybillNumber, 'Paybill Number')}
-                      >
-                        <Text style={styles.copyableFieldText}>{paymentInstructions.paybillNumber}</Text>
-                        <Ionicons name="copy-outline" size={20} color={colors.leaf} />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-
-                  <View style={styles.instructionStep}>
-                    <View style={styles.stepNumber}>
-                      <Text style={styles.stepNumberText}>4</Text>
-                    </View>
-                    <View style={styles.stepTextContainer}>
-                      <Text style={styles.stepText}>Enter Account Number:</Text>
-                      <TouchableOpacity 
-                        style={styles.copyableField}
-                        onPress={() => copyToClipboard(paymentInstructions.accountNumber, 'Account Number')}
-                      >
-                        <Text style={styles.copyableFieldText}>{paymentInstructions.accountNumber}</Text>
-                        <Ionicons name="copy-outline" size={20} color={colors.leaf} />
-                      </TouchableOpacity>
-                      <Text style={styles.importantNote}>⚠️ This account number is unique to your payment</Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.instructionStep}>
-                    <View style={styles.stepNumber}>
-                      <Text style={styles.stepNumberText}>5</Text>
-                    </View>
-                    <View style={styles.stepTextContainer}>
-                      <Text style={styles.stepText}>Enter Amount:</Text>
-                      <View style={styles.amountField}>
-                        <Text style={styles.amountFieldText}>KSh {paymentInstructions.amount}</Text>
-                      </View>
-                    </View>
-                  </View>
-
-                  <View style={styles.instructionStep}>
-                    <View style={styles.stepNumber}>
-                      <Text style={styles.stepNumberText}>6</Text>
-                    </View>
-                    <Text style={styles.stepText}>Enter your M-Pesa PIN and confirm</Text>
-                  </View>
-
-                  <View style={styles.referenceBox}>
-                    <Text style={styles.referenceLabel}>Payment Reference:</Text>
-                    <Text style={styles.referenceText}>{paymentInstructions.reference}</Text>
-                    <Text style={styles.referenceNote}>
-                      Save this reference for your records. Payment will be automatically reconciled.
-                    </Text>
-                  </View>
-                </View>
-              )}
-
-              {paymentInstructions?.type === 'bank_transfer' && (
-                <View style={styles.instructionsBody}>
-                  <View style={styles.bankDetailsCard}>
-                    <View style={styles.bankDetailRow}>
-                      <Text style={styles.bankDetailLabel}>Bank Name:</Text>
-                      <Text style={styles.bankDetailValue}>{paymentInstructions.bankName}</Text>
-                    </View>
-
-                    <View style={styles.bankDetailRow}>
-                      <Text style={styles.bankDetailLabel}>Account Name:</Text>
-                      <Text style={styles.bankDetailValue}>{paymentInstructions.accountName}</Text>
-                    </View>
-
-                    <View style={styles.bankDetailRow}>
-                      <Text style={styles.bankDetailLabel}>Account Number:</Text>
-                      <TouchableOpacity 
-                        style={styles.copyableInlineField}
-                        onPress={() => copyToClipboard(paymentInstructions.accountNumber, 'Account Number')}
-                      >
-                        <Text style={styles.bankDetailValue}>{paymentInstructions.accountNumber}</Text>
-                        <Ionicons name="copy-outline" size={18} color={colors.leaf} />
-                      </TouchableOpacity>
-                    </View>
-
-                    <View style={styles.bankDetailRow}>
-                      <Text style={styles.bankDetailLabel}>Amount:</Text>
-                      <Text style={styles.bankDetailValueHighlight}>KSh {paymentInstructions.amount}</Text>
-                    </View>
-
-                    <View style={styles.bankDetailRow}>
-                      <Text style={styles.bankDetailLabel}>Reference:</Text>
-                      <TouchableOpacity 
-                        style={styles.copyableInlineField}
-                        onPress={() => copyToClipboard(paymentInstructions.reference, 'Reference')}
-                      >
-                        <Text style={styles.bankDetailValue}>{paymentInstructions.reference}</Text>
-                        <Ionicons name="copy-outline" size={18} color={colors.leaf} />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-
-                  <View style={styles.warningBox}>
-                    <Ionicons name="alert-circle" size={24} color={colors.warning} />
-                    <Text style={styles.warningText}>
-                      Please use the reference number above when making the transfer. 
-                      This helps us automatically match your payment to your account.
-                    </Text>
-                  </View>
-
-                  <Text style={styles.processingNote}>
-                    Bank transfers may take 1-3 business days to process. You'll receive a notification 
-                    once your payment is confirmed.
-                  </Text>
-                </View>
-              )}
-
-              <TouchableOpacity
-                style={styles.doneButton}
-                onPress={() => setShowInstructionsModal(false)}
-              >
-                <Text style={styles.doneButtonText}>Done</Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-        </View>
-      </Modal>
+        {pi?.type === 'mpesa_paybill' && (
+          <>
+            <Text style={styles.steps}>M-Pesa → Lipa na M-Pesa → Paybill. Tap a value to copy it.</Text>
+            <Rows>
+              <Copy label="Business number" value={pi.paybillNumber} />
+              <Copy label="Account number" value={pi.accountNumber} />
+              <Row label="Amount" value={`KSh ${pi.amount}`} />
+              <Copy label="Reference" value={pi.reference} />
+            </Rows>
+            <Text style={styles.steps}>The account number is unique to this payment. Enter your PIN to confirm; it is matched to your account automatically.</Text>
+          </>
+        )}
+        {pi?.type === 'bank_transfer' && (
+          <>
+            <Rows>
+              <Row label="Bank" value={pi.bankName} />
+              <Row label="Account name" value={pi.accountName} />
+              <Copy label="Account number" value={pi.accountNumber} />
+              <Row label="Amount" value={`KSh ${pi.amount}`} />
+              <Copy label="Reference" value={pi.reference} />
+            </Rows>
+            <Text style={styles.steps}>Use the reference exactly as shown so we can match the transfer. Bank transfers take 1–3 business days; you will be notified once it is confirmed.</Text>
+          </>
+        )}
+        <Button title="Done" size="lg" onPress={() => setShowInstructionsModal(false)} style={{ marginTop: spacing[4] }} />
+      </Sheet>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg, // slate-950
-  },
-  balanceCard: {
-    backgroundColor: colors.primary,
-    margin: spacing[5],
-    padding: spacing[6],
-    borderRadius: borderRadius['2xl'],
-    alignItems: 'center',
-  },
-  balanceLabel: {
-    fontSize: typography.sm,
-    color: '#fff',
-    opacity: 0.9,
-    marginBottom: spacing[2],
-  },
-  balanceAmount: {
-    fontSize: typography['4xl'],
-    fontWeight: typography.fontWeight.bold,
-    color: '#fff',
-    marginBottom: spacing[2],
-  },
-  balanceStatus: {
-    fontSize: typography.sm,
-    color: '#fff',
-    opacity: 0.9,
-  },
-  nextPaymentCard: {
-    backgroundColor: colors.surface, // slate-900
-    margin: spacing[5],
-    marginTop: 0,
-    padding: spacing[5],
-    borderRadius: borderRadius.xl,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  nextPaymentHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: spacing[3],
-  },
-  nextPaymentTitle: {
-    fontSize: typography.base,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.textPrimary, // slate-50
-  },
-  nextPaymentDue: {
-    fontSize: typography.sm,
-    color: colors.warning,
-  },
-  nextPaymentAmount: {
-    fontSize: 28,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary, // slate-50
-    marginBottom: spacing[4],
-  },
-  payButton: {
-    backgroundColor: colors.primaryDark, 
-    borderRadius: borderRadius.lg,
-    padding: spacing[4],
-    alignItems: 'center',
-  },
-  payButtonText: {
-    color: colors.gold,
-    fontSize: typography.base,
-    fontWeight: typography.fontWeight.semibold,
-  },
-  historySection: {
-    padding: spacing[5],
-    paddingTop: 0,
-  },
-  sectionTitle: {
-    fontSize: typography.lg,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary, // slate-50
-    marginBottom: spacing[4],
-  },
-  paymentItem: {
-    flexDirection: 'row',
-    backgroundColor: colors.surface, // slate-900
-    borderRadius: borderRadius.xl,
-    padding: spacing[4],
-    marginBottom: spacing[3],
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  paymentIcon: {
-    marginRight: spacing[3],
-    justifyContent: 'center',
-  },
-  paymentDetails: {
-    flex: 1,
-  },
-  paymentTitle: {
-    fontSize: typography.sm,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.textPrimary, // slate-50
-    marginBottom: spacing[1],
-  },
-  paymentDate: {
-    fontSize: typography.xs,
-    color: colors.textSecondary, // slate-400
-    marginBottom: 2,
-  },
-  paymentMethod: {
-    fontSize: typography.xs,
-    color: colors.textMuted, // slate-500
-  },
-  paymentAmount: {
-    alignItems: 'flex-end',
-  },
-  paymentAmountText: {
-    fontSize: typography.base,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary, // slate-50
-    marginBottom: spacing[1],
-  },
-  statusBadge: {
-    backgroundColor: '#D1FAE5',
-    borderRadius: borderRadius.xl,
-    paddingHorizontal: spacing[2],
-    paddingVertical: spacing[1],
-  },
-  statusText: {
-    fontSize: 10,
-    color: '#065F46',
-    fontWeight: typography.fontWeight.semibold,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: colors.surface, // slate-900
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: spacing[6],
-    minHeight: 400,
-  },
-  modalTitle: {
-    fontSize: typography['2xl'],
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary, // slate-50
-    marginBottom: spacing[6],
-  },
-  inputLabel: {
-    fontSize: typography.sm,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.slate[200], // slate-200
-    marginBottom: spacing[2],
-  },
-  input: {
-    backgroundColor: colors.slate[800], // slate-800
-    borderWidth: 1,
-    borderColor: colors.border, // slate-700
-    borderRadius: borderRadius.lg,
-    padding: spacing[4],
-    fontSize: typography.base,
-    marginBottom: spacing[5],
-    color: colors.textPrimary, // slate-50
-  },
-  methodOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.slate[800], // slate-800
-    borderWidth: 2,
-    borderColor: colors.border, // slate-700
-    borderRadius: borderRadius.lg,
-    padding: spacing[4],
-    marginBottom: spacing[3],
-  },
-  methodOptionSelected: {
-    borderColor: colors.leaf,
-    backgroundColor: colors.primaryDark,
-  },
-  methodTextContainer: {
-    flex: 1,
-    marginLeft: spacing[3],
-  },
-  methodText: {
-    fontSize: typography.base,
-    fontWeight: typography.fontWeight.medium,
-    color: colors.slate[200], // slate-200
-  },
-  methodSubtext: {
-    fontSize: typography.xs,
-    color: colors.textSecondary, // slate-400
-    marginTop: 2,
-  },
-  helperText: {
-    fontSize: typography.xs,
-    color: colors.textSecondary, // slate-400
-    marginTop: -12,
-    marginBottom: spacing[4],
-    fontStyle: 'italic',
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    marginTop: spacing[6],
-  },
-  modalButton: {
-    flex: 1,
-    padding: spacing[4],
-    borderRadius: borderRadius.lg,
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: colors.slate[800], // slate-800
-    marginRight: spacing[2],
-  },
-  cancelButtonText: {
-    color: colors.slate[200], // slate-200
-    fontSize: typography.base,
-    fontWeight: typography.fontWeight.semibold,
-  },
-  confirmButton: {
-    backgroundColor: colors.primaryDark, 
-    marginLeft: spacing[2],
-  },
-  confirmButtonText: {
-    color: colors.gold,
-    fontSize: typography.base,
-    fontWeight: typography.fontWeight.semibold,
-  },
-  // Payment Instructions Modal Styles
-  instructionsScrollContent: {
-    flexGrow: 1,
-    justifyContent: 'flex-end',
-  },
-  instructionsContent: {
-    backgroundColor: colors.surface, // slate-900
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: spacing[6],
-    maxHeight: '90%',
-  },
-  instructionsHeader: {
-    alignItems: 'center',
-    marginBottom: spacing[6],
-  },
-  instructionsTitle: {
-    fontSize: typography['2xl'],
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary, // slate-50
-    marginTop: spacing[3],
-  },
-  instructionsSubtitle: {
-    fontSize: typography.sm,
-    color: colors.textSecondary, // slate-400
-    marginTop: spacing[1],
-  },
-  instructionsBody: {
-    marginBottom: spacing[6],
-  },
-  instructionStep: {
-    flexDirection: 'row',
-    marginBottom: spacing[5],
-  },
-  stepNumber: {
-    width: 32,
-    height: 32,
-    borderRadius: borderRadius['2xl'],
-    backgroundColor: colors.primaryDark, 
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: spacing[3],
-  },
-  stepNumberText: {
-    fontSize: typography.base,
-    fontWeight: typography.fontWeight.bold,
-    color: '#fff',
-  },
-  stepTextContainer: {
-    flex: 1,
-  },
-  stepText: {
-    fontSize: typography.sm,
-    color: colors.slate[200], // slate-200
-    lineHeight: 20,
-  },
-  copyableField: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.slate[800], // slate-800
-    borderWidth: 1,
-    borderColor: colors.border, // slate-700
-    borderRadius: borderRadius.lg,
-    padding: spacing[3],
-    marginTop: spacing[2],
-  },
-  copyableFieldText: {
-    fontSize: typography.lg,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary, // slate-50
-  },
-  importantNote: {
-    fontSize: typography.xs,
-    color: colors.warning,
-    marginTop: spacing[2],
-    fontStyle: 'italic',
-  },
-  amountField: {
-    backgroundColor: colors.slate[800], // slate-800
-    borderWidth: 1,
-    borderColor: colors.border, // slate-700
-    borderRadius: borderRadius.lg,
-    padding: spacing[3],
-    marginTop: spacing[2],
-  },
-  amountFieldText: {
-    fontSize: typography.lg,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.success,
-  },
-  referenceBox: {
-    backgroundColor: colors.primaryDark,
-    borderRadius: borderRadius.xl,
-    padding: spacing[4],
-    marginTop: spacing[3],
-  },
-  referenceLabel: {
-    fontSize: typography.xs,
-    color: colors.leafTint,
-    marginBottom: spacing[1],
-  },
-  referenceText: {
-    fontSize: typography.base,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary,
-    marginBottom: spacing[2],
-  },
-  referenceNote: {
-    fontSize: typography.xs,
-    color: colors.leafTint,
-    fontStyle: 'italic',
-  },
-  bankDetailsCard: {
-    backgroundColor: colors.slate[800], // slate-800
-    borderRadius: borderRadius.xl,
-    padding: spacing[4],
-    marginBottom: spacing[4],
-  },
-  bankDetailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: spacing[3],
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border, // slate-700
-  },
-  bankDetailLabel: {
-    fontSize: typography.sm,
-    color: colors.textSecondary, // slate-400
-  },
-  bankDetailValue: {
-    fontSize: typography.sm,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.textPrimary, // slate-50
-  },
-  bankDetailValueHighlight: {
-    fontSize: typography.base,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.success,
-  },
-  copyableInlineField: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing[2],
-  },
-  warningBox: {
-    flexDirection: 'row',
-    backgroundColor: '#451A03', // amber-950
-    borderRadius: borderRadius.xl,
-    padding: spacing[4],
-    marginBottom: spacing[4],
-  },
-  warningText: {
-    flex: 1,
-    fontSize: 13,
-    color: '#FDE68A', // amber-200
-    marginLeft: spacing[3],
-    lineHeight: 18,
-  },
-  processingNote: {
-    fontSize: typography.xs,
-    color: colors.textSecondary, // slate-400
-    textAlign: 'center',
-    fontStyle: 'italic',
-  },
-  doneButton: {
-    backgroundColor: colors.primaryDark, 
-    borderRadius: borderRadius.lg,
-    padding: spacing[4],
-    alignItems: 'center',
-    marginTop: spacing[2],
-  },
-  doneButtonText: {
-    color: colors.gold,
-    fontSize: typography.base,
-    fontWeight: typography.fontWeight.semibold,
-  },
+  container: { flex: 1, backgroundColor: colors.bg },
+  muted: { color: colors.textSecondary, fontSize: typography.sm, paddingVertical: spacing[3] },
+  steps: { color: colors.textSecondary, fontSize: typography.sm, marginVertical: spacing[3] },
 });
 
 export default PaymentsScreen;

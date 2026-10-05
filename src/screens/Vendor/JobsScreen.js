@@ -185,9 +185,9 @@ const styles = StyleSheet.create({
   chipText: { color: colors.textSecondary, fontWeight: '700', fontSize: typography.sm },
   card: { padding: spacing[3], marginBottom: spacing[3], backgroundColor: colors.surface, borderRadius: borderRadius.xl, borderWidth: 1, borderColor: colors.border },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
-  title: { flex: 1, color: colors.textPrimary, fontWeight: '800', fontSize: typography.base },
+  title: { flex: 1, color: colors.textPrimary, fontWeight: '700', fontSize: typography.base },
   badge: { paddingHorizontal: spacing[2], paddingVertical: 2, borderRadius: 8 },
-  badgeText: { fontSize: 11, fontWeight: '800', textTransform: 'capitalize' },
+  badgeText: { fontSize: 11, fontWeight: '700', textTransform: 'capitalize' },
   desc: { color: colors.textSecondary, fontSize: typography.sm, marginTop: spacing[1] },
   meta: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3], marginTop: spacing[2] },
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4, maxWidth: '100%' },
@@ -198,11 +198,11 @@ const styles = StyleSheet.create({
   info: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
   infoK: { color: colors.textSecondary, fontSize: typography.sm },
   infoV: { color: colors.textPrimary, fontSize: typography.sm, fontWeight: '600', textTransform: 'capitalize' },
-  label: { color: colors.textSecondary, fontSize: typography.xs, fontWeight: '700', marginBottom: 4, textTransform: 'uppercase' },
+  label: { color: colors.textSecondary, fontSize: typography.xs, fontWeight: '700', marginBottom: 4 },
   input: { backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.lg, padding: spacing[3], color: colors.textPrimary, fontSize: typography.base },
   btn: { flexDirection: 'row', minHeight: 48, backgroundColor: colors.primary, borderRadius: borderRadius.lg, paddingVertical: spacing[3], paddingHorizontal: spacing[4], alignItems: 'center', justifyContent: 'center' },
   btnGhost: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.border },
-  btnText: { color: colors.white, fontWeight: '800', fontSize: typography.base },
+  btnText: { color: colors.white, fontWeight: '700', fontSize: typography.base },
 });
 
 export default VendorJobsScreen;

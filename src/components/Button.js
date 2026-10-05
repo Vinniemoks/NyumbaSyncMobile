@@ -82,11 +82,13 @@ const Button = ({
     );
   };
 
-  const content = children || (
-    <Text style={[styles.text, styles[`${variant}Text`], textStyle]}>
-      {title}
-    </Text>
-  );
+  const labelStyle = [styles.text, styles[`${variant}Text`], textStyle];
+  const content =
+    typeof children === 'string' || typeof children === 'number' ? (
+      <Text style={labelStyle}>{children}</Text>
+    ) : (
+      children || <Text style={labelStyle}>{title}</Text>
+    );
 
   return (
     <TouchableOpacity
@@ -114,7 +116,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: borderRadius['2xl'],
+    borderRadius: borderRadius.lg,
   },
   sm: {
     paddingVertical: spacing[2],
@@ -146,35 +148,28 @@ const styles = StyleSheet.create({
   text: {
     fontSize: typography.base,
     fontWeight: typography.fontWeight.semibold,
+    letterSpacing: 0.1,
   },
 
   primary: {
     backgroundColor: colors.primary,
-    borderWidth: 1,
-    borderColor: `${colors.gold}55`,
-    ...shadows.card,
-    shadowColor: colors.primary,
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 5,
   },
   primaryText: {
     color: colors.white,
   },
 
   secondary: {
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: `${colors.gold}40`,
-    ...shadows.card,
+    borderColor: colors.border,
   },
   secondaryText: {
-    color: colors.leaf,
+    color: colors.textPrimary,
   },
 
   outline: {
     backgroundColor: 'transparent',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: colors.leaf,
   },
   outlineText: {
@@ -191,9 +186,6 @@ const styles = StyleSheet.create({
 
   danger: {
     backgroundColor: colors.danger,
-    borderWidth: 1,
-    borderColor: `${colors.danger}60`,
-    ...shadows.card,
   },
   dangerText: {
     color: colors.white,

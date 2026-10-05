@@ -367,14 +367,14 @@ const ChatScreen = ({ route, navigation }) => {
 
       {/* Input Bar */}
       <View style={styles.inputContainer}>
-        <TouchableOpacity style={styles.attachButton} onPress={handleAttach}>
-          <Ionicons name="add-circle-outline" size={28} color={colors.info} />
+        <TouchableOpacity style={styles.attachButton} onPress={handleAttach} accessibilityLabel="Attach">
+          <Ionicons name="attach" size={24} color={colors.textMuted} />
         </TouchableOpacity>
 
         <TextInput
           style={styles.input}
-          placeholder="Type a message..."
-          placeholderTextColor="#64748B"
+          placeholder="Message"
+          placeholderTextColor={colors.textMuted}
           value={inputText}
           onChangeText={handleInputChange}
           multiline
@@ -387,22 +387,21 @@ const ChatScreen = ({ route, navigation }) => {
           onPress={handleSendMessage}
           disabled={!inputText.trim() || !connected}
         >
-          <Ionicons name="send" size={20} color={inputText.trim() && connected ? "#fff" : "#64748B"} />
+          <Text style={[styles.sendText, (!inputText.trim() || !connected) && { color: colors.textMuted }]}>Send</Text>
         </TouchableOpacity>
       </View>
 
       {/* Typing Indicator */}
       {otherUserTyping && (
         <View style={styles.typingIndicator}>
-          <Text style={styles.typingText}>{conversation.participant.name} is typing...</Text>
+          <Text style={styles.typingText}>{conversation.participant.name} is typing</Text>
         </View>
       )}
 
       {/* Connection Status Banner */}
       {!connected && (
         <View style={styles.connectionBanner}>
-          <Ionicons name="cloud-offline" size={16} color={colors.warning} />
-          <Text style={styles.connectionText}>Connecting...</Text>
+          <Text style={styles.connectionText}>Connecting…</Text>
         </View>
       )}
     </KeyboardAvoidingView>
@@ -430,10 +429,6 @@ const styles = StyleSheet.create({
   dateSeparatorText: {
     fontSize: typography.xs,
     color: colors.textMuted,
-    backgroundColor: colors.slate[800],
-    paddingHorizontal: spacing[3],
-    paddingVertical: spacing[1],
-    borderRadius: borderRadius.xl,
   },
   messageContainer: {
     marginBottom: spacing[3],
@@ -446,17 +441,20 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   messageBubble: {
-    borderRadius: borderRadius['2xl'],
-    padding: spacing[3],
-    paddingBottom: spacing[1] + 2,
+    borderRadius: 12,
+    paddingHorizontal: spacing[3],
+    paddingTop: 10,
+    paddingBottom: 6,
   },
   ownMessageBubble: {
     backgroundColor: colors.darkBlue,
-    borderBottomRightRadius: 4,
+    borderBottomRightRadius: 3,
   },
   otherMessageBubble: {
-    backgroundColor: colors.slate[800],
-    borderBottomLeftRadius: 4,
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+    borderBottomLeftRadius: 3,
   },
   messageText: {
     fontSize: 15,
@@ -493,8 +491,10 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    backgroundColor: colors.slate[800],
-    borderRadius: 20,
+    backgroundColor: colors.bg,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
     paddingHorizontal: spacing[4],
     paddingVertical: 10,
     paddingTop: 10,
@@ -503,17 +503,12 @@ const styles = StyleSheet.create({
     maxHeight: 100,
   },
   sendButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.darkBlue,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: spacing[2],
+    paddingHorizontal: spacing[3],
+    paddingVertical: 10,
+    marginLeft: spacing[1],
   },
-  sendButtonDisabled: {
-    backgroundColor: colors.border,
-  },
+  sendButtonDisabled: {},
+  sendText: { color: colors.leaf, fontSize: typography.base, fontWeight: '700' },
   typingIndicator: {
     padding: spacing[3],
     paddingBottom: spacing[2],
@@ -521,19 +516,18 @@ const styles = StyleSheet.create({
   },
   typingText: {
     fontSize: 13,
-    color: colors.info,
-    fontStyle: 'italic',
+    color: colors.textMuted,
   },
   connectionBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FEF3C7',
+    backgroundColor: colors.surfaceAlt,
     padding: spacing[2],
   },
   connectionText: {
     fontSize: 13,
-    color: '#92400E',
+    color: colors.textSecondary,
     marginLeft: spacing[2],
     fontWeight: typography.fontWeight.medium,
   },

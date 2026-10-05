@@ -17,7 +17,7 @@ const ProfileStack = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: colors.surface },
+        headerStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 0.5, borderBottomColor: colors.border, backgroundColor: colors.surface },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: { fontWeight: typography.fontWeight.bold },
       }}
@@ -40,11 +40,11 @@ const VendorNavigator = () => {
           else if (route.name === 'Profile') iconName = focused ? 'person' : 'person-outline';
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: colors.gold,
+        tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.surfaceHover },
         headerShown: true,
-        headerStyle: { backgroundColor: colors.surface },
+        headerStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 0.5, borderBottomColor: colors.border, backgroundColor: colors.surface },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: { fontWeight: typography.fontWeight.bold },
       })}

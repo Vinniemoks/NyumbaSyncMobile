@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Button from '../../components/Button';
 import { propertyService } from '../../services/api';
 import { buildStaticMapUrl, openInGoogleMaps } from '../../services/locationService';
+import { Rows, Row, Sheet } from '../../components/ui';
 import { colors, spacing, typography, shadows, borderRadius, commonStyles } from '../../config/theme';
 
 const TYPE_ICONS = {
@@ -135,87 +136,34 @@ const PropertiesScreen = ({ navigation }) => {
       >
         <View style={[styles.header, { paddingTop: insets.top + spacing[3] }]}>
           <View>
-            <Text style={styles.headerTitle}>My Properties</Text>
+            <Text style={styles.headerTitle}>Properties</Text>
             <Text style={styles.headerSubtitle}>{properties.length} listed</Text>
           </View>
-          <Button
-            icon="add"
-            onPress={() => navigation.navigate('AddProperty')}
-          />
+          <TouchableOpacity onPress={() => navigation.navigate('AddProperty')} hitSlop={8}>
+            <Text style={styles.addLink}>Add</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.list}>
           {properties.map((property) => {
-            const rate = occupancyRate(property);
-            const iconName = TYPE_ICONS[property.type] || 'home';
+            const counts = unitCounts(property);
             return (
               <TouchableOpacity
                 key={property._id || property.id}
-                style={styles.card}
+                style={styles.pRow}
                 onPress={() => setSelectedProperty(property)}
-                activeOpacity={0.85}
+                activeOpacity={0.6}
               >
-                <View style={styles.cardHeader}>
-                  <View style={styles.iconWrap}>
-                    <Ionicons name={iconName} size={24} color={colors.gold} />
-                  </View>
-                  <View style={styles.cardInfo}>
-                    <Text style={styles.propertyName}>{property.title || property.name}</Text>
-                    <Text style={styles.propertyAddress} numberOfLines={1}>
-                      {formatAddress(property.address)}
-                    </Text>
-                  </View>
-                  <TouchableOpacity
-                    onPress={() => handleDelete(property._id || property.id)}
-                    style={styles.deleteBtn}
-                  >
-                    <Ionicons name="trash-outline" size={20} color={colors.danger} />
-                  </TouchableOpacity>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.pName} numberOfLines={1}>{property.title || property.name}</Text>
+                  <Text style={styles.pSub} numberOfLines={1}>
+                    {[formatAddress(property.address), counts.total ? `${counts.occupied} of ${counts.total} let` : null].filter(Boolean).join(' · ')}
+                  </Text>
                 </View>
-
-                <View style={styles.cardDetails}>
-                  <View style={styles.detailPill}>
-                    <Ionicons name="bed-outline" size={14} color={colors.textSecondary} />
-                    <Text style={styles.detailText}>{property.bedrooms || 0} Beds</Text>
-                  </View>
-                  <View style={styles.detailPill}>
-                    <Ionicons name="water-outline" size={14} color={colors.textSecondary} />
-                    <Text style={styles.detailText}>{property.bathrooms || 0} Baths</Text>
-                  </View>
-                  <View style={styles.detailPill}>
-                    <Ionicons name="cash-outline" size={14} color={colors.textSecondary} />
-                    <Text style={styles.detailText}>{formatRent(property)}</Text>
-                  </View>
-                </View>
-
-                {property.houses?.length > 0 && (
-                  <View style={styles.houseRow}>
-                    <Ionicons name="key-outline" size={14} color={colors.leaf} />
-                    <Text style={styles.houseText}>
-                      House {property.houses[0].houseNumber}
-                      {property.houses[0].floor ? ` • ${property.houses[0].floor} floor` : ''}
-                    </Text>
-                  </View>
-                )}
-
-                <View style={styles.cardFooter}>
-                  <View style={styles.occupancy}>
-                    <Text style={styles.occupancyText}>
-                      {unitCounts(property).occupied}/{unitCounts(property).total} units
-                    </Text>
-                    <View style={styles.occupancyBar}>
-                      <View
-                        style={[
-                          styles.occupancyFill,
-                          { width: `${rate}%`, backgroundColor: occupancyColor(rate) },
-                        ]}
-                      />
-                    </View>
-                  </View>
-                  <View style={styles.typeBadge}>
-                    <Text style={styles.typeBadgeText}>{property.type || 'property'}</Text>
-                  </View>
-                </View>
+                <Text style={styles.pRent}>{formatRent(property)}</Text>
+                <TouchableOpacity onPress={() => handleDelete(property._id || property.id)} hitSlop={10} style={{ marginLeft: spacing[3] }}>
+                  <Ionicons name="trash-outline" size={18} color={colors.textMuted} />
+                </TouchableOpacity>
               </TouchableOpacity>
             );
           })}
@@ -236,127 +184,66 @@ const PropertiesScreen = ({ navigation }) => {
         )}
       </ScrollView>
 
-      {/* Detail Modal */}
-      <Modal
-        visible={Boolean(selectedProperty)}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setSelectedProperty(null)}
-      >
-        {selectedProperty && (
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>{selectedProperty.title || selectedProperty.name}</Text>
-                <TouchableOpacity onPress={() => setSelectedProperty(null)}>
-                  <Ionicons name="close" size={24} color={colors.textSecondary} />
-                </TouchableOpacity>
-              </View>
-
-              <ScrollView showsVerticalScrollIndicator={false}>
-                {selectedProperty.address?.coordinates && (
-                  <TouchableOpacity
-                    style={styles.mapCard}
-                    onPress={() =>
-                      openInGoogleMaps(
-                        selectedProperty.address.coordinates.latitude,
-                        selectedProperty.address.coordinates.longitude,
-                        selectedProperty.title || selectedProperty.name
-                      )
-                    }
-                  >
-                    <Image
-                      source={{
-                        uri: buildStaticMapUrl(
-                          selectedProperty.address.coordinates.latitude,
-                          selectedProperty.address.coordinates.longitude
-                        ),
-                      }}
-                      style={styles.mapImage}
-                      resizeMode="cover"
-                    />
-                    <View style={styles.mapOverlay}>
-                      <Ionicons name="map-outline" size={18} color={colors.white} />
-                      <Text style={styles.mapOverlayText}>Open in Google Maps</Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-
-                <Text style={styles.modalLabel}>Address</Text>
-                <Text style={styles.modalValue}>{formatAddress(selectedProperty.address)}</Text>
-
-                <Text style={styles.modalLabel}>Base Rent</Text>
-                <Text style={styles.modalValue}>{formatRent(selectedProperty)}</Text>
-
-                {selectedProperty.serviceCharge ? (
-                  <>
-                    <Text style={styles.modalLabel}>Service Charge</Text>
-                    <Text style={styles.modalValue}>
-                      KSh {Number(selectedProperty.serviceCharge).toLocaleString()}
-                    </Text>
-                  </>
-                ) : null}
-
-                {selectedProperty.utilities?.length > 0 && (
-                  <>
-                    <Text style={styles.modalLabel}>Utilities</Text>
-                    {selectedProperty.utilities.map((u, i) => (
-                      <View key={i} style={styles.utilityRow}>
-                        <Text style={styles.utilityName}>{u.name}</Text>
-                        <Text style={styles.utilityAmount}>
-                          KSh {Number(u.amount).toLocaleString()}
-                          {u.isMandatory ? ' (mandatory)' : ''}
-                        </Text>
-                      </View>
-                    ))}
-                  </>
-                )}
-
-                {selectedProperty.houses?.length > 0 && (
-                  <>
-                    <Text style={styles.modalLabel}>House / Unit Details</Text>
-                    {selectedProperty.houses.map((h, i) => (
-                      <Text key={i} style={styles.modalValue}>
-                        {h.houseNumber ? `House ${h.houseNumber}` : 'Unnumbered'}
-                        {h.floor ? ` • ${h.floor} floor` : ''}
-                      </Text>
-                    ))}
-                  </>
-                )}
-
-                {selectedProperty.amenities?.length > 0 && (
-                  <>
-                    <Text style={styles.modalLabel}>Amenities</Text>
-                    <View style={styles.amenitiesWrap}>
-                      {selectedProperty.amenities.map((a, i) => (
-                        <View key={i} style={styles.amenityChip}>
-                          <Text style={styles.amenityChipText}>{a}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  </>
-                )}
-
-                <Button
-                  title="Manage Units"
-                  variant="secondary"
-                  icon="list"
-                  onPress={() => {
-                    setSelectedProperty(null);
-                    navigation.navigate('PropertyUnits', { propertyId: selectedProperty._id || selectedProperty.id });
-                  }}
-                  style={{ marginTop: spacing[6] }}
-                />
-              </ScrollView>
+      <Sheet visible={Boolean(selectedProperty)} title={selectedProperty?.title || selectedProperty?.name || ''} onClose={() => setSelectedProperty(null)}>
+        {!!selectedProperty?.address?.coordinates && (
+          <TouchableOpacity
+            style={styles.mapCard}
+            onPress={() =>
+              openInGoogleMaps(
+                selectedProperty.address.coordinates.latitude,
+                selectedProperty.address.coordinates.longitude,
+                selectedProperty.title || selectedProperty.name
+              )
+            }
+          >
+            <Image
+              source={{ uri: buildStaticMapUrl(selectedProperty.address.coordinates.latitude, selectedProperty.address.coordinates.longitude) }}
+              style={styles.mapImage}
+              resizeMode="cover"
+            />
+            <View style={styles.mapOverlay}>
+              <Text style={styles.mapOverlayText}>Open in Google Maps</Text>
             </View>
-          </View>
+          </TouchableOpacity>
         )}
-      </Modal>
+        {!!selectedProperty && (
+          <Rows>
+            <Row label="Address" value={formatAddress(selectedProperty.address)} />
+            <Row label="Rent" value={formatRent(selectedProperty)} />
+            {!!selectedProperty.serviceCharge && <Row label="Service charge" value={`KSh ${Number(selectedProperty.serviceCharge).toLocaleString()}`} />}
+            {(selectedProperty.utilities || []).map((u, i) => (
+              <Row key={i} label={u.name} value={`KSh ${Number(u.amount).toLocaleString()}${u.isMandatory ? ' · mandatory' : ''}`} />
+            ))}
+            {(selectedProperty.houses || []).map((h, i) => (
+              <Row key={`h${i}`} label={h.houseNumber ? `House ${h.houseNumber}` : 'Unit'} value={h.floor ? `${h.floor} floor` : undefined} />
+            ))}
+          </Rows>
+        )}
+        {selectedProperty?.amenities?.length > 0 && (
+          <Text style={styles.amenityText}>{selectedProperty.amenities.join(' · ')}</Text>
+        )}
+        <Button
+          title="Manage units"
+          size="lg"
+          onPress={() => {
+            const id = selectedProperty._id || selectedProperty.id;
+            setSelectedProperty(null);
+            navigation.navigate('PropertyUnits', { propertyId: id });
+          }}
+          style={{ marginTop: spacing[5] }}
+        />
+      </Sheet>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  amenityText: { color: colors.textSecondary, fontSize: typography.sm, marginTop: spacing[3], textTransform: 'capitalize' },
+  addLink: { color: colors.leaf, fontSize: typography.base, fontWeight: '600' },
+  pRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing[4], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+  pName: { color: colors.textPrimary, fontSize: typography.base, fontWeight: '600' },
+  pSub: { color: colors.textMuted, fontSize: typography.sm, marginTop: 2 },
+  pRent: { color: colors.textPrimary, fontSize: typography.sm, fontWeight: '600', marginLeft: spacing[3] },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',

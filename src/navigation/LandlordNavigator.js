@@ -30,6 +30,10 @@ const PropertiesStack = () => {
       screenOptions={{
         headerStyle: {
           backgroundColor: colors.surface,
+          elevation: 0,
+          shadowOpacity: 0,
+          borderBottomWidth: 0.5,
+          borderBottomColor: colors.border,
         },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: {
@@ -63,6 +67,10 @@ const MessagesStack = () => {
       screenOptions={{
         headerStyle: {
           backgroundColor: colors.surface,
+          elevation: 0,
+          shadowOpacity: 0,
+          borderBottomWidth: 0.5,
+          borderBottomColor: colors.border,
         },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: {
@@ -91,6 +99,10 @@ const ProfileStack = () => {
       screenOptions={{
         headerStyle: {
           backgroundColor: colors.surface,
+          elevation: 0,
+          shadowOpacity: 0,
+          borderBottomWidth: 0.5,
+          borderBottomColor: colors.border,
         },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: {
@@ -118,7 +130,7 @@ const TenantsStack = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: colors.surface },
+        headerStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 0.5, borderBottomColor: colors.border, backgroundColor: colors.surface },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: { fontWeight: typography.fontWeight.bold },
       }}
@@ -169,7 +181,7 @@ const LandlordNavigator = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: colors.gold,
+        tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
           backgroundColor: colors.surface,
@@ -178,6 +190,10 @@ const LandlordNavigator = () => {
         headerShown: true,
         headerStyle: {
           backgroundColor: colors.surface,
+          elevation: 0,
+          shadowOpacity: 0,
+          borderBottomWidth: 0.5,
+          borderBottomColor: colors.border,
         },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: {
@@ -185,10 +201,10 @@ const LandlordNavigator = () => {
         },
       })}
     >
-      <Tab.Screen name="Home" component={LandlordHomeScreen} options={{ title: 'Dashboard' }} />
+      <Tab.Screen name="Home" component={LandlordHomeScreen} options={{ title: 'Dashboard', tabBarLabel: 'Home' }} />
       <Tab.Screen name="Properties" component={PropertiesStack} options={{ headerShown: false }} />
       <Tab.Screen name="Tenants" component={TenantsStack} options={{ headerShown: false }} />
-      <Tab.Screen name="Maintenance" component={LandlordMaintenanceScreen} />
+      <Tab.Screen name="Maintenance" component={LandlordMaintenanceScreen} options={{ tabBarLabel: 'Repairs' }} />
       <Tab.Screen name="Analytics" component={LandlordAnalyticsScreen} />
       <Tab.Screen name="Profile" component={ProfileStack} options={{ headerShown: false }} />
     </Tab.Navigator>

@@ -108,115 +108,43 @@ const LandlordMaintenanceScreen = () => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <View style={styles.statsRow}>
-          <View style={styles.statBox}>
-            <Text style={[styles.statNumber, { color: colors.warning }]}>{counts.pending}</Text>
-            <Text style={styles.statLabel}>Pending</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Text style={[styles.statNumber, { color: colors.info }]}>{counts.assigned}</Text>
-            <Text style={styles.statLabel}>Assigned</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Text style={[styles.statNumber, { color: '#8B5CF6' }]}>{counts.in_progress}</Text>
-            <Text style={styles.statLabel}>In Progress</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Text style={[styles.statNumber, { color: colors.success }]}>{counts.completed}</Text>
-            <Text style={styles.statLabel}>Completed</Text>
-          </View>
-        </View>
+        <Text style={styles.summary}>
+          {counts.pending} pending · {counts.assigned} assigned · {counts.in_progress} in progress · {counts.completed} done
+        </Text>
 
-        <View style={styles.requestsList}>
+        <View style={{ paddingHorizontal: spacing[5] }}>
           {requests.map((request) => (
-            <View key={request.id} style={styles.requestCard}>
-              <View style={styles.requestHeader}>
-                <View style={styles.requestTitleRow}>
-                  <Text style={styles.requestTitle}>{request.title}</Text>
-                  <View
-                    style={[
-                      styles.priorityBadge,
-                      { backgroundColor: getPriorityColor(request.priority) + '20' },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.priorityText,
-                        { color: getPriorityColor(request.priority) },
-                      ]}
-                    >
-                      {request.priority}
-                    </Text>
-                  </View>
-                </View>
+            <View key={request.id} style={styles.req}>
+              <View style={styles.reqTop}>
+                <Text style={styles.reqTitle} numberOfLines={1}>{request.title}</Text>
+                <Text style={[styles.reqPriority, { color: getPriorityColor(request.priority) }]}>{request.priority}</Text>
               </View>
-
-              <Text style={styles.requestDescription}>{request.description}</Text>
-
-              <View style={styles.requestDetails}>
-                <View style={styles.detailRow}>
-                  <Ionicons name="person-outline" size={16} color={colors.textSecondary} />
-                  <Text style={styles.detailText}>{request.tenantName || 'Tenant'}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Ionicons name="home-outline" size={16} color={colors.textSecondary} />
-                  <Text style={styles.detailText}>{request.property || 'Property'}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Ionicons name="pricetag-outline" size={16} color={colors.textSecondary} />
-                  <Text style={styles.detailText}>{request.category}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Ionicons name="calendar-outline" size={16} color={colors.textSecondary} />
-                  <Text style={styles.detailText}>{new Date(request.createdAt).toLocaleDateString()}</Text>
-                </View>
-              </View>
-
-
-              <View style={styles.requestFooter}>
-                <View
-                  style={[
-                    styles.statusBadge,
-                    { backgroundColor: getStatusColor(request.status) + '20' },
-                  ]}
-                >
-                  <Text
-                    style={[styles.statusText, { color: getStatusColor(request.status) }]}
-                  >
-                    {request.status.replace('_', ' ')}
-                  </Text>
-                </View>
-
-                <View style={styles.actionButtons}>
-                  {['pending', 'assigned'].includes(request.status) && (
-                    <TouchableOpacity
-                      style={styles.actionButton}
-                      onPress={() => handleUpdateStatus(request.id, 'in_progress')}
-                    >
-                      <Ionicons name="play-outline" size={18} color="#8B5CF6" />
-                      <Text style={styles.actionButtonText}>Start</Text>
-                    </TouchableOpacity>
-                  )}
-                  {request.status === 'in_progress' && (
-                    <TouchableOpacity
-                      style={styles.actionButton}
-                      onPress={() => handleUpdateStatus(request.id, 'completed')}
-                    >
-                      <Ionicons name="checkmark-outline" size={18} color={colors.success} />
-                      <Text style={styles.actionButtonText}>Complete</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
+              {!!request.description && <Text style={styles.reqDesc}>{request.description}</Text>}
+              <Text style={styles.reqMeta}>
+                {[request.tenantName, request.property, new Date(request.createdAt).toLocaleDateString()].filter(Boolean).join(' · ')}
+              </Text>
+              <View style={styles.reqBottom}>
+                <Text style={[styles.reqStatus, { color: getStatusColor(request.status) }]}>
+                  {request.status.replace('_', ' ')}
+                </Text>
+                {['pending', 'assigned'].includes(request.status) && (
+                  <TouchableOpacity onPress={() => handleUpdateStatus(request.id, 'in_progress')} hitSlop={8}>
+                    <Text style={styles.reqAction}>Start work</Text>
+                  </TouchableOpacity>
+                )}
+                {request.status === 'in_progress' && (
+                  <TouchableOpacity onPress={() => handleUpdateStatus(request.id, 'completed')} hitSlop={8}>
+                    <Text style={styles.reqAction}>Mark complete</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
           ))}
 
           {requests.length === 0 && (
-            <View style={styles.emptyState}>
-              <Ionicons name="construct-outline" size={64} color={colors.textMuted} />
-              <Text style={styles.emptyStateText}>{loadError ? 'Could not load requests' : 'No maintenance requests'}</Text>
-              <Text style={styles.emptyStateSubtext}>{loadError ? 'Pull down to try again' : 'Requests from your tenants will appear here'}</Text>
-            </View>
+            <Text style={styles.reqEmpty}>
+              {loadError ? 'Could not load requests. Pull down to try again.' : 'No maintenance requests. Requests from your tenants will appear here.'}
+            </Text>
           )}
         </View>
       </ScrollView>
@@ -226,6 +154,17 @@ const LandlordMaintenanceScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  summary: { color: colors.textSecondary, fontSize: typography.sm, paddingHorizontal: spacing[5], paddingVertical: spacing[4] },
+  req: { paddingVertical: spacing[4], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+  reqTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
+  reqTitle: { flex: 1, color: colors.textPrimary, fontSize: typography.base, fontWeight: '600', textTransform: 'capitalize' },
+  reqPriority: { fontSize: typography.sm, fontWeight: '600', marginLeft: spacing[3], textTransform: 'capitalize' },
+  reqDesc: { color: colors.textPrimary, fontSize: typography.sm, marginTop: 4 },
+  reqMeta: { color: colors.textMuted, fontSize: typography.sm, marginTop: 4 },
+  reqBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing[3] },
+  reqStatus: { fontSize: typography.sm, fontWeight: '600', textTransform: 'capitalize' },
+  reqAction: { color: colors.leaf, fontSize: typography.sm, fontWeight: '700' },
+  reqEmpty: { color: colors.textSecondary, paddingVertical: spacing[5] },
   container: {
     flex: 1,
     backgroundColor: colors.bg,
@@ -302,7 +241,6 @@ const styles = StyleSheet.create({
   priorityText: {
     fontSize: 10,
     fontWeight: typography.fontWeight.semibold,
-    textTransform: 'uppercase',
   },
   requestDescription: {
     fontSize: typography.sm,

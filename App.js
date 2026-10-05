@@ -56,7 +56,7 @@ export default function App() {
       <NotificationProvider>
         <NavigationContainer>
           <UpdatePrompt />
-          <StatusBar style="dark" backgroundColor="#F3F6FC" />
+          <StatusBar style="dark" backgroundColor="#F6F4EF" />
           <Stack.Navigator
             initialRouteName="Splash"
             screenOptions={{
@@ -73,7 +73,13 @@ export default function App() {
           <Stack.Screen name="ForcedPasswordChange" component={ForcedPasswordChangeScreen} />
           <Stack.Screen name="IpVerify" component={IpVerifyScreen} />
           <Stack.Screen name="MFASetup" component={MFASetupScreen} />
-          <Stack.Screen name="PublicListings" component={PublicListingsScreen} options={{ title: 'Browse Properties' }} />
+          <Stack.Screen name="PublicListings" component={PublicListingsScreen} options={{
+              headerShown: true,
+              title: 'Listings',
+              headerShadowVisible: false,
+              headerStyle: { backgroundColor: '#FFFFFF' },
+              headerTitleStyle: { fontWeight: '700' },
+            }} />
 
           {/* Dashboard Navigators */}
           <Stack.Screen name="LandlordDashboard" component={LandlordNavigator} />

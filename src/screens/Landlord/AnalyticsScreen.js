@@ -14,6 +14,7 @@ import * as Sharing from 'expo-sharing';
 import { analyticsService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
+import { Figure, Section, Rows, Row } from '../../components/ui';
 
 const { width } = Dimensions.get('window');
 
@@ -193,201 +194,88 @@ const AnalyticsScreen = () => {
     );
   }
 
+  const change = (v) => (typeof v === 'number' ? `${formatPercentage(v)} vs last period` : undefined);
+  const maxRevenue = Math.max(1, ...stats.revenueByMonth.map((r) => r.amount));
+
   return (
-    <ScrollView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Analytics & Reports</Text>
-        <Text style={styles.headerSubtitle}>Performance Overview</Text>
-      </View>
-
-      {/* Period Selector */}
-      <View style={styles.periodSelector}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingHorizontal: spacing[5], paddingBottom: spacing[8] }}>
+      <View style={styles.tabs}>
         {['month', 'quarter', 'year'].map((p) => (
-          <TouchableOpacity
-            key={p}
-            style={[styles.periodButton, period === p && styles.periodButtonActive]}
-            onPress={() => setPeriod(p)}
-          >
-            <Text style={[styles.periodButtonText, period === p && styles.periodButtonTextActive]}>
-              {p.charAt(0).toUpperCase() + p.slice(1)}
-            </Text>
+          <TouchableOpacity key={p} onPress={() => setPeriod(p)} style={[styles.tab, period === p && styles.tabOn]}>
+            <Text style={[styles.tabText, period === p && styles.tabTextOn]}>{p.charAt(0).toUpperCase() + p.slice(1)}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* Key Metrics */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Financial Overview</Text>
-        <View style={styles.metricsGrid}>
-          <View style={styles.metricCard}>
-            <View style={styles.metricHeader}>
-              <Ionicons name="trending-up" size={24} color={colors.success} />
-              {typeof stats.revenueChange === 'number' && (
-              <View style={[styles.changeIndicator, { backgroundColor: getChangeColor(stats.revenueChange) + '20' }]}>
-                <Text style={[styles.changeText, { color: getChangeColor(stats.revenueChange) }]}>
-                  {formatPercentage(stats.revenueChange)}
-                </Text>
-              </View>
-              )}
-            </View>
-            <Text style={styles.metricValue}>{formatCurrency(stats.totalRevenue)}</Text>
-            <Text style={styles.metricLabel}>Total Revenue</Text>
-          </View>
+      <Figure label="Revenue" value={formatCurrency(stats.totalRevenue)} note={change(stats.revenueChange)} />
+      <Rows>
+        <Row label="Expenses" value={formatCurrency(stats.totalExpenses)} note={change(stats.expensesChange)} />
+        <Row label="Net income" value={formatCurrency(stats.netIncome)} note={change(stats.netIncomeChange)} />
+        <Row label="Occupancy" value={`${stats.occupancyRate}%`} note={change(stats.occupancyChange)} />
+      </Rows>
 
-          <View style={styles.metricCard}>
-            <View style={styles.metricHeader}>
-              <Ionicons name="trending-down" size={24} color={colors.danger} />
-              {typeof stats.expensesChange === 'number' && (
-              <View style={[styles.changeIndicator, { backgroundColor: getChangeColor(stats.expensesChange) + '20' }]}>
-                <Text style={[styles.changeText, { color: getChangeColor(stats.expensesChange) }]}>
-                  {formatPercentage(stats.expensesChange)}
-                </Text>
-              </View>
-              )}
-            </View>
-            <Text style={styles.metricValue}>{formatCurrency(stats.totalExpenses)}</Text>
-            <Text style={styles.metricLabel}>Total Expenses</Text>
-          </View>
+      <Section title="Units" />
+      <Rows>
+        <Row label="Properties" value={stats.totalProperties} />
+        <Row label="Units" value={stats.totalUnits} />
+        <Row label="Occupied" value={stats.occupiedUnits} />
+        <Row label="Vacant" value={stats.vacantUnits} />
+      </Rows>
 
-          <View style={styles.metricCard}>
-            <View style={styles.metricHeader}>
-              <Ionicons name="cash" size={24} color={colors.info} />
-              {typeof stats.netIncomeChange === 'number' && (
-              <View style={[styles.changeIndicator, { backgroundColor: getChangeColor(stats.netIncomeChange) + '20' }]}>
-                <Text style={[styles.changeText, { color: getChangeColor(stats.netIncomeChange) }]}>
-                  {formatPercentage(stats.netIncomeChange)}
-                </Text>
-              </View>
-              )}
-            </View>
-            <Text style={styles.metricValue}>{formatCurrency(stats.netIncome)}</Text>
-            <Text style={styles.metricLabel}>Net Income</Text>
-          </View>
-
-          <View style={styles.metricCard}>
-            <View style={styles.metricHeader}>
-              <Ionicons name="home" size={24} color={colors.warning} />
-              {typeof stats.occupancyChange === 'number' && (
-              <View style={[styles.changeIndicator, { backgroundColor: getChangeColor(stats.occupancyChange) + '20' }]}>
-                <Text style={[styles.changeText, { color: getChangeColor(stats.occupancyChange) }]}>
-                  {formatPercentage(stats.occupancyChange)}
-                </Text>
-              </View>
-              )}
-            </View>
-            <Text style={styles.metricValue}>{stats.occupancyRate}%</Text>
-            <Text style={styles.metricLabel}>Occupancy Rate</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Property Stats */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Property Statistics</Text>
-        <View style={styles.statsRow}>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>{stats.totalProperties}</Text>
-            <Text style={styles.statLabel}>Properties</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>{stats.totalUnits}</Text>
-            <Text style={styles.statLabel}>Total Units</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: colors.success }]}>{stats.occupiedUnits}</Text>
-            <Text style={styles.statLabel}>Occupied</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: colors.danger }]}>{stats.vacantUnits}</Text>
-            <Text style={styles.statLabel}>Vacant</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Revenue Trend */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Revenue Trend</Text>
-        {stats.revenueByMonth.length === 0 && <Text style={{ color: colors.textMuted }}>No revenue in this period.</Text>}
+      <Section title="Revenue by month" />
+      {stats.revenueByMonth.length === 0 ? (
+        <Text style={styles.none}>No revenue in this period.</Text>
+      ) : (
         <View style={styles.chartContainer}>
-          {stats.revenueByMonth.map((item, index) => {
-            const maxRevenue = Math.max(1, ...stats.revenueByMonth.map(r => r.amount));
-            const height = (item.amount / maxRevenue) * 120;
-            return (
-              <View key={index} style={styles.barContainer}>
-                <View style={[styles.bar, { height }]} />
-                <Text style={styles.barLabel}>{item.month}</Text>
-              </View>
-            );
-          })}
+          {stats.revenueByMonth.map((item, index) => (
+            <View key={index} style={styles.barContainer}>
+              <View style={[styles.bar, { height: (item.amount / maxRevenue) * 120 }]} />
+              <Text style={styles.barLabel}>{item.month}</Text>
+            </View>
+          ))}
         </View>
-      </View>
+      )}
 
-      {/* Expenses Breakdown */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Expenses by Category</Text>
-        {stats.expensesByCategory.length === 0 && <Text style={{ color: colors.textMuted }}>No expense data yet.</Text>}
-        {stats.expensesByCategory.map((item, index) => (
-          <View key={index} style={styles.expenseItem}>
-            <View style={styles.expenseInfo}>
-              <Text style={styles.expenseCategory}>{item.category}</Text>
-              <Text style={styles.expenseAmount}>{formatCurrency(item.amount)}</Text>
-            </View>
-            <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: `${item.percentage}%` }]} />
-            </View>
-            <Text style={styles.expensePercentage}>{item.percentage}%</Text>
-          </View>
-        ))}
-      </View>
+      {stats.expensesByCategory.length > 0 && (
+        <>
+          <Section title="Expenses by category" />
+          <Rows>
+            {stats.expensesByCategory.map((item, i) => (
+              <Row key={i} label={item.category} note={`${item.percentage}% of expenses`} value={formatCurrency(item.amount)} />
+            ))}
+          </Rows>
+        </>
+      )}
 
-      {/* Top Properties */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Top Performing Properties</Text>
-        {stats.topProperties.length === 0 && <Text style={{ color: colors.textMuted }}>No property data yet.</Text>}
-        {stats.topProperties.map((property, index) => (
-          <View key={index} style={styles.propertyItem}>
-            <View style={styles.propertyRank}>
-              <Text style={styles.propertyRankText}>{index + 1}</Text>
-            </View>
-            <View style={styles.propertyInfo}>
-              <Text style={styles.propertyName}>{property.name}</Text>
-              <Text style={styles.propertyRevenue}>{formatCurrency(property.revenue)} revenue</Text>
-            </View>
-            <View style={styles.propertyOccupancy}>
-              <Text style={styles.propertyOccupancyText}>{property.occupancy}%</Text>
-            </View>
-          </View>
-        ))}
-      </View>
+      {stats.topProperties.length > 0 && (
+        <>
+          <Section title="Best performing" />
+          <Rows>
+            {stats.topProperties.map((pr, i) => (
+              <Row key={i} label={pr.name} note={`${formatCurrency(pr.revenue)} revenue`} value={`${pr.occupancy}% let`} />
+            ))}
+          </Rows>
+        </>
+      )}
 
-      {/* Quick Actions */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Export Reports</Text>
-        <View style={styles.actionsGrid}>
-          <TouchableOpacity style={styles.actionButton} onPress={() => exportReport('financial')}>
-            <Ionicons name="document-text" size={24} color={colors.info} />
-            <Text style={styles.actionButtonText}>Financial Report</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={() => exportReport('occupancy')}>
-            <Ionicons name="bar-chart" size={24} color={colors.success} />
-            <Text style={styles.actionButtonText}>Occupancy Report</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={() => exportReport('tenant')}>
-            <Ionicons name="people" size={24} color={colors.warning} />
-            <Text style={styles.actionButtonText}>Tenant Report</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={() => exportReport('maintenance')}>
-            <Ionicons name="construct" size={24} color={colors.danger} />
-            <Text style={styles.actionButtonText}>Maintenance Report</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <Section title="Export" />
+      <Rows>
+        <Row label="Financial report" onPress={() => exportReport('financial')} />
+        <Row label="Occupancy report" onPress={() => exportReport('occupancy')} />
+        <Row label="Tenant report" onPress={() => exportReport('tenant')} />
+        <Row label="Maintenance report" onPress={() => exportReport('maintenance')} />
+      </Rows>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  tabs: { flexDirection: 'row', paddingTop: spacing[2], marginBottom: spacing[4] },
+  tab: { paddingVertical: spacing[3], marginRight: spacing[5], borderBottomWidth: 2, borderBottomColor: 'transparent' },
+  tabOn: { borderBottomColor: colors.primary },
+  tabText: { color: colors.textMuted, fontSize: typography.sm, fontWeight: '600' },
+  tabTextOn: { color: colors.textPrimary },
+  none: { color: colors.textMuted, fontSize: typography.sm, paddingVertical: spacing[3] },
   container: {
     flex: 1,
     backgroundColor: colors.bg,

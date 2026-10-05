@@ -121,18 +121,13 @@ const AdminUsersScreen = () => {
     setUsers((prev) => prev.map((u) => (u.id === updated.id ? { ...u, ...updated } : u)));
 
   const renderUser = ({ item }) => (
-    <TouchableOpacity style={styles.row} onPress={() => setSelected(item)} activeOpacity={0.7}>
-      <View style={styles.avatar}>
-        <Text style={styles.avatarText}>{(item.firstName || item.email || '?').charAt(0).toUpperCase()}</Text>
-      </View>
+    <TouchableOpacity style={styles.row} onPress={() => setSelected(item)} activeOpacity={0.6}>
       <View style={{ flex: 1 }}>
         <Text style={styles.name} numberOfLines={1}>{fullName(item)}</Text>
         <Text style={styles.sub} numberOfLines={1}>{item.email}</Text>
       </View>
-      <View style={{ alignItems: 'flex-end' }}>
-        <View style={styles.roleBadge}>
-          <Text style={styles.roleBadgeText}>{roleLabel(item.role)}</Text>
-        </View>
+      <View style={{ alignItems: 'flex-end', marginLeft: spacing[3] }}>
+        <Text style={styles.roleText}>{roleLabel(item.role)}</Text>
         <View style={styles.statusRow}>
           <View style={[styles.dot, { backgroundColor: statusColor(item.status) }]} />
           <Text style={styles.statusText}>
@@ -146,7 +141,6 @@ const AdminUsersScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.searchWrap}>
-        <Ionicons name="search" size={18} color={colors.textMuted} />
         <TextInput
           style={styles.searchInput}
           value={search}
@@ -157,25 +151,21 @@ const AdminUsersScreen = () => {
           autoCapitalize="none"
           autoCorrect={false}
         />
-        {!!search && (
-          <TouchableOpacity onPress={() => setSearch('')} accessibilityLabel="Clear search">
-            <Ionicons name="close-circle" size={18} color={colors.textMuted} />
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity onPress={() => setCreating(true)} accessibilityLabel="Create user" hitSlop={8}>
+          <Text style={styles.newLink}>New user</Text>
+        </TouchableOpacity>
       </View>
 
-      <View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-          {GROUPS.map((g) => (
-            <Chip key={g.key} label={g.label} active={group === g.key} onPress={() => setGroup(g.key)} />
-          ))}
-        </ScrollView>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.chips, { paddingTop: 0 }]}>
-          {STATUSES.map((s) => (
-            <Chip key={String(s.key)} small label={s.label} active={status === s.key} onPress={() => setStatus(s.key)} />
-          ))}
-          <Text style={styles.count}>{total} user{total === 1 ? '' : 's'}</Text>
-        </ScrollView>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={styles.chips}>
+        {GROUPS.map((g) => (
+          <Chip key={g.key} label={g.label} active={group === g.key} onPress={() => setGroup(g.key)} />
+        ))}
+      </ScrollView>
+      <View style={styles.statusLine}>
+        {STATUSES.map((s) => (
+          <Chip key={String(s.key)} small label={s.label} active={status === s.key} onPress={() => setStatus(s.key)} />
+        ))}
+        <Text style={styles.count}>{total} user{total === 1 ? '' : 's'}</Text>
       </View>
 
       {loading ? (
@@ -192,7 +182,7 @@ const AdminUsersScreen = () => {
           data={users}
           keyExtractor={(u) => u.id}
           renderItem={renderUser}
-          contentContainerStyle={{ paddingBottom: 96 }}
+          contentContainerStyle={{ paddingBottom: spacing[8] }}
           onEndReached={onEnd}
           onEndReachedThreshold={0.4}
           refreshControl={
@@ -202,10 +192,6 @@ const AdminUsersScreen = () => {
           ListFooterComponent={loadingMore ? <ActivityIndicator style={{ margin: spacing[4] }} color={colors.info} /> : null}
         />
       )}
-
-      <TouchableOpacity style={styles.fab} onPress={() => setCreating(true)} accessibilityLabel="Create user">
-        <Ionicons name="person-add" size={24} color={colors.white} />
-      </TouchableOpacity>
 
       <UserSheet
         user={selected}
@@ -227,11 +213,11 @@ const AdminUsersScreen = () => {
 const Chip = ({ label, active, onPress, small }) => (
   <TouchableOpacity
     onPress={onPress}
-    style={[styles.chip, small && styles.chipSmall, active && styles.chipActive]}
+    style={small ? styles.statusOpt : [styles.tab, active && styles.tabOn]}
     accessibilityRole="button"
     accessibilityState={{ selected: active }}
   >
-    <Text style={[styles.chipText, small && { fontSize: typography.xs }, active && styles.chipTextActive]}>{label}</Text>
+    <Text style={[small ? styles.statusOptText : styles.tabText, active && styles.tabTextOn]}>{label}</Text>
   </TouchableOpacity>
 );
 
@@ -536,15 +522,24 @@ const CreateUserModal = ({ visible, iAmSuper, onClose, onCreated }) => {
 };
 
 const styles = StyleSheet.create({
+  newLink: { color: colors.leaf, fontWeight: '700', fontSize: typography.sm, marginLeft: spacing[3] },
+  roleText: { color: colors.textSecondary, fontSize: typography.sm },
+  tab: { paddingVertical: spacing[3], marginRight: spacing[5], borderBottomWidth: 2, borderBottomColor: 'transparent' },
+  tabOn: { borderBottomColor: colors.primary },
+  tabText: { color: colors.textMuted, fontSize: typography.sm, fontWeight: '600' },
+  tabTextOn: { color: colors.textPrimary },
+  statusLine: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing[5], paddingBottom: spacing[2] },
+  statusOpt: { marginRight: spacing[4], paddingVertical: 4 },
+  statusOptText: { color: colors.textMuted, fontSize: typography.xs },
   container: { flex: 1, backgroundColor: colors.bg },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[5] },
   searchWrap: {
-    flexDirection: 'row', alignItems: 'center', gap: spacing[2],
-    margin: spacing[3], marginBottom: spacing[2], paddingHorizontal: spacing[3],
-    backgroundColor: colors.surface, borderRadius: borderRadius.xl, borderWidth: 1, borderColor: colors.border,
+    flexDirection: 'row', alignItems: 'center',
+    marginHorizontal: spacing[5], marginTop: spacing[3],
+    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border,
   },
   searchInput: { flex: 1, color: colors.textPrimary, paddingVertical: spacing[3], fontSize: typography.sm },
-  chips: { paddingHorizontal: spacing[3], paddingVertical: spacing[2], gap: spacing[2], alignItems: 'center' },
+  chips: { paddingHorizontal: spacing[5], alignItems: 'center' },
   chip: {
     paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: 999,
     backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
@@ -555,19 +550,19 @@ const styles = StyleSheet.create({
   chipTextActive: { color: colors.white },
   count: { color: colors.textMuted, fontSize: typography.xs, marginLeft: spacing[2] },
   row: {
-    flexDirection: 'row', alignItems: 'center', gap: spacing[3],
-    marginHorizontal: spacing[3], marginBottom: spacing[2], padding: spacing[3],
-    backgroundColor: colors.surface, borderRadius: borderRadius.xl, borderWidth: 1, borderColor: colors.border,
+    flexDirection: 'row', alignItems: 'center',
+    marginHorizontal: spacing[5], paddingVertical: spacing[3],
+    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border,
   },
   avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   avatarText: { color: colors.white, fontWeight: '700', fontSize: typography.base },
-  name: { color: colors.textPrimary, fontWeight: '700', fontSize: typography.base },
-  sub: { color: colors.textSecondary, fontSize: typography.xs, marginTop: 2 },
+  name: { color: colors.textPrimary, fontWeight: '600', fontSize: typography.base },
+  sub: { color: colors.textMuted, fontSize: typography.sm, marginTop: 2 },
   roleBadge: { backgroundColor: colors.surfaceAlt, paddingHorizontal: spacing[2], paddingVertical: 2, borderRadius: 8 },
   roleBadgeText: { color: colors.textPrimary, fontSize: 11, fontWeight: '700' },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
   dot: { width: 7, height: 7, borderRadius: 4 },
-  statusText: { color: colors.textSecondary, fontSize: 11, textTransform: 'capitalize' },
+  statusText: { color: colors.textMuted, fontSize: typography.xs, textTransform: 'capitalize' },
   empty: { color: colors.textSecondary, textAlign: 'center' },
   retry: { marginTop: spacing[3], padding: spacing[3] },
   retryText: { color: colors.info, fontWeight: '700' },
@@ -582,9 +577,9 @@ const styles = StyleSheet.create({
     padding: spacing[4], paddingBottom: spacing[6],
   },
   sheetHead: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], marginBottom: spacing[3] },
-  sheetName: { color: colors.textPrimary, fontSize: typography.lg, fontWeight: '800' },
+  sheetName: { color: colors.textPrimary, fontSize: typography.lg, fontWeight: '700' },
   avatarLg: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-  avatarLgText: { color: colors.white, fontWeight: '800', fontSize: typography.xl },
+  avatarLgText: { color: colors.white, fontWeight: '700', fontSize: typography.xl },
   info: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
   infoK: { color: colors.textSecondary, fontSize: typography.sm },
   infoV: { color: colors.textPrimary, fontSize: typography.sm, fontWeight: '600', flexShrink: 1, textAlign: 'right', marginLeft: spacing[3] },
@@ -592,12 +587,12 @@ const styles = StyleSheet.create({
   actions: { marginTop: spacing[2] },
   action: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], paddingVertical: spacing[3] },
   actionText: { color: colors.textPrimary, fontSize: typography.base, fontWeight: '600' },
-  pickTitle: { color: colors.textPrimary, fontWeight: '800', marginVertical: spacing[3] },
+  pickTitle: { color: colors.textPrimary, fontWeight: '700', marginVertical: spacing[3] },
   roleOption: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: spacing[3], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
   roleOptionText: { color: colors.textPrimary, fontSize: typography.base },
   link: { paddingVertical: spacing[3], alignSelf: 'flex-start' },
   linkText: { color: colors.info, fontWeight: '700' },
-  label: { color: colors.textSecondary, fontSize: typography.xs, fontWeight: '700', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
+  label: { color: colors.textSecondary, fontSize: typography.xs, fontWeight: '700', marginBottom: 4, letterSpacing: 0.5 },
   input: {
     backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.lg,
     paddingHorizontal: spacing[3], paddingVertical: spacing[3], color: colors.textPrimary, fontSize: typography.base,
@@ -605,11 +600,11 @@ const styles = StyleSheet.create({
   roleWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   btn: { minHeight: 48, backgroundColor: colors.primary, borderRadius: borderRadius.lg, paddingVertical: spacing[3], paddingHorizontal: spacing[4], alignItems: 'center', justifyContent: 'center' },
   grow: { flex: 1 },
-  btnText: { color: colors.white, fontWeight: '800', fontSize: typography.base },
+  btnText: { color: colors.white, fontWeight: '700', fontSize: typography.base },
   btnGhost: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.border },
   btnGhostText: { color: colors.textPrimary, fontWeight: '700' },
   pwBox: { backgroundColor: colors.bg, borderRadius: borderRadius.lg, padding: spacing[3], marginTop: spacing[3] },
-  pw: { color: colors.textPrimary, fontSize: typography.lg, fontWeight: '800', letterSpacing: 1 },
+  pw: { color: colors.textPrimary, fontSize: typography.lg, fontWeight: '700', letterSpacing: 1 },
   busy: { position: 'absolute', top: spacing[4], right: spacing[12] },
 });
 

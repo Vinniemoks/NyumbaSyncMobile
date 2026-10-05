@@ -13,10 +13,10 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import Logo from '../components/Logo';
 import Button from '../components/Button';
+import { Field, Options } from '../components/ui';
 import { apiClient } from '../services/api';
 import { API_CONFIG } from '../config/apiConfig';
 import { colors, spacing, typography, shadows, borderRadius } from '../config/theme';
-import MorphingBackground from '../components/MorphingBackground';
 
 const SignupScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -101,247 +101,59 @@ const SignupScreen = ({ navigation }) => {
     }
   };
 
+  const set = (key) => (text) => setFormData({ ...formData, [key]: text });
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <MorphingBackground />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.content}>
-          <Logo size={76} showWordmark style={{ marginBottom: spacing[6] }} />
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join NyumbaSync today</Text>
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+        <Logo size={40} style={{ marginBottom: spacing[5] }} />
+        <Text style={styles.title}>Create account</Text>
 
-          <View style={styles.form}>
-            <Text style={styles.label}>First Name *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="First name"
-              placeholderTextColor={colors.textMuted}
-              value={formData.firstName}
-              onChangeText={(text) => setFormData({ ...formData, firstName: text })}
-              autoCapitalize="words"
-            />
-
-            <Text style={styles.label}>Last Name</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Last name"
-              placeholderTextColor={colors.textMuted}
-              value={formData.lastName}
-              onChangeText={(text) => setFormData({ ...formData, lastName: text })}
-              autoCapitalize="words"
-            />
-
-            <Text style={styles.label}>Email Address *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              placeholderTextColor={colors.textMuted}
-              value={formData.email}
-              onChangeText={(text) => setFormData({ ...formData, email: text })}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-
-            <Text style={styles.label}>Phone Number (Optional)</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Phone number"
-              placeholderTextColor={colors.textMuted}
-              value={formData.phone}
-              onChangeText={(text) => setFormData({ ...formData, phone: text })}
-              keyboardType="phone-pad"
-            />
-
-            <Text style={styles.label}>I am a *</Text>
-            <View style={styles.roleContainer}>
-              {[
-                { value: 'tenant', label: 'Tenant', icon: 'home' },
-                { value: 'landlord', label: 'Landlord', icon: 'business' },
-                { value: 'property_manager', label: 'Property Manager', icon: 'clipboard' },
-                { value: 'agent', label: 'Agent', icon: 'briefcase' },
-                { value: 'vendor', label: 'Vendor', icon: 'construct' },
-              ].map((role) => (
-                <TouchableOpacity
-                  key={role.value}
-                  style={[
-                    styles.roleButton,
-                    formData.role === role.value && styles.roleButtonActive,
-                  ]}
-                  onPress={() => setFormData({ ...formData, role: role.value })}
-                >
-                  <Ionicons
-                    name={role.icon}
-                    size={22}
-                    color={formData.role === role.value ? colors.gold : colors.textMuted}
-                    style={styles.roleIcon}
-                  />
-                  <Text
-                    style={[
-                      styles.roleText,
-                      formData.role === role.value && styles.roleTextActive,
-                    ]}
-                  >
-                    {role.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            <Text style={styles.label}>Password *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Minimum 8 characters"
-              placeholderTextColor={colors.textMuted}
-              value={formData.password}
-              onChangeText={(text) => setFormData({ ...formData, password: text })}
-              secureTextEntry
-              autoCapitalize="none"
-            />
-
-            <Text style={styles.label}>Confirm Password *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Confirm password"
-              placeholderTextColor={colors.textMuted}
-              value={formData.confirmPassword}
-              onChangeText={(text) => setFormData({ ...formData, confirmPassword: text })}
-              secureTextEntry
-              autoCapitalize="none"
-            />
-
-            <Text style={styles.helperText}>
-              * Required fields. You must provide either email or phone number.
-            </Text>
-
-            <Button
-              title="Create Account"
-              onPress={handleSignup}
-              loading={loading}
-              disabled={loading}
-              fullWidth
-              size="lg"
-            />
-
-            <Button
-              variant="ghost"
-              onPress={() => navigation.replace('Login')}
-              style={{ marginTop: spacing[4] }}
-            >
-              <Text style={styles.linkText}>
-                Already have an account?{' '}
-                <Text style={styles.linkTextBold}>Sign In</Text>
-              </Text>
-            </Button>
-          </View>
+        <View style={styles.pair}>
+          <Field style={{ flex: 1 }} label="First name" value={formData.firstName} onChangeText={set('firstName')} autoCapitalize="words" />
+          <Field style={{ flex: 1 }} label="Last name" value={formData.lastName} onChangeText={set('lastName')} autoCapitalize="words" />
         </View>
+        <Field label="Email" value={formData.email} onChangeText={set('email')} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} />
+        <Field label="Phone" value={formData.phone} onChangeText={set('phone')} keyboardType="phone-pad" hint="Email or phone is required." />
+
+        <Options
+          label="I am a"
+          options={[
+            { value: 'tenant', label: 'Tenant' },
+            { value: 'landlord', label: 'Landlord' },
+            { value: 'property_manager', label: 'Property manager' },
+            { value: 'agent', label: 'Agent' },
+            { value: 'vendor', label: 'Vendor' },
+          ]}
+          value={formData.role}
+          onChange={(role) => setFormData({ ...formData, role })}
+        />
+
+        <Field label="Password" value={formData.password} onChangeText={set('password')} secureTextEntry autoCapitalize="none" hint="At least 8 characters." />
+        <Field label="Confirm password" value={formData.confirmPassword} onChangeText={set('confirmPassword')} secureTextEntry autoCapitalize="none" />
+
+        <Button title="Create account" onPress={handleSignup} loading={loading} disabled={loading} fullWidth size="lg" />
+
+        <Button variant="ghost" onPress={() => navigation.replace('Login')} style={{ marginTop: spacing[4] }}>
+          <Text style={styles.linkText}>
+            Already have an account? <Text style={styles.linkTextBold}>Sign in</Text>
+          </Text>
+        </Button>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg,
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing[5],
-    paddingTop: 60,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary,
-    marginBottom: spacing[2],
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: typography.base,
-    color: colors.textSecondary,
-    marginBottom: spacing[8],
-    textAlign: 'center',
-    paddingHorizontal: spacing[5],
-  },
-  form: {
-    width: '100%',
-    maxWidth: 400,
-  },
-  label: {
-    fontSize: typography.sm,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.slate[200],
-    marginBottom: spacing[2],
-    marginLeft: spacing[1],
-  },
-  input: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.slate[700],
-    borderRadius: borderRadius.lg,
-    padding: spacing[4],
-    marginBottom: spacing[4],
-    fontSize: typography.base,
-    color: colors.textPrimary,
-  },
-  helperText: {
-    fontSize: typography.xs,
-    color: colors.textSecondary,
-    marginBottom: spacing[4],
-    marginLeft: spacing[1],
-    fontStyle: 'italic',
-  },
-  linkText: {
-    color: colors.textSecondary,
-    fontSize: typography.sm,
-  },
-  linkTextBold: {
-    color: colors.leaf,
-    fontWeight: typography.fontWeight.semibold,
-  },
-  roleContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: spacing[4],
-    gap: spacing[2],
-  },
-  roleButton: {
-    flex: 1,
-    minWidth: '30%',
-    backgroundColor: colors.surface,
-    borderWidth: 2,
-    borderColor: colors.slate[700],
-    borderRadius: borderRadius.lg,
-    padding: spacing[3],
-    alignItems: 'center',
-    marginBottom: spacing[2],
-  },
-  roleButtonActive: {
-    borderColor: colors.gold,
-    backgroundColor: `${colors.gold}12`,
-  },
-  roleIcon: {
-    marginBottom: spacing[1],
-  },
-  roleText: {
-    fontSize: typography.xs,
-    color: colors.textSecondary,
-    fontWeight: typography.fontWeight.medium,
-    textAlign: 'center',
-  },
-  roleTextActive: {
-    color: colors.gold,
-    fontWeight: typography.fontWeight.semibold,
-  },
+  container: { flex: 1, backgroundColor: colors.bg },
+  scrollContent: { flexGrow: 1, padding: spacing[6], paddingTop: 64 },
+  title: { fontSize: 32, fontWeight: '700', letterSpacing: -0.8, color: colors.textPrimary, marginBottom: spacing[6] },
+  pair: { flexDirection: 'row', gap: spacing[3] },
+  linkText: { color: colors.textSecondary, fontSize: typography.sm },
+  linkTextBold: { color: colors.leaf, fontWeight: '600' },
 });
 
 export default SignupScreen;

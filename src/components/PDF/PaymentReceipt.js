@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#3B82F6',
         marginBottom: 8,
-        textTransform: 'uppercase',
     },
     row: {
         flexDirection: 'row',

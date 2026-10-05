@@ -145,294 +145,88 @@ const NotificationsScreen = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.info} />
+        <ActivityIndicator size="small" color={colors.textMuted} />
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.headerTitle}>Notifications</Text>
-          {unreadCount > 0 && (
-            <Text style={styles.headerSubtitle}>{unreadCount} unread</Text>
-          )}
+      <View style={styles.top}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.sub}>{unreadCount > 0 ? `${unreadCount} unread` : 'Nothing new'}</Text>
         </View>
-        <View style={styles.headerActions}>
-          {unreadCount > 0 && (
-            <TouchableOpacity style={styles.headerButton} onPress={handleMarkAllAsRead}>
-              <Ionicons name="checkmark-done" size={24} color={colors.info} />
-            </TouchableOpacity>
-          )}
-          {notifications.length > 0 && (
-            <TouchableOpacity style={styles.headerButton} onPress={handleClearAll}>
-              <Ionicons name="trash-outline" size={24} color={colors.danger} />
-            </TouchableOpacity>
-          )}
-        </View>
+        {unreadCount > 0 && (
+          <TouchableOpacity onPress={handleMarkAllAsRead} hitSlop={8}>
+            <Text style={styles.action}>Mark all read</Text>
+          </TouchableOpacity>
+        )}
+        {notifications.length > 0 && (
+          <TouchableOpacity onPress={handleClearAll} hitSlop={8} style={{ marginLeft: spacing[4] }}>
+            <Text style={[styles.action, { color: colors.danger }]}>Clear</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
-      {/* Filter Tabs */}
-      <View style={styles.filterContainer}>
-        {['all', 'unread', 'read'].map((filterType) => (
-          <TouchableOpacity
-            key={filterType}
-            style={[
-              styles.filterTab,
-              filter === filterType && styles.filterTabActive,
-            ]}
-            onPress={() => setFilter(filterType)}
-          >
-            <Text
-              style={[
-                styles.filterTabText,
-                filter === filterType && styles.filterTabTextActive,
-              ]}
-            >
-              {filterType.charAt(0).toUpperCase() + filterType.slice(1)}
-            </Text>
-            {filterType === 'unread' && unreadCount > 0 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{unreadCount}</Text>
-              </View>
-            )}
+      <View style={styles.tabs}>
+        {['all', 'unread', 'read'].map((f) => (
+          <TouchableOpacity key={f} onPress={() => setFilter(f)} style={[styles.tab, filter === f && styles.tabOn]}>
+            <Text style={[styles.tabText, filter === f && styles.tabTextOn]}>{f.charAt(0).toUpperCase() + f.slice(1)}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
       <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.textMuted} />}
+        contentContainerStyle={{ paddingHorizontal: spacing[5], paddingBottom: spacing[8] }}
       >
-        <View style={styles.notificationsList}>
-          {filteredNotifications.map((notification) => (
-            <TouchableOpacity
-              key={notification.id}
-              style={[
-                styles.notificationCard,
-                !notification.read && styles.notificationCardUnread,
-              ]}
-              onPress={() => {
-                if (!notification.read) {
-                  handleMarkAsRead(notification.id);
-                }
-              }}
-            >
-              <View style={styles.notificationContent}>
-                <View
-                  style={[
-                    styles.notificationIcon,
-                    { backgroundColor: notification.color + '20' },
-                  ]}
-                >
-                  <Ionicons
-                    name={notification.icon}
-                    size={24}
-                    color={notification.color}
-                  />
-                </View>
-
-                <View style={styles.notificationText}>
-                  <View style={styles.notificationHeader}>
-                    <Text style={styles.notificationTitle}>
-                      {notification.title}
-                    </Text>
-                    {!notification.read && <View style={styles.unreadDot} />}
-                  </View>
-                  <Text style={styles.notificationMessage}>
-                    {notification.message}
-                  </Text>
-                  <Text style={styles.notificationTime}>
-                    {formatTimestamp(notification.timestamp)}
-                  </Text>
-                </View>
-              </View>
-
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => handleDeleteNotification(notification.id)}
-              >
-                <Ionicons name="close" size={20} color={colors.textMuted} />
-              </TouchableOpacity>
-            </TouchableOpacity>
-          ))}
-        </View>
+        {filteredNotifications.map((n) => (
+          <TouchableOpacity
+            key={n.id}
+            style={styles.row}
+            activeOpacity={0.6}
+            onPress={() => { if (!n.read) handleMarkAsRead(n.id); }}
+            onLongPress={() => handleDeleteNotification(n.id)}
+          >
+            <View style={[styles.dot, !n.read && { backgroundColor: colors.leaf }]} />
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.rowTitle, !n.read && { fontWeight: '700' }]}>{n.title}</Text>
+              {!!n.message && <Text style={styles.rowMsg}>{n.message}</Text>}
+              <Text style={styles.rowTime}>{formatTimestamp(n.timestamp)}</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
 
         {filteredNotifications.length === 0 && (
-          <View style={styles.emptyState}>
-            <Ionicons name="notifications-off-outline" size={64} color={colors.textMuted} />
-            <Text style={styles.emptyStateText}>No notifications</Text>
-            <Text style={styles.emptyStateSubtext}>
-              {filter === 'unread'
-                ? 'All caught up!'
-                : filter === 'read'
-                  ? 'No read notifications'
-                  : 'You have no notifications yet'}
-            </Text>
-          </View>
+          <Text style={styles.empty}>
+            {filter === 'unread' ? 'You are all caught up.' : filter === 'read' ? 'No read notifications.' : 'No notifications yet.'}
+          </Text>
         )}
+        {filteredNotifications.length > 0 && <Text style={styles.hint}>Press and hold one to delete it.</Text>}
       </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.bg,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: spacing[5],
-    backgroundColor: colors.surface,
-  },
-  headerTitle: {
-    fontSize: typography['2xl'],
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textPrimary,
-  },
-  headerSubtitle: {
-    fontSize: typography.sm,
-    color: colors.info,
-    marginTop: spacing[1],
-    fontWeight: typography.fontWeight.semibold,
-  },
-  headerActions: {
-    flexDirection: 'row',
-  },
-  headerButton: {
-    padding: spacing[2],
-    marginLeft: spacing[2],
-  },
-  filterContainer: {
-    flexDirection: 'row',
-    padding: spacing[5],
-    paddingBottom: spacing[4],
-  },
-  filterTab: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-    borderRadius: borderRadius.lg,
-    backgroundColor: colors.surface,
-    marginHorizontal: 4,
-  },
-  filterTabActive: {
-    backgroundColor: colors.darkBlue,
-  },
-  filterTabText: {
-    fontSize: typography.sm,
-    color: colors.textSecondary,
-    fontWeight: typography.fontWeight.medium,
-  },
-  filterTabTextActive: {
-    color: '#fff',
-    fontWeight: typography.fontWeight.semibold,
-  },
-  badge: {
-    backgroundColor: '#EF4444',
-    borderRadius: 10,
-    paddingHorizontal: spacing[1] + 2,
-    paddingVertical: 2,
-    marginLeft: spacing[1] + 2,
-  },
-  badgeText: {
-    fontSize: 11,
-    color: '#fff',
-    fontWeight: typography.fontWeight.bold,
-  },
-  notificationsList: {
-    padding: spacing[5],
-    paddingTop: 0,
-  },
-  notificationCard: {
-    flexDirection: 'row',
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing[4],
-    marginBottom: spacing[3],
-    borderLeftWidth: 3,
-    borderLeftColor: 'transparent',
-  },
-  notificationCardUnread: {
-    borderLeftColor: colors.info,
-    backgroundColor: colors.slate[800],
-  },
-  notificationContent: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  notificationIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: borderRadius['3xl'],
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: spacing[3],
-  },
-  notificationText: {
-    flex: 1,
-  },
-  notificationHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing[1],
-  },
-  notificationTitle: {
-    fontSize: typography.base,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.textPrimary,
-    flex: 1,
-  },
-  unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: borderRadius.DEFAULT,
-    backgroundColor: colors.darkBlue,
-    marginLeft: spacing[2],
-  },
-  notificationMessage: {
-    fontSize: typography.sm,
-    color: colors.textSecondary,
-    lineHeight: 20,
-    marginBottom: spacing[2],
-  },
-  notificationTime: {
-    fontSize: typography.xs,
-    color: colors.textMuted,
-  },
-  deleteButton: {
-    padding: spacing[1],
-  },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 80,
-  },
-  emptyStateText: {
-    fontSize: typography.lg,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.textSecondary,
-    marginTop: spacing[4],
-  },
-  emptyStateSubtext: {
-    fontSize: typography.sm,
-    color: colors.textMuted,
-    marginTop: spacing[2],
-  },
+  container: { flex: 1, backgroundColor: colors.bg },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
+  top: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing[5], paddingTop: spacing[4], paddingBottom: spacing[1] },
+  title: { color: colors.textPrimary, fontSize: 30, fontWeight: '700', letterSpacing: -0.6 },
+  sub: { color: colors.textSecondary, fontSize: typography.sm },
+  action: { color: colors.leaf, fontSize: typography.sm, fontWeight: '600', paddingBottom: 4 },
+  tabs: { flexDirection: 'row', paddingHorizontal: spacing[5] },
+  tab: { paddingVertical: spacing[3], marginRight: spacing[5], borderBottomWidth: 2, borderBottomColor: 'transparent' },
+  tabOn: { borderBottomColor: colors.primary },
+  tabText: { color: colors.textMuted, fontSize: typography.sm, fontWeight: '600' },
+  tabTextOn: { color: colors.textPrimary },
+  row: { flexDirection: 'row', paddingVertical: spacing[4], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+  dot: { width: 8, height: 8, borderRadius: 4, marginTop: 6, marginRight: spacing[3], backgroundColor: 'transparent' },
+  rowTitle: { color: colors.textPrimary, fontSize: typography.base, fontWeight: '600' },
+  rowMsg: { color: colors.textSecondary, fontSize: typography.sm, marginTop: 2 },
+  rowTime: { color: colors.textMuted, fontSize: typography.xs, marginTop: 4 },
+  empty: { color: colors.textSecondary, paddingVertical: spacing[5] },
+  hint: { color: colors.textMuted, fontSize: typography.xs, marginTop: spacing[4] },
 });
 
 export default NotificationsScreen;

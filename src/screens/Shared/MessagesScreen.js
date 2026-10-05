@@ -15,7 +15,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { messageService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, spacing, typography, shadows, borderRadius } from '../../config/theme';
+import { colors, spacing, typography } from '../../config/theme';
+import { Heading } from '../../components/ui';
 
 const MessagesScreen = ({ navigation }) => {
   const { user } = useAuth();
@@ -68,16 +69,6 @@ const MessagesScreen = ({ navigation }) => {
     return date.toLocaleDateString();
   };
 
-  const getRoleColor = (role) => {
-    const colors = {
-      landlord: '#3B82F6',
-      manager: '#10B981',
-      tenant: '#F59E0B',
-      admin: '#EF4444',
-    };
-    return colors[role] || '#64748B';
-  };
-
   const filteredConversations = conversations.filter((conv) => {
     if (!searchQuery) return true;
     return (
@@ -86,86 +77,53 @@ const MessagesScreen = ({ navigation }) => {
     );
   });
 
-  const renderConversationItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.conversationCard}
-      onPress={() => navigation.navigate('Chat', { conversation: item })}
-    >
-      <View style={styles.conversationContent}>
-        <View style={[styles.avatar, { backgroundColor: getRoleColor(item.participant.role) + '20' }]}>
-          <Text style={[styles.avatarText, { color: getRoleColor(item.participant.role) }]}>
-            {item.participant.name.split(' ').map(n => n[0]).join('')}
+  const renderConversationItem = ({ item }) => {
+    const unread = item.unreadCount > 0;
+    return (
+      <TouchableOpacity style={styles.row} activeOpacity={0.6} onPress={() => navigation.navigate('Chat', { conversation: item })}>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.name, unread && styles.bold]} numberOfLines={1}>{item.participant.name}</Text>
+          <Text style={[styles.preview, unread && styles.previewUnread]} numberOfLines={1}>
+            {item.lastMessage.senderId === user?.id && 'You: '}
+            {item.lastMessage.text || 'No messages yet'}
           </Text>
         </View>
-
-        <View style={styles.conversationInfo}>
-          <View style={styles.conversationHeader}>
-            <Text style={styles.participantName}>{item.participant.name}</Text>
-            <Text style={styles.timestamp}>{formatTimestamp(item.lastMessage.timestamp)}</Text>
-          </View>
-
-          {item.property && (
-            <Text style={styles.propertyText}>{item.property}</Text>
-          )}
-
-          <View style={styles.lastMessageRow}>
-            <Text
-              style={[
-                styles.lastMessage,
-                item.unreadCount > 0 && styles.lastMessageUnread
-              ]}
-              numberOfLines={1}
-            >
-              {item.lastMessage.senderId === user?.id && 'You: '}
-              {item.lastMessage.text}
-            </Text>
-            {item.unreadCount > 0 && (
-              <View style={styles.unreadBadge}>
-                <Text style={styles.unreadBadgeText}>{item.unreadCount}</Text>
-              </View>
-            )}
-          </View>
+        <View style={{ alignItems: 'flex-end', marginLeft: spacing[3] }}>
+          {!!item.lastMessage.timestamp && <Text style={styles.time}>{formatTimestamp(item.lastMessage.timestamp)}</Text>}
+          {unread && <Text style={styles.unread}>{item.unreadCount} new</Text>}
         </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.info} />
+        <ActivityIndicator size="small" color={colors.textMuted} />
       </View>
     );
   }
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color={colors.textSecondary} style={styles.searchIcon} />
+      <View style={{ paddingHorizontal: spacing[5] }}>
+        <Heading title="Messages" />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search conversations..."
-          placeholderTextColor="#64748B"
+          placeholder="Search"
+          placeholderTextColor={colors.textMuted}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
       </View>
 
-      {/* Conversations List */}
       <FlatList
         data={filteredConversations}
         renderItem={renderConversationItem}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={{ paddingHorizontal: spacing[5], paddingBottom: spacing[8] }}
         ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Ionicons name="chatbubbles-outline" size={64} color={colors.textMuted} />
-            <Text style={styles.emptyStateText}>No conversations yet</Text>
-            <Text style={styles.emptyStateSubtext}>
-              {searchQuery ? 'No results found' : 'Start a conversation with your landlord or tenant'}
-            </Text>
-          </View>
+          <Text style={styles.empty}>{searchQuery ? 'No results.' : 'No conversations yet.'}</Text>
         }
       />
     </View>
@@ -173,125 +131,20 @@ const MessagesScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.bg,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    margin: spacing[5],
-    paddingHorizontal: spacing[4],
-  },
-  searchIcon: {
-    marginRight: spacing[2],
-  },
+  container: { flex: 1, backgroundColor: colors.bg },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
   searchInput: {
-    flex: 1,
-    padding: spacing[3],
-    fontSize: typography.base,
-    color: colors.textPrimary,
+    paddingVertical: spacing[3], fontSize: typography.base, color: colors.textPrimary,
+    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border, marginBottom: spacing[2],
   },
-  listContent: {
-    padding: spacing[5],
-    paddingTop: 0,
-  },
-  conversationCard: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing[4],
-    marginBottom: spacing[3],
-  },
-  conversationContent: {
-    flexDirection: 'row',
-  },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: spacing[3],
-  },
-  avatarText: {
-    fontSize: typography.lg,
-    fontWeight: typography.fontWeight.bold,
-  },
-  conversationInfo: {
-    flex: 1,
-  },
-  conversationHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing[1],
-  },
-  participantName: {
-    fontSize: typography.base,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.textPrimary,
-  },
-  timestamp: {
-    fontSize: typography.xs,
-    color: colors.textMuted,
-  },
-  propertyText: {
-    fontSize: typography.xs,
-    color: colors.textSecondary,
-    marginBottom: spacing[1] + 2,
-  },
-  lastMessageRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  lastMessage: {
-    fontSize: typography.sm,
-    color: colors.textSecondary,
-    flex: 1,
-  },
-  lastMessageUnread: {
-    color: colors.slate[200],
-    fontWeight: typography.fontWeight.medium,
-  },
-  unreadBadge: {
-    backgroundColor: colors.darkBlue,
-    borderRadius: 10,
-    paddingHorizontal: spacing[2],
-    paddingVertical: 2,
-    marginLeft: spacing[2],
-  },
-  unreadBadgeText: {
-    fontSize: 11,
-    color: '#fff',
-    fontWeight: typography.fontWeight.bold,
-  },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 80,
-  },
-  emptyStateText: {
-    fontSize: typography.lg,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.textSecondary,
-    marginTop: spacing[4],
-  },
-  emptyStateSubtext: {
-    fontSize: typography.sm,
-    color: colors.textMuted,
-    marginTop: spacing[2],
-    textAlign: 'center',
-    paddingHorizontal: spacing[10],
-  },
+  row: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing[4], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+  name: { color: colors.textPrimary, fontSize: typography.base, fontWeight: '600' },
+  bold: { fontWeight: '700' },
+  preview: { color: colors.textMuted, fontSize: typography.sm, marginTop: 2 },
+  previewUnread: { color: colors.textPrimary },
+  time: { color: colors.textMuted, fontSize: typography.xs },
+  unread: { color: colors.leaf, fontSize: typography.xs, fontWeight: '700', marginTop: 4 },
+  empty: { color: colors.textSecondary, paddingVertical: spacing[5] },
 });
 
 export default MessagesScreen;
