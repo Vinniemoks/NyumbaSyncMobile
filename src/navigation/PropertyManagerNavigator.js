@@ -25,7 +25,7 @@ const PropertiesStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 0.5, borderBottomColor: colors.border,
-          backgroundColor: colors.surface,
+          backgroundColor: colors.bg,
         },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: {
@@ -53,7 +53,7 @@ const MessagesStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 0.5, borderBottomColor: colors.border,
-          backgroundColor: colors.surface,
+          backgroundColor: colors.bg,
         },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: {
@@ -81,7 +81,7 @@ const ProfileStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 0.5, borderBottomColor: colors.border,
-          backgroundColor: colors.surface,
+          backgroundColor: colors.bg,
         },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: {
@@ -129,12 +129,12 @@ const PropertyManagerNavigator = () => {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
-          backgroundColor: colors.surface,
+          backgroundColor: colors.bg,
           borderTopColor: colors.border,
         },
         headerShown: true,
         headerStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 0.5, borderBottomColor: colors.border,
-          backgroundColor: colors.surface,
+          backgroundColor: colors.bg,
         },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: {

@@ -19,7 +19,7 @@ import { colors, spacing, typography, shadows, borderRadius, commonStyles } from
 
 const headerTheme = {
   headerStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 0.5, borderBottomColor: colors.border,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.bg,
   },
   headerTintColor: colors.textPrimary,
   headerTitleStyle: {
@@ -31,7 +31,7 @@ const tabBarTheme = {
   tabBarActiveTintColor: colors.primary,
   tabBarInactiveTintColor: colors.textMuted,
   tabBarStyle: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.bg,
     borderTopColor: colors.surfaceHover,
   },
 };

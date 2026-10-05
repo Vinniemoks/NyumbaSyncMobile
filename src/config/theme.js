@@ -15,16 +15,16 @@
 // Bright executive scale: the old dark-slate ramp, reversed, so direct uses of
 // slate[900] (surface) and slate[50] (text) flip with the theme.
 const slate = {
-  50: '#17181C',
-  100: '#25272D',
-  200: '#3A3D45',
-  300: '#55575F',
-  400: '#70737B',
-  500: '#8C8F96',
-  600: '#B0B2B7',
-  700: '#D2D1CB',
-  800: '#E4E1D8',
-  900: '#F1EEE7',
+  50: '#0F172A',
+  100: '#1E293B',
+  200: '#334155',
+  300: '#475569',
+  400: '#56667C',
+  500: '#7C8AA0',
+  600: '#A8B1C0',
+  700: '#E0D8C8',
+  800: '#EDE8DD',
+  900: '#F7F5F0',
   950: '#FFFFFF',
 };
 
@@ -127,18 +127,18 @@ const gold = {
 
 const colors = {
   // Semantic aliases: deep navy primary, royal-blue actions, gold trim, green only for "success"
-  primary: '#16294D',        // ink navy (buttons, active chips)
-  primaryDark: '#0F1D38',
-  primaryLight: '#2D5AA8',
-  secondary: '#2D5AA8',
-  success: '#2F7D55',       // '#16A34A'
-  warning: '#B26A12',       // '#D97706'
-  danger: '#B3372F',          // '#DC2626'
-  info: '#2D5AA8',
+  primary: '#166534',        // website primary button (green gradient, mid stop)
+  primaryDark: '#14532D',    // website green-dark
+  primaryLight: '#16A34A',   // website green
+  secondary: '#16A34A',
+  success: '#16A34A',
+  warning: '#A16207',
+  danger: '#B91C1C',
+  info: '#15803D',
   // "leaf" is the interactive accent (links, secondary buttons): royal blue
-  leaf: '#2D5AA8',
-  leafDeep: '#16294D',
-  leafTint: '#E8ECF3',
+  leaf: '#15803D',           // website green-deep: links, accents
+  leafDeep: '#14532D',
+  leafTint: '#DCFCE7',
   // Rent-specific aliases
   'rent-paid': green[500],
   'rent-due': amber[500],
@@ -155,18 +155,18 @@ const colors = {
   gold,
 
   // Shorthand access for the most common theme colors
-  bg: '#F6F4EF',             // warm paper
+  bg: '#F7F5F0',             // website cream
   surface: '#FFFFFF',
-  surfaceAlt: '#EFECE5',
-  surfaceHover: '#E6E2D8',
-  border: '#E3DFD5',
-  textPrimary: '#17181C',    // near-black ink
-  textSecondary: '#55575F',
-  textMuted: '#85878F',
-  darkBlue: '#16294D',
+  surfaceAlt: '#EDE8DD',     // website cream-deep
+  surfaceHover: '#E0D8C8',   // website cream-edge
+  border: '#E0D8C8',
+  textPrimary: '#0F172A',    // website ink
+  textSecondary: '#475569',  // website ink-soft
+  textMuted: '#56667C',      // website ink-mute
+  darkBlue: '#166534',       // legacy alias: dark accent (selected chips, own chat bubbles)
 
   // Backward-compatible flat aliases
-  gold: '#8A6D2B',           // muted brass, trim only
+  gold: '#D4AF37',           // website gold, accents only
   white: '#FFFFFF',
   black: '#000000',
 };
@@ -610,19 +610,19 @@ const commonStyles = {
     fontWeight: typography.fontWeight.medium,
   },
   badgeSuccess: {
-    backgroundColor: '#E4F0E8',
+    backgroundColor: '#DCFCE7',
     paddingHorizontal: spacing[3],
     paddingVertical: spacing[1],
     borderRadius: borderRadius.lg,
   },
   badgeWarning: {
-    backgroundColor: '#F6EAD6',
+    backgroundColor: '#FEF3C7',
     paddingHorizontal: spacing[3],
     paddingVertical: spacing[1],
     borderRadius: borderRadius.lg,
   },
   badgeDanger: {
-    backgroundColor: '#F6E1DF',
+    backgroundColor: '#FEE2E2',
     paddingHorizontal: spacing[3],
     paddingVertical: spacing[1],
     borderRadius: borderRadius.lg,
@@ -630,17 +630,17 @@ const commonStyles = {
   badgeTextSuccess: {
     fontSize: typography.xs,
     fontWeight: typography.fontWeight.semibold,
-    color: '#2F7D55',
+    color: '#15803D',
   },
   badgeTextWarning: {
     fontSize: typography.xs,
     fontWeight: typography.fontWeight.semibold,
-    color: '#8A540E',
+    color: '#92400E',
   },
   badgeTextDanger: {
     fontSize: typography.xs,
     fontWeight: typography.fontWeight.semibold,
-    color: '#B3372F',
+    color: '#B91C1C',
   },
 
   // ── Dividers ──────────────────────────────────────────────────────

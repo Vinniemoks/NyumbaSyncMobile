@@ -191,14 +191,14 @@ const DocumentsScreen = ({ userType = 'tenant' }) => {
 
   const getCategoryColor = (category) => {
     const colors = {
-      lease: '#3B82F6',
-      receipt: '#10B981',
-      inspection: '#F59E0B',
-      maintenance: '#EF4444',
-      notice: '#8B5CF6',
-      other: '#64748B',
+      lease: '#15803D',
+      receipt: '#16A34A',
+      inspection: '#B45309',
+      maintenance: '#DC2626',
+      notice: '#A16207',
+      other: '#56667C',
     };
-    return colors[category] || '#64748B';
+    return colors[category] || '#56667C';
   };
 
   const filteredDocuments = documents.filter((doc) => {

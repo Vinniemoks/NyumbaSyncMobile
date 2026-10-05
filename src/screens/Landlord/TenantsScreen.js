@@ -122,11 +122,11 @@ const TenantsScreen = ({ navigation }) => {
 
   const getStatusColor = (status) => {
     const colors = {
-      active: '#10B981',
-      pending: '#F59E0B',
-      inactive: '#EF4444',
+      active: '#16A34A',
+      pending: '#B45309',
+      inactive: '#DC2626',
     };
-    return colors[status] || '#6B7280';
+    return colors[status] || '#56667C';
   };
 
   const getStatusIcon = (status) => {
@@ -553,7 +553,7 @@ const styles = StyleSheet.create({
     color: colors.success,
   },
   balanceBadge: {
-    backgroundColor: '#7F1D1D',
+    backgroundColor: '#FEE2E2',
     paddingHorizontal: spacing[3],
     paddingVertical: spacing[1] + 2,
     borderRadius: borderRadius.xl,
@@ -561,7 +561,7 @@ const styles = StyleSheet.create({
   balanceText: {
     fontSize: typography.xs,
     fontWeight: typography.fontWeight.semibold,
-    color: '#FCA5A5',
+    color: '#B91C1C',
   },
   emptyState: {
     alignItems: 'center',
@@ -724,7 +724,7 @@ const styles = StyleSheet.create({
   },
   balanceAlert: {
     flexDirection: 'row',
-    backgroundColor: '#7F1D1D',
+    backgroundColor: '#FEE2E2',
     borderRadius: borderRadius.xl,
     padding: spacing[4],
     marginTop: spacing[4],
@@ -735,13 +735,13 @@ const styles = StyleSheet.create({
   },
   balanceAlertTitle: {
     fontSize: typography.sm,
-    color: '#FCA5A5',
+    color: '#B91C1C',
     marginBottom: spacing[1],
   },
   balanceAlertAmount: {
     fontSize: typography.lg,
     fontWeight: typography.fontWeight.bold,
-    color: '#FEE2E2',
+    color: '#B91C1C',
   },
   actionButtonsGrid: {
     flexDirection: 'row',

@@ -5,13 +5,13 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "backgroundColor": "#0A1628",
+    "backgroundColor": "#F7F5F0",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0A1628"
+      "backgroundColor": "#F7F5F0"
     },
     "ios": {
       "supportsTablet": true,
@@ -24,10 +24,12 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#020617"
+        "backgroundColor": "#14532D"
       },
       "package": "com.nyumbasync",
-      "permissions": ["android.permission.REQUEST_INSTALL_PACKAGES"],
+      "permissions": [
+        "android.permission.REQUEST_INSTALL_PACKAGES"
+      ],
       "edgeToEdgeEnabled": true,
       "jsEngine": "hermes"
     },
@@ -36,7 +38,7 @@
     },
     "notification": {
       "icon": "./assets/notification-icon.png",
-      "color": "#D4AF37"
+      "color": "#15803D"
     },
     "androidNavigationBar": {
       "visible": "sticky-immersive"

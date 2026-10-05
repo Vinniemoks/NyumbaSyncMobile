@@ -571,7 +571,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', elevation: 6,
     shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 4 },
   },
-  backdrop: { flex: 1, backgroundColor: 'rgba(11,31,75,0.45)', justifyContent: 'flex-end' },
+  backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.45)', justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24,
     padding: spacing[4], paddingBottom: spacing[6],

@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4, maxWidth: '100%' },
   metaText: { color: colors.textSecondary, fontSize: typography.xs },
   empty: { color: colors.textSecondary, textAlign: 'center', marginTop: spacing[10], paddingHorizontal: spacing[5] },
-  backdrop: { flex: 1, backgroundColor: 'rgba(11,31,75,0.45)', justifyContent: 'flex-end' },
+  backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.45)', justifyContent: 'flex-end' },
   sheet: { backgroundColor: colors.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: spacing[4], paddingBottom: spacing[6] },
   info: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
   infoK: { color: colors.textSecondary, fontSize: typography.sm },

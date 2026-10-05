@@ -29,7 +29,7 @@ const PropertiesStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: colors.surface,
+          backgroundColor: colors.bg,
           elevation: 0,
           shadowOpacity: 0,
           borderBottomWidth: 0.5,
@@ -66,7 +66,7 @@ const MessagesStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: colors.surface,
+          backgroundColor: colors.bg,
           elevation: 0,
           shadowOpacity: 0,
           borderBottomWidth: 0.5,
@@ -98,7 +98,7 @@ const ProfileStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: colors.surface,
+          backgroundColor: colors.bg,
           elevation: 0,
           shadowOpacity: 0,
           borderBottomWidth: 0.5,
@@ -130,7 +130,7 @@ const TenantsStack = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 0.5, borderBottomColor: colors.border, backgroundColor: colors.surface },
+        headerStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 0.5, borderBottomColor: colors.border, backgroundColor: colors.bg },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: { fontWeight: typography.fontWeight.bold },
       }}
@@ -184,12 +184,12 @@ const LandlordNavigator = () => {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
-          backgroundColor: colors.surface,
+          backgroundColor: colors.bg,
           borderTopColor: colors.border,
         },
         headerShown: true,
         headerStyle: {
-          backgroundColor: colors.surface,
+          backgroundColor: colors.bg,
           elevation: 0,
           shadowOpacity: 0,
           borderBottomWidth: 0.5,

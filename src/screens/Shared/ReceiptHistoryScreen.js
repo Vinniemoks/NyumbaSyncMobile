@@ -225,7 +225,7 @@ const ReceiptHistoryScreen = ({ navigation }) => {
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Ionicons name="arrow-back" size={24} color="#F8FAFC" />
+                    <Ionicons name="arrow-back" size={24} color="#0F172A" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Receipt History</Text>
                 <View style={{ width: 24 }} />
@@ -237,7 +237,7 @@ const ReceiptHistoryScreen = ({ navigation }) => {
                 <TextInput
                     style={styles.searchInput}
                     placeholder="Search by name or date..."
-                    placeholderTextColor="#64748B"
+                    placeholderTextColor="#56667C"
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                 />

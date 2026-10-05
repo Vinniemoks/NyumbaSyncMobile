@@ -56,7 +56,7 @@ export default function App() {
       <NotificationProvider>
         <NavigationContainer>
           <UpdatePrompt />
-          <StatusBar style="dark" backgroundColor="#F6F4EF" />
+          <StatusBar style="dark" backgroundColor="#F7F5F0" />
           <Stack.Navigator
             initialRouteName="Splash"
             screenOptions={{
@@ -77,7 +77,7 @@ export default function App() {
               headerShown: true,
               title: 'Listings',
               headerShadowVisible: false,
-              headerStyle: { backgroundColor: '#FFFFFF' },
+              headerStyle: { backgroundColor: '#F7F5F0' },
               headerTitleStyle: { fontWeight: '700' },
             }} />
 

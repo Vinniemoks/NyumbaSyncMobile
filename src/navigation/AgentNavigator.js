@@ -17,7 +17,7 @@ const ProfileStack = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 0.5, borderBottomColor: colors.border, backgroundColor: colors.surface },
+        headerStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 0.5, borderBottomColor: colors.border, backgroundColor: colors.bg },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: { fontWeight: typography.fontWeight.bold },
       }}
@@ -42,9 +42,9 @@ const AgentNavigator = () => {
         },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
-        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.surfaceHover },
+        tabBarStyle: { backgroundColor: colors.bg, borderTopColor: colors.surfaceHover },
         headerShown: true,
-        headerStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 0.5, borderBottomColor: colors.border, backgroundColor: colors.surface },
+        headerStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 0.5, borderBottomColor: colors.border, backgroundColor: colors.bg },
         headerTintColor: colors.textPrimary,
         headerTitleStyle: { fontWeight: typography.fontWeight.bold },
       })}

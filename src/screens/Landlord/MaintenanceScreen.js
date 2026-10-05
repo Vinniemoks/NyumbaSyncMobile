@@ -64,22 +64,22 @@ const LandlordMaintenanceScreen = () => {
 
   const getStatusColor = (status) => {
     const colors = {
-      pending: '#F59E0B',
-      assigned: '#3B82F6',
-      in_progress: '#8B5CF6',
-      completed: '#10B981',
+      pending: '#B45309',
+      assigned: '#15803D',
+      in_progress: '#A16207',
+      completed: '#16A34A',
     };
-    return colors[status] || '#6B7280';
+    return colors[status] || '#56667C';
   };
 
   const getPriorityColor = (priority) => {
     const colors = {
-      low: '#6B7280',
-      medium: '#F59E0B',
-      high: '#EF4444',
+      low: '#56667C',
+      medium: '#B45309',
+      high: '#DC2626',
       urgent: '#DC2626',
     };
-    return colors[priority] || '#6B7280';
+    return colors[priority] || '#56667C';
   };
 
   const getStatusCounts = () => {

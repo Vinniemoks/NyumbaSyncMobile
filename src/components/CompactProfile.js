@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   logoutText: { color: colors.danger, fontWeight: '600', fontSize: typography.base },
   details: { marginTop: spacing[3], marginBottom: spacing[5], gap: 2 },
   detailText: { color: colors.textSecondary, fontSize: typography.sm },
-  backdrop: { flex: 1, backgroundColor: 'rgba(11,31,75,0.45)', justifyContent: 'flex-end' },
+  backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.45)', justifyContent: 'flex-end' },
   sheet: { backgroundColor: colors.surface, borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: spacing[4], paddingBottom: spacing[6] },
   sheetHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[3] },
   sheetTitle: { color: colors.textPrimary, fontSize: typography.lg, fontWeight: '700' },

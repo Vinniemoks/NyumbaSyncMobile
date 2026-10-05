@@ -122,7 +122,7 @@ const s = StyleSheet.create({
   optOn: { backgroundColor: colors.primary, borderColor: colors.primary },
   optText: { color: colors.textSecondary, fontSize: typography.sm, fontWeight: '600', textTransform: 'capitalize' },
   optTextOn: { color: colors.white },
-  backdrop: { flex: 1, backgroundColor: 'rgba(23,24,28,0.42)', justifyContent: 'flex-end' },
+  backdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.45)', justifyContent: 'flex-end' },
   sheet: { backgroundColor: colors.bg, borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: spacing[5], paddingBottom: spacing[6], maxHeight: '92%' },
   sheetHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[4] },
   sheetTitle: { flex: 1, color: colors.textPrimary, fontSize: 22, fontWeight: '700', letterSpacing: -0.4 },

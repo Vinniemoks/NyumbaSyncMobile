@@ -40,7 +40,7 @@ const STATUSES = [
 
 const STATUS_COLORS = {
   available: colors.success,
-  occupied: colors.info || '#3B82F6',
+  occupied: colors.info || '#15803D',
   maintenance: colors.warning,
 };
 

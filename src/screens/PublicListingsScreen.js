@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   copy: { color: colors.textSecondary, fontSize: typography.sm, lineHeight: 21, marginTop: spacing[3] },
   mapCard: { borderRadius: 8, overflow: 'hidden', marginBottom: spacing[4] },
   mapImage: { width: '100%', height: 160 },
-  mapOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingVertical: spacing[2], backgroundColor: 'rgba(23,24,28,0.7)', alignItems: 'center' },
+  mapOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingVertical: spacing[2], backgroundColor: 'rgba(15,23,42,0.7)', alignItems: 'center' },
   mapOverlayText: { color: colors.white, fontSize: typography.sm, fontWeight: '600' },
 });
 

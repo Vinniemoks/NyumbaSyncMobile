@@ -170,7 +170,7 @@ const AnalyticsScreen = () => {
   const formatPercentage = (value) => `${value >= 0 ? '+' : ''}${Number(value).toFixed(1)}%`;
 
   const getChangeColor = (value) => {
-    return value >= 0 ? '#10B981' : '#EF4444';
+    return value >= 0 ? '#16A34A' : '#DC2626';
   };
 
   if (loading) {
@@ -491,7 +491,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   propertyOccupancy: {
-    backgroundColor: '#10B981' + '20',
+    backgroundColor: '#16A34A' + '20',
     paddingHorizontal: spacing[3],
     paddingVertical: spacing[1] + 2,
     borderRadius: borderRadius.xl,

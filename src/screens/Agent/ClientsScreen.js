@@ -37,8 +37,8 @@ const AgentClientsScreen = () => {
   }, [clients, hydrated, storageKey]);
 
   const getStatusColor = (status) => {
-    const colors = { active: '#10B981', lead: '#F59E0B', inactive: '#6B7280' };
-    return colors[status] || '#6B7280';
+    const colors = { active: '#16A34A', lead: '#B45309', inactive: '#56667C' };
+    return colors[status] || '#56667C';
   };
 
   const handleClientAction = (client) => {
@@ -90,7 +90,7 @@ const AgentClientsScreen = () => {
           <TextInput
             style={styles.searchInput}
             placeholder="Search clients..."
-            placeholderTextColor="#64748B"
+            placeholderTextColor="#56667C"
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -157,7 +157,7 @@ const AgentClientsScreen = () => {
             <TextInput
               style={styles.addInput}
               placeholder="Full name"
-              placeholderTextColor="#64748B"
+              placeholderTextColor="#56667C"
               value={newClient.name}
               onChangeText={(name) => setNewClient((c) => ({ ...c, name }))}
             />
@@ -165,7 +165,7 @@ const AgentClientsScreen = () => {
             <TextInput
               style={styles.addInput}
               placeholder="Email"
-              placeholderTextColor="#64748B"
+              placeholderTextColor="#56667C"
               keyboardType="email-address"
               autoCapitalize="none"
               value={newClient.email}
@@ -175,7 +175,7 @@ const AgentClientsScreen = () => {
             <TextInput
               style={styles.addInput}
               placeholder="Phone number"
-              placeholderTextColor="#64748B"
+              placeholderTextColor="#56667C"
               keyboardType="phone-pad"
               value={newClient.phone}
               onChangeText={(phone) => setNewClient((c) => ({ ...c, phone }))}

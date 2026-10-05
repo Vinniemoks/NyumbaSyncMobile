@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: borderRadius.lg,
+    borderRadius: 12,
   },
   sm: {
     paddingVertical: spacing[2],
@@ -159,9 +159,9 @@ const styles = StyleSheet.create({
   },
 
   secondary: {
-    backgroundColor: colors.surface,
+    backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.textPrimary,
   },
   secondaryText: {
     color: colors.textPrimary,

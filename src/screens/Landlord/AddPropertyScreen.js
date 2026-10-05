@@ -639,7 +639,7 @@ const styles = {
     justifyContent: 'center',
     gap: spacing[2],
     paddingVertical: spacing[3],
-    backgroundColor: 'rgba(23,24,28,0.7)',
+    backgroundColor: 'rgba(15,23,42,0.7)',
   },
   mapOverlayText: {
     color: colors.white,
