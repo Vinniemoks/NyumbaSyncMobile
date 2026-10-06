@@ -1,5 +1,8 @@
+import { installFonts, FONT_ASSETS } from './src/config/fonts';
+installFonts();
 import React, { useEffect } from 'react';
-import { Alert } from 'react-native';
+import { Alert, View } from 'react-native';
+import { useFonts } from 'expo-font';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AuthProvider } from './src/context/AuthContext';
@@ -44,11 +47,21 @@ import AccessibilityScreen from './src/screens/Legal/AccessibilityScreen';
 const Stack = createStackNavigator();
 
 export default function App() {
+  const [fontsLoaded] = useFonts(FONT_ASSETS);
   useEffect(() => {
     takeLastCrash().then((t) => {
       if (t) Alert.alert('The app closed unexpectedly', t.slice(0, 700));
     });
   }, []);
+
+  // Hold the first frame on the splash colour until the fonts are ready.
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#F7F5F0' }}>
+        <StatusBar style="dark" backgroundColor="#F7F5F0" />
+      </View>
+    );
+  }
 
   return (
     <ErrorBoundary>

@@ -50,7 +50,7 @@ const AdminHomeScreen = ({ navigation }) => {
       contentContainerStyle={{ paddingHorizontal: spacing[5], paddingBottom: spacing[8] }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} tintColor={colors.textMuted} />}
     >
-      <Heading eyebrow={`${today()} · ${roleLabel(user?.role)}`} title={user?.firstName || 'Admin'} />
+      <Heading accent eyebrow={`${today()} · ${roleLabel(user?.role)}`} title={user?.firstName || 'Admin'} />
 
       {loading ? (
         <ActivityIndicator size="small" color={colors.textMuted} style={{ marginTop: spacing[10] }} />

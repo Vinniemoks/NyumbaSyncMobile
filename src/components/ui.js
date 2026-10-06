@@ -2,17 +2,18 @@ import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, typography } from '../config/theme';
+import { fonts } from '../config/fonts';
 
 // Small set of plain building blocks: left-aligned type, hairline rows, no tiles.
 
 export const today = () =>
   new Date().toLocaleDateString('en-KE', { weekday: 'long', day: 'numeric', month: 'long' });
 
-export const Heading = ({ eyebrow, title, right }) => (
+export const Heading = ({ eyebrow, title, right, accent }) => (
   <View style={s.heading}>
     <View style={{ flex: 1 }}>
       {!!eyebrow && <Text style={s.eyebrow}>{eyebrow}</Text>}
-      <Text style={s.title} numberOfLines={1}>{title}</Text>
+      <Text style={accent ? s.accentTitle : s.title} numberOfLines={1}>{title}</Text>
     </View>
     {right}
   </View>
@@ -130,6 +131,7 @@ const s = StyleSheet.create({
   heading: { flexDirection: 'row', alignItems: 'flex-end', paddingTop: spacing[4], paddingBottom: spacing[5] },
   eyebrow: { color: colors.textMuted, fontSize: typography.sm, marginBottom: 2 },
   title: { color: colors.textPrimary, fontSize: 30, fontWeight: '700', letterSpacing: -0.6 },
+  accentTitle: { color: colors.leaf, fontFamily: fonts.serifItalic, fontSize: 40, lineHeight: 46 },
   figure: { paddingBottom: spacing[5] },
   figureLabel: { color: colors.textSecondary, fontSize: typography.sm },
   figureValue: { color: colors.textPrimary, fontSize: 40, fontWeight: '700', letterSpacing: -1, marginTop: 2 },

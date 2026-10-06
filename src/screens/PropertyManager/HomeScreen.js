@@ -31,7 +31,7 @@ const PropertyManagerHomeScreen = ({ navigation }) => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingHorizontal: spacing[5], paddingBottom: spacing[8] }}>
-      <Heading eyebrow={today()} title={user?.firstName || 'Home'} />
+      <Heading accent eyebrow={today()} title={user?.firstName || 'Home'} />
 
       {loading ? (
         <ActivityIndicator style={{ marginTop: spacing[10] }} size="small" color={colors.textMuted} />

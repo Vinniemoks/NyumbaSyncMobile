@@ -151,7 +151,7 @@ const TenantHomeScreen = ({ navigation }) => {
       contentContainerStyle={{ paddingHorizontal: spacing[5], paddingBottom: spacing[8] }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.textMuted} />}
     >
-      <Heading eyebrow={today()} title={user?.firstName || 'Home'} />
+      <Heading accent eyebrow={today()} title={user?.firstName || 'Home'} />
 
       {stats.hasLease ? (
         <Figure label="Rent due" value={`KSh ${stats.rentDue.toLocaleString()}`} note={dueNote} />

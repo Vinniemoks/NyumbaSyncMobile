@@ -9,6 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import Logo from '../components/Logo';
+import { fonts } from '../config/fonts';
 import { routeLoginGate } from '../utils/loginGates';
 import { dashboardFor } from '../utils/roleRoutes';
 import Button from '../components/Button';
@@ -86,7 +87,7 @@ const LoginScreen = ({ navigation }) => {
     >
       <View style={styles.page}>
         <Logo size={40} style={{ alignSelf: 'flex-start', marginBottom: spacing[5] }} />
-        <Text style={styles.heading}>Sign in</Text>
+        <Text style={styles.heading}>Welcome <Text style={styles.accent}>back</Text></Text>
 
         <View style={commonStyles.form}>
           <Text style={commonStyles.label}>Email or phone</Text>
@@ -140,6 +141,7 @@ const LoginScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  accent: { fontFamily: fonts.serifItalic, fontWeight: '400', color: colors.leaf, letterSpacing: 0, fontSize: 38 },
   page: { flex: 1, justifyContent: 'center', paddingHorizontal: spacing[6] },
   heading: { fontSize: 32, fontWeight: '700', letterSpacing: -0.8, color: colors.textPrimary, marginBottom: spacing[6] },
   forgotButton: {

@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Logo from '../components/Logo';
+import { fonts } from '../config/fonts';
 import Button from '../components/Button';
 import { Field, Options } from '../components/ui';
 import { apiClient } from '../services/api';
@@ -110,7 +111,7 @@ const SignupScreen = ({ navigation }) => {
     >
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <Logo size={40} style={{ marginBottom: spacing[5] }} />
-        <Text style={styles.title}>Create account</Text>
+        <Text style={styles.title}>Create your <Text style={styles.accent}>account</Text></Text>
 
         <View style={styles.pair}>
           <Field style={{ flex: 1 }} label="First name" value={formData.firstName} onChangeText={set('firstName')} autoCapitalize="words" />
@@ -148,8 +149,9 @@ const SignupScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  accent: { fontFamily: fonts.serifItalic, fontWeight: '400', color: colors.leaf, letterSpacing: 0, fontSize: 38 },
   container: { flex: 1, backgroundColor: colors.bg },
-  scrollContent: { flexGrow: 1, padding: spacing[6], paddingTop: 64 },
+  scrollContent: { flexGrow: 1, padding: spacing[6], paddingTop: 64, paddingBottom: 56 },
   title: { fontSize: 32, fontWeight: '700', letterSpacing: -0.8, color: colors.textPrimary, marginBottom: spacing[6] },
   pair: { flexDirection: 'row', gap: spacing[3] },
   linkText: { color: colors.textSecondary, fontSize: typography.sm },

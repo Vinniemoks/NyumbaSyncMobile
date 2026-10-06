@@ -60,7 +60,7 @@ const LandlordHomeScreen = ({ navigation }) => {
       contentContainerStyle={{ paddingHorizontal: spacing[5], paddingBottom: spacing[8] }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.textMuted} />}
     >
-      <Heading eyebrow={today()} title={user?.firstName || 'Home'} />
+      <Heading accent eyebrow={today()} title={user?.firstName || 'Home'} />
 
       <Figure
         label="Rent due each month"
